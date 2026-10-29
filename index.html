@@ -340,7 +340,7 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
       float swell = fbm(p * .045 + vec2(t * .03, -t * .02)), crest = smoothstep(.12, .55, length(g));
       col += (vec3(.075, .004, .006) * (.55 + swell * .9) + vec3(.32, .03, .02) * crest * (.4 + swell)) * seaGlow;
       if (fig.z > 0.) {   // the figure's heat on the water: a warm pool and rings spreading from where he stands
-        float fr = length(p - fig.xy), ring = pow(.5 + .5 * sin(fr * 1.5 - t * 2.2), 8.) * smoothstep(1.2, 3., fr) * exp(-fr * .09);
+        float fr = length(p - fig.xy), ring = pow(max(.5 + .5 * sin(fr * 1.5 - t * 2.2), 0.), 8.) * smoothstep(1.2, 3., fr) * exp(-fr * .09);
         col += (vec3(.9, .2, .04) * exp(-fr * .3) * .5 + vec3(1., .16, .05) * ring * (.5 + crest)) * fig.z; }
       col = mix(col, fogC, smoothstep(fogN, fogF, dist) * .85);
       gl_FragColor = vec4(col, opacity); }` }));
