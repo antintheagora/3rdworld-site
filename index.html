@@ -62,7 +62,22 @@ main { position: relative; z-index: 2 }
 .foot .row { color: var(--ash); display: flex; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-top: 18px }
 .foot .row a { text-decoration: none; color: var(--ash) } .foot .row a:hover { color: var(--bone) }
 
+.verse { position: fixed; z-index: 3; margin: 0; max-width: 34ch; pointer-events: none; opacity: 0; visibility: hidden;
+  font-style: italic; font-size: clamp(1rem, 1.35vw, 1.28rem); line-height: 1.55; color: var(--bone); text-wrap: pretty;
+  text-shadow: 0 0 2px rgba(7,5,16,.9), 0 0 22px rgba(7,5,16,.85), 0 0 48px rgba(7,5,16,.6) }
+.verse p { margin: 0 }
+.static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
+.verse .x { display: block; color: var(--blood); font-style: normal; font-size: 1.15em; margin-bottom: .7em; text-shadow: 0 0 18px rgba(200,5,28,.6) }
+.verse cite { display: block; margin-top: 1.3em; color: var(--ash); font-style: normal; text-shadow: 0 0 14px rgba(7,5,16,.9) }
+.verse.sky { top: 17vh; left: 50%; max-width: 46ch; text-align: center; translate: -50% 0 }
+.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: 30ch }
+.verse.sea { bottom: 16vh; left: var(--gut); max-width: 36ch }
+
 @media (max-width: 700px) {
+  .verse, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: .98rem }
+  .verse.sky { top: 14vh }
+  .verse.burst { top: auto; bottom: 14vh }
+  .verse.sea { bottom: auto; top: 13vh }
   .top nav { display: flex }
   .top nav a:not([href="https://shop.3rdworldrevolution.com/"]) { display: none }
   .film .slot { width: 94vw; aspect-ratio: 7 / 1 }
@@ -93,6 +108,9 @@ main { position: relative; z-index: 2 }
   <section class="story" aria-label="The 3RD WORLD REVOLUTION mark">
     <h1 class="sr">3RD WORLD REVOLUTION Productions, documentary films</h1>
     <div class="cue small" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+    <blockquote class="verse sky" id="v1"><span class="x" aria-hidden="true">✠</span><p>The discovery of gold and silver in America, the extirpation, enslavement and entombment in mines of the aboriginal population, the beginning of the conquest and looting of the East Indies, the turning of Africa into a warren for the commercial hunting of black-skins, signalised the rosy dawn of the era of capitalist production. These idyllic proceedings are the chief momenta of primitive accumulation. On their heels treads the commercial war of the European nations, with the globe for a theatre.</p></blockquote>
+    <blockquote class="verse burst" id="v2"><span class="x" aria-hidden="true">✠</span><p>If money, according to Augier, “comes into the world with a congenital blood-stain on one cheek,” capital comes dripping from head to foot, from every pore, with blood and dirt.</p></blockquote>
+    <blockquote class="verse sea" id="v3"><span class="x" aria-hidden="true">✠</span><p>Along with the constantly diminishing number of the magnates of capital … grows the mass of misery, oppression, slavery, degradation, exploitation; but with this too grows the revolt of the working class … This integument is burst asunder. The knell of capitalist private property sounds. The expropriators are expropriated.</p><cite class="small">— Karl Marx, Capital, Vol. I, 1867</cite></blockquote>
   </section>
 
   <section class="film" id="christians-and-cannibals" aria-labelledby="t1">
@@ -138,7 +156,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s) => document.querySelector(s);
 const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k;
 const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
-const still = () => { $('#still').hidden = false; $('#still').style.backgroundImage = 'url(assets/redsea.jpg)'; $('#world').style.display = 'none'; };
+const still = () => { document.body.classList.add('static'); $('#still').hidden = false; $('#still').style.backgroundImage = 'url(assets/redsea.jpg)'; $('#world').style.display = 'none'; };
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 scrollTo(0, 0);
 if (!window.THREE || !THREE.GLTFLoader) { still(); return; }
@@ -167,12 +185,12 @@ const NOISE = `
   #endif
 `;
 const SKY = `
-  uniform vec3 zen, hor, glow, sunDir; uniform float t, red;
+  uniform vec3 zen, hor, glow, sunDir; uniform float t, red, ecl;
   vec3 skyCol(vec3 d, float clouds){
     float y = d.y, sd = max(dot(d, sunDir), 0.);
     vec3 c = mix(hor, zen, smoothstep(-.02, .55, y));
     c += glow * (pow(sd, 10.) * 1.1 * (1. - smoothstep(0., .4, y)) + .16 * (1. - smoothstep(-.04, .12, y)) + pow(sd, 3.) * .08);
-    c += vec3(1., .72, .45) * (smoothstep(.99935, .99962, sd) * 26. + pow(sd, 900.) * 6. + pow(sd, 90.) * .5) * (1. - red * .85);
+    c += vec3(1., .72, .45) * (smoothstep(.99935, .99962, sd) * 26. + pow(sd, 900.) * 6. + pow(sd, 90.) * .5) * (1. - red * .85) * (1. - ecl * .97);
     if (clouds > 0.) {
       float sp = 1. + red * 5.;
       vec2 uv = d.xz / max(.05, y + .16);
@@ -192,8 +210,8 @@ const SKY = `
 const DUSK = { zen: new THREE.Color().setRGB(.002, .006, .03), hor: new THREE.Color().setRGB(.01, .016, .045), glow: new THREE.Color().setRGB(.6, .07, .02), fog: new THREE.Color().setRGB(.018, .02, .042) };
 const RED = { zen: new THREE.Color().setRGB(.0015, 0, .0005), hor: new THREE.Color().setRGB(.026, .001, .003), glow: new THREE.Color().setRGB(.36, .014, .005), fog: new THREE.Color().setRGB(.014, .001, .002) };
 const SUN = new THREE.Vector3(.2, .045, -.98).normalize();      // low over the far ranges, just right of the opening view
-const SUN_A = SUN.clone(), SUN_B = new THREE.Vector3(.66, .03, -.75).normalize();   // as the world turns red the sun slides away to the right
-const skyU = { zen: { value: DUSK.zen.clone() }, hor: { value: DUSK.hor.clone() }, glow: { value: DUSK.glow.clone() }, sunDir: { value: SUN }, t: { value: 0 }, red: { value: 0 } };
+const SUN_A = SUN.clone(), SUN_E = new THREE.Vector3();   // as the world turns red the sun slides right and the moon overtakes it
+const skyU = { zen: { value: DUSK.zen.clone() }, hor: { value: DUSK.hor.clone() }, glow: { value: DUSK.glow.clone() }, sunDir: { value: SUN }, t: { value: 0 }, red: { value: 0 }, ecl: { value: 0 } };
 
 // the sky follows the camera, so it is always at infinity; stars twinkle and a meteor crosses now and then
 const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 64, 32), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, depthTest: false, fog: false, uniforms: skyU,
@@ -253,7 +271,7 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
       vec3 body = mix(vec3(.002, .006, .012), vec3(.035, .0, .002), red);
       vec3 col = mix(body, skyCol(normalize(R), .6), fres);
       float sp = max(dot(normalize(R), sunDir), 0.);
-      col += (vec3(1., .7, .45) + glow * .5) * (pow(sp, 600.) * 9. + pow(sp, 70.) * .7) * (1. - red * .8);
+      col += (vec3(1., .7, .45) + glow * .5) * (pow(sp, 600.) * 9. + pow(sp, 70.) * .7) * (1. - red * .8) * (1. - ecl * .85);
       // the red sea glows from within, brightest on the crests, so it still reads when the eclipse takes the light
       float swell = fbm(p * .045 + vec2(t * .03, -t * .02)), crest = smoothstep(.12, .55, length(g));
       col += (vec3(.075, .004, .006) * (.55 + swell * .9) + vec3(.32, .03, .02) * crest * (.4 + swell)) * seaGlow;
@@ -302,8 +320,7 @@ const coronaTex = (() => { const c = document.createElement('canvas'); c.width =
     g.beginPath(); g.moveTo(R0 * .95, -R0 * w * 6); g.lineTo(Math.min(250, R0 + len), 0); g.lineTo(R0 * .95, R0 * w * 6); g.fill(); g.restore(); }
   return new THREE.CanvasTexture(c); })();
 const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: coronaTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 }));
-const eclSun = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(6, 2.4, 1.4), fog: false, transparent: true, opacity: 0, depthWrite: false }));
-corona.renderOrder = eclSun.renderOrder = -6;
+corona.renderOrder = -6;
 let moonR = 1;
 
 // ── terrain and city detail, added to the exported materials in the shader ─────────────────────────────
@@ -372,7 +389,7 @@ const toGLB = (j) => {
 const load = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); })
   .then((j) => new Promise((res, rej) => loader.parse(toGLB(j), 'assets/', res, rej)));
 
-let moon = null, moonBase = new THREE.Vector3();
+let moon = null, moonBase = new THREE.Vector3(), moonEcl = new THREE.Vector3(2500, 520, -6300);   // where the moon meets the sun, right of the globe
 let globe = null, actions = [], mixer = null, Rg = 1, globeAnchor = new THREE.Vector3(0, 58, -22), logo = null;
 const mats = { wood: [], iron: [] };
 const sweep = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1e4);
@@ -390,7 +407,7 @@ load('assets/jerusalem.gltf.json').then((g) => {
       moon = o; moon.material = moonMat; o.position.set(-2600, 330, -6400); o.scale.multiplyScalar(7.4); moonBase.copy(o.position); moon.renderOrder = -5;
       halo.scale.setScalar(o.scale.x * 3.2); halo.position.copy(o.position); scene.add(halo);
       o.geometry.computeBoundingSphere(); moonR = o.geometry.boundingSphere.radius * o.scale.x;
-      corona.scale.setScalar(moonR * 2 * CORONA); eclSun.scale.setScalar(moonR * 1.02); scene.add(corona, eclSun); return; }
+      corona.scale.setScalar(moonR * 2 * CORONA); scene.add(corona); return; }
     const kind = /^(Golgotha|Native|Range|Reflective|Dry)/.test(name) ? 'ground' : /windows/i.test(name) ? 'window' : /lamplight/i.test(name) ? 'lamp'
       : /^(Jerusalem|Temple|Hovel|Road|Awning)/.test(name) ? 'stone' : 'plain';
     const key = src.uuid + kind;
@@ -531,16 +548,18 @@ const camAt = (p) => { let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1][
 
 const ptr = { x: 0, y: 0, sx: 0, sy: 0, inside: false };
 addEventListener('pointermove', (e) => { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); ptr.inside = true; }, { passive: true });
-let lastY = scrollY, sVel = 0, tiltCharge = 1;
+let lastY = scrollY, sVel = 0, tiltCharge = 1, idleT = 0, handK = 0;
 
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); composer.setSize(w, h); composer.setPixelRatio && composer.setPixelRatio(DPR);
   bloom.setSize(w * DPR / 2, h * DPR / 2); camera.aspect = w / h; camera.fov = w < h ? 58 : 42; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 
+const V = ['#v1', '#v2', '#v3'].map($);
 const ray = new THREE.Raycaster(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
-let tPrev = performance.now(), clock = 0, envRed = -1;
+let tPrev = performance.now(), clock = 0, envRed = -1, envEcl = -1;
 function frame(now) {
   const dt = Math.min(.05, (now - tPrev) / 1000); tPrev = now; clock += dt;
+  idleT = Math.abs(scrollY - lastY) > .5 ? 0 : idleT + dt;
   sVel = lerp(sVel, (scrollY - lastY) / Math.max(dt, 1e-3), .15); lastY = scrollY;
   ptr.sx = lerp(ptr.sx, ptr.x, .06); ptr.sy = lerp(ptr.sy, ptr.y, .06);
 
@@ -572,27 +591,30 @@ function frame(now) {
     core.position.copy(globe.position); core.intensity = (Math.max(.6, smooth((tA - 2.5) / 1.5)) * (1 - smooth((tA - 9) / 3)) * 2.2 + smooth((tA - 9) / 3) * .4) * 45;
   }
   // the world turns
-  skyU.t.value = clock; skyU.red.value = red; moonU.red.value = red;
-  SUN.copy(SUN_A).lerp(SUN_B, smooth(red)).normalize(); sun.position.copy(SUN).multiplyScalar(1000);
+  const ecl = smooth((tA - 11.2) / 3.4);   // the eclipse comes over the red sea
+  skyU.t.value = clock; skyU.red.value = red; skyU.ecl.value = ecl; moonU.red.value = red; moonU.ecl.value = ecl;
+  // sun and moon both drift right; the moon overtakes the sun and covers it, and the light comes from there, dimming
+  if (moon) { const mv = smooth((tA - 9.3) / 4.6);
+    moon.position.lerpVectors(moonBase, moonEcl, mv); if (!REDUCED) { moon.position.x -= ptr.sx * 70; moon.position.y += ptr.sy * 40; }
+    halo.position.copy(moon.position);
+    tmp.copy(moon.position).sub(camera.position).normalize(); const away = (1 - ecl) * moonR * 2.6;
+    tmp2.copy(moon.position); tmp2.x += away * .95; tmp2.y -= away * .3;
+    SUN_E.copy(tmp2).sub(camera.position).normalize();
+    corona.position.copy(moon.position).addScaledVector(tmp, moonR * 1.2); }
+  SUN.copy(SUN_A).lerp(moon ? SUN_E : SUN_A, smooth(red)).normalize(); sun.position.copy(SUN).multiplyScalar(1000);
   skyU.zen.value.copy(DUSK.zen).lerp(RED.zen, red); skyU.hor.value.copy(DUSK.hor).lerp(RED.hor, red); skyU.glow.value.copy(DUSK.glow).lerp(RED.glow, red);
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
   waterU.level.value = lerp(-20, 47, red); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
-  const ecl = smooth((tA - 11.2) / 3.4);   // the eclipse comes over the red sea
-  skyU.glow.value.multiplyScalar(1 - ecl * .45); moonU.ecl.value = ecl; waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
-  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, 1.1, red) * (1 - ecl * .6); hemi.intensity = lerp(.55, .14, red) * (1 - ecl * .3); front.intensity = red * .8 * (1 - ecl * .4);
+  skyU.glow.value.multiplyScalar(1 - ecl * .6); waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
+  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, 1.1, red) * (1 - ecl * .8); hemi.intensity = lerp(.55, .14, red) * (1 - ecl * .3); front.intensity = red * .8 * (1 - ecl * .4);
   seaLight.intensity = red * (2.5 + ecl * 3.5); seaLight.position.set(0, waterU.level.value + 1.5, -22 + Rg * .6 + 12);
   cityU.t.value = clock; cityU.on.value = 1 - smooth(red * 1.4); cityGlow.intensity = 14 * (1 - red);
   embers.material.opacity = lerp(.2, .85, red);
   if (NE) { const a = eg.attributes.position.array, dir = red > .5 ? 1 : -.35; for (let i = 0; i < NE; i++) { a[i * 3 + 1] += dt * dir * (1.5 + es[i] * 3); if (a[i * 3 + 1] > 95) a[i * 3 + 1] = 40; if (a[i * 3 + 1] < 30) a[i * 3 + 1] = 92; } eg.attributes.position.needsUpdate = true; }
-  // the moon keeps an eye on the cursor
-  if (moon) { if (!REDUCED) moon.position.set(moonBase.x - ptr.sx * 70, moonBase.y + ptr.sy * 40, moonBase.z); halo.position.copy(moon.position);
-    halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)).multiplyScalar(1 - ecl);
-    // the sun's disc slides in from the lower right, just behind the moon; the corona flares as it is covered
-    tmp.copy(moon.position).sub(camera.position).normalize(); const away = (1 - ecl) * moonR * 2.3;
-    eclSun.position.copy(moon.position).addScaledVector(tmp, moonR * 1.5); eclSun.position.x += away * .8; eclSun.position.y -= away * .6;
-    eclSun.lookAt(camera.position); eclSun.material.opacity = smooth(red * 2) * (ecl < .999 ? 1 : 0);
-    corona.position.copy(moon.position).addScaledVector(tmp, moonR * 1.2); corona.material.opacity = smooth((ecl - .55) / .45);
+  // the moon keeps an eye on the cursor; the corona flares as the sun is covered
+  if (moon) { halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)).multiplyScalar(1 - ecl);
+    corona.material.opacity = smooth((ecl - .55) / .45);
     corona.material.color.setRGB(1.5, lerp(1.1, .4, red), lerp(1., .3, red)); }
 
   // camera follows the playhead; past the story it turns away over the open sea
@@ -608,14 +630,18 @@ function frame(now) {
   tiltCharge = clamp01(tiltCharge - use * dt * .9 + (1 - use) * dt / 3);
   const roll = REDUCED ? 0 : want * smooth(tiltCharge);
   const turn = smooth(after / 1.1) * 1.25 + Math.max(0, after - 1.1) * .18;
-  camera.position.set(cp[0] + ptr.sx * 2.5 + after * 6, cp[1] + ptr.sy * 1.4, cp[2] + after * 4);
+  // handheld: once scrolling stops the camera breathes and drifts a little, and settles again when scrolling resumes
+  handK = lerp(handK, REDUCED ? 0 : smooth((idleT - .5) / 1.5) * intro, 1 - Math.exp(-dt * (idleT > 0 ? 1.5 : 6)));
+  const hs = (a, b, c) => Math.sin(clock * a) * .5 + Math.sin(clock * b + 1.3) * .3 + Math.sin(clock * c + 4.1) * .2;
+  const hx = hs(.53, 1.17, 2.3) * handK, hy = hs(.71, 1.43, 2.9) * handK, hr = hs(.37, .91, 1.9) * handK;
+  camera.position.set(cp[0] + ptr.sx * 2.5 + after * 6 + hx * .35, cp[1] + ptr.sy * 1.4 + hy * .25, cp[2] + after * 4);
   const dx = ct[0] - cp[0], dz = ct[2] - cp[2], c0 = Math.cos(-turn), s0 = Math.sin(-turn);
-  tmp.set(camera.position.x + dx * c0 - dz * s0, ct[1] - smooth(after / 1.1) * 4, camera.position.z + dx * s0 + dz * c0);
-  camera.up.set(Math.sin(roll), Math.cos(roll), 0); camera.lookAt(tmp);
+  tmp.set(camera.position.x + dx * c0 - dz * s0 + hy * .3, ct[1] - smooth(after / 1.1) * 4 + hx * .25, camera.position.z + dx * s0 + dz * c0);
+  const rl = roll + hr * .008; camera.up.set(Math.sin(rl), Math.cos(rl), 0); camera.lookAt(tmp);
   sky.position.copy(camera.position);
   camera.updateMatrixWorld();
 
-  if (Math.abs(red - envRed) > .08 || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0)) { envRed = red;
+  if (Math.abs(red - envRed) > .08 || Math.abs(ecl - envEcl) > .1 || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
     const tex = pmrem.fromScene(envScene, .02).texture; if (scene.environment) scene.environment.dispose(); scene.environment = tex; }
 
   [['T1', '#slot1'], ['T2', '#slot2']].forEach(([key, sel]) => {
@@ -635,6 +661,14 @@ function frame(now) {
       u.off.addScaledVector(u.vel, dt); u.rv += -u.rot * 30 * dt; u.rv *= Math.pow(.05, dt); u.rot += u.rv * dt;
       m.position.copy(u.rest).add(u.off); m.rotation.set(u.off.y * .4, u.rot + Math.sin(clock * .6 + u.seed) * .04, u.off.x * -.15); });
   });
+
+  // the three passages: in the night sky, as the crosses burst, as the red sea comes in
+  const verse = (el, v) => { if (el._v !== undefined && Math.abs(el._v - v) < .002) return; el._v = v;
+    el.style.opacity = v; el.style.visibility = v > .001 ? 'visible' : 'hidden';
+    if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
+  verse(V[0], smooth((intro - .35) / .45) * (1 - smooth((tA - .35) / .7)));
+  verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
+  verse(V[2], smooth((tA - 10.4) / 1.4) * (1 - smooth((after - .08) / .35)));
 
   composer.render(dt);
   requestAnimationFrame(frame);
