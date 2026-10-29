@@ -70,8 +70,8 @@ main { position: relative; z-index: 2 }
 .verse .x { display: block; color: var(--blood); font-style: normal; font-size: 1.15em; margin-bottom: .7em; text-shadow: 0 0 18px rgba(200,5,28,.6) }
 .verse cite { display: block; margin-top: 1.3em; color: var(--ash); font-style: normal; text-shadow: 0 0 14px rgba(7,5,16,.9) }
 .verse.sky { top: 17vh; left: 50%; max-width: 46ch; text-align: center; translate: -50% 0 }
-.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: 30ch }
-.verse.sea { bottom: 16vh; left: var(--gut); max-width: 36ch }
+.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(30ch, 30vw); font-size: clamp(.9rem, 1.25vw, 1.28rem) }
+.verse.sea { top: 15vh; left: var(--gut); max-width: min(36ch, 30vw); font-size: clamp(.9rem, 1.25vw, 1.28rem) }
 
 @media (max-width: 700px) {
   .verse, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: .98rem }
