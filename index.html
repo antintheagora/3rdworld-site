@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>3RD WORLD REVOLUTION</title>
 <link rel="canonical" href="https://3rdworldrevolution.com/">
-<meta name="description" content="3RD WORLD REVOLUTION Productions. Documentary films: Christians and Cannibals, Dead Labor.">
+<meta name="description" content="3RD WORLD REVOLUTION Productions. Documentary films: Christians and Cannibals, (Dead) Labor.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Martian+Mono:wdth,wght@75..112.5,300..500&family=Arimo:wght@700&display=swap">
 <style>
 /* Layout: one live 3D world fixed behind a long, nearly empty page. Scroll is the only timeline:
    crosses over Jerusalem -> the Westside hand -> the globe -> the red sea. Words are few and far apart. */
@@ -18,6 +18,8 @@
   --bone: #efe7df;
   --ash: #a79cab;
   --serif: "Sorts Mill Goudy", "Goudy Old Style", "Iowan Old Style", Georgia, serif;
+  --poster: "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif;
+  --hot: #ff2a2a;
   --mono: "Martian Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --gut: max(24px, env(safe-area-inset-left, 0px));
   --gutr: max(24px, env(safe-area-inset-right, 0px));
@@ -44,18 +46,53 @@ a { color: inherit }
 .top nav a:hover { color: var(--bone) }
 
 main { position: relative; z-index: 2 }
-.story { height: 560vh; position: relative }
+.story { height: 640vh; position: relative }
 .cue { position: absolute; left: 50%; top: calc(100svh - 72px); transform: translateX(-50%); color: var(--ash); display: grid; justify-items: center; gap: 10px; transition: opacity .6s }
 .cue i { display: block; width: 1px; height: 34px; background: linear-gradient(var(--bone), transparent); animation: drip 2.4s ease-in-out infinite }
 @keyframes drip { 0% { transform: scaleY(0); transform-origin: top } 50% { transform: scaleY(1); transform-origin: top } 51% { transform-origin: bottom } 100% { transform: scaleY(0); transform-origin: bottom } }
 
-.film { min-height: 150vh; display: grid; align-content: center; justify-items: center; text-align: center; padding: 30vh var(--gutr) 30vh var(--gut) }
-.film .slot { width: min(1200px, 92vw); aspect-ratio: 9 / 1; max-width: 100% }
-.film.short .slot { aspect-ratio: 5.5 / 1; width: min(820px, 80vw) }
-.film .by { margin: 4vh 0 0; font-style: italic; font-size: clamp(1.1rem, 2vw, 1.45rem); color: var(--ash) }
-.film .go { display: flex; gap: 40px; margin-top: 30px }
-.film .go a { text-decoration: none; color: var(--bone); padding-bottom: 6px; border-bottom: 1px solid rgba(239,231,223,.3); transition: border-color .3s, letter-spacing .4s }
-.film .go a:hover { border-color: var(--bone); letter-spacing: .3em }
+/* the films, each one screen, in the style of its poster */
+.film { position: relative; z-index: 2; min-height: 100svh; margin-top: 45vh; overflow: hidden; isolation: isolate }
+.film::after { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: .32; mix-blend-mode: overlay;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
+.film .go { display: flex; flex-wrap: wrap; gap: 14px 30px }
+.film .go a { text-decoration: none; padding-bottom: 5px; border-bottom: 1px solid currentColor; transition: letter-spacing .4s, opacity .3s; opacity: .85 }
+.film .go a:hover { letter-spacing: .3em; opacity: 1 }
+
+.cc { color: var(--hot); font-family: var(--poster); font-weight: 700; text-transform: uppercase;
+  background: radial-gradient(60% 50% at 78% 30%, rgba(150,140,40,.32), transparent 70%), radial-gradient(45% 55% at 18% 40%, rgba(30,40,90,.5), transparent 70%),
+    radial-gradient(80% 60% at 50% 100%, rgba(60,8,12,.9), transparent), #3a0d0e }
+.cc, .cc .glow { text-shadow: 0 0 10px rgba(255,30,30,.55), 0 0 34px rgba(255,0,0,.28) }
+.cc-grid { height: 100svh; min-height: 560px; display: grid; gap: 2.2vh 1.6vw; padding: max(84px, 10vh) var(--gutr) 4vh var(--gut);
+  grid-template-columns: minmax(320px, 1.45fr) repeat(3, 1fr); grid-template-rows: auto minmax(0, 1fr) auto }
+.cc-head { grid-row: 1 / 4; display: flex; flex-direction: column; justify-content: space-between; gap: 2vh; min-width: 0 }
+.cc-kick { margin: 0; font-size: clamp(.8rem, 1.1vw, 1.05rem); letter-spacing: .04em }
+.cc h2 { margin: 0; font-size: clamp(2.4rem, 3.9vw, 6rem); line-height: .9; letter-spacing: -.01em }
+.cc h2 span { display: block }
+.cc-by { margin: 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; font-size: clamp(1.1rem, 1.6vw, 1.5rem); color: #ff6a5a; text-shadow: none }
+.cc-laurel { margin: 0; display: grid; justify-items: start; gap: 6px; font-weight: 400; font-size: .7rem; letter-spacing: .18em }
+.cc-laurel b { font-weight: 700; font-size: 1.05rem; letter-spacing: .06em; padding: 6px 0; border-block: 1px solid rgba(255,42,42,.6) }
+.cc .go { font-size: .8rem; letter-spacing: .14em; color: #ffb3a8; text-shadow: none }
+.cc-ask { grid-column: 2 / 5; margin: 0; align-self: end; font-size: clamp(2.2rem, 5.4vw, 6rem); line-height: .9 }
+.cc-shot { margin: 0; min-height: 0; position: relative; overflow: hidden; background: #200506; box-shadow: 0 0 40px rgba(255,20,20,.18) }
+.cc-shot img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.1) contrast(1.05); transition: transform 1.2s ease }
+.cc-shot:hover img { transform: scale(1.04) }
+.cc-shot figcaption { position: absolute; left: 10px; bottom: 8px; font-size: .62rem; letter-spacing: .2em; color: #ffd0c8; text-shadow: 0 0 8px #000 }
+.cc-foot { grid-column: 2 / 5; margin: 0; text-align: right; font-size: clamp(.95rem, 1.7vw, 1.7rem); line-height: 1.05 }
+
+.dl { display: grid; place-items: center; padding: 3vh 2.2vw; background: #07060c }
+.dl-frame { position: relative; width: 100%; height: calc(100svh - 6vh); min-height: 480px; border-radius: 22px; overflow: hidden; display: grid; place-content: center; justify-items: center; text-align: center;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px), radial-gradient(120% 90% at 50% 55%, #1b1420, #0a0710 70%);
+  box-shadow: inset 0 0 0 2px rgba(190,180,190,.55), inset 0 0 0 9px #07060c, inset 0 0 0 10px rgba(190,180,190,.25), inset 0 0 120px rgba(0,0,0,.9) }
+.dl-bg { position: absolute; inset: 0 0 0 auto; width: min(46%, 640px); height: 100%; object-fit: cover; opacity: .32; mix-blend-mode: screen; z-index: -1;
+  -webkit-mask-image: linear-gradient(to left, #000 30%, transparent); mask-image: linear-gradient(to left, #000 30%, transparent) }
+.dl h2 { margin: 0; font-family: var(--poster); font-weight: 700; text-transform: uppercase; color: #ffd6cc; font-size: clamp(3.4rem, 12.5vw, 12rem); line-height: .86; letter-spacing: -.01em;
+  text-shadow: .1em .02em 0 rgba(120,112,125,.32), 0 0 14px rgba(255,110,90,.75), 0 0 46px rgba(255,40,30,.45) }
+.dl h2 span { display: block }
+.dl-sub { margin: 0; font-family: var(--poster); font-weight: 700; text-transform: uppercase; color: #ff5a46; font-size: clamp(.9rem, 2.2vw, 2rem); line-height: 1.2;
+  text-shadow: .1em .02em 0 rgba(120,112,125,.28), 0 0 10px rgba(255,60,40,.6) }
+.dl-sub:first-of-type { margin-top: 5vh }
+.dl-by { margin: 4vh 0 0; font-style: italic; color: var(--ash); font-size: clamp(1rem, 1.5vw, 1.3rem) }
 
 .foot { position: relative; z-index: 2; padding: 40vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
@@ -63,25 +100,30 @@ main { position: relative; z-index: 2 }
 .foot .row a { text-decoration: none; color: var(--ash) } .foot .row a:hover { color: var(--bone) }
 
 .verse { position: fixed; z-index: 3; margin: 0; max-width: 34ch; pointer-events: none; opacity: 0; visibility: hidden;
-  font-style: italic; font-size: clamp(1rem, 1.35vw, 1.28rem); line-height: 1.55; color: var(--bone); text-wrap: pretty;
-  text-shadow: 0 0 2px rgba(7,5,16,.9), 0 0 22px rgba(7,5,16,.85), 0 0 48px rgba(7,5,16,.6) }
+  font-style: italic; font-size: clamp(1.12rem, 1.6vw, 1.5rem); line-height: 1.5; color: var(--hot); text-wrap: pretty;
+  text-shadow: 0 0 2px #000, 0 0 3px #000, 0 0 14px rgba(7,5,16,.95), 0 0 34px rgba(7,5,16,.8);
+  padding: 1.4em 1.8em; background: radial-gradient(closest-side, rgba(7,5,16,.62), rgba(7,5,16,.3) 70%, transparent) }
 .verse p { margin: 0 }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
-.verse .x { display: block; color: var(--blood); font-style: normal; font-size: 1.15em; margin-bottom: .7em; text-shadow: 0 0 18px rgba(200,5,28,.6) }
+.verse .x { display: block; color: var(--hot); font-style: normal; font-size: 1.35em; font-family: "Segoe UI Symbol", "Noto Sans Symbols", "Apple Symbols", sans-serif; margin-bottom: .7em; text-shadow: 0 0 18px rgba(200,5,28,.6) }
 .verse cite { display: block; margin-top: 1.3em; color: var(--ash); font-style: normal; text-shadow: 0 0 14px rgba(7,5,16,.9) }
-.verse.sky { top: 17vh; left: 50%; max-width: 46ch; text-align: center; translate: -50% 0 }
-.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(30ch, 30vw); font-size: clamp(.9rem, 1.25vw, 1.28rem) }
-.verse.sea { top: 15vh; left: var(--gut); max-width: min(36ch, 30vw); font-size: clamp(.9rem, 1.25vw, 1.28rem) }
+.verse.sky { top: 11vh; left: 50%; max-width: min(58ch, 86vw); text-align: center; translate: -50% 0 }
+.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(32ch, 32vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
+.verse.sea { top: 15vh; left: var(--gut); max-width: min(36ch, 31vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
 
 @media (max-width: 700px) {
-  .verse, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: .98rem }
+  .verse, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: 1.08rem }
   .verse.sky { top: 14vh }
   .verse.burst { top: auto; bottom: 14vh }
   .verse.sea { bottom: auto; top: 13vh }
   .top nav { display: flex }
   .top nav a:not([href="https://shop.3rdworldrevolution.com/"]) { display: none }
-  .film .slot { width: 94vw; aspect-ratio: 7 / 1 }
-  .film.short .slot { width: 86vw; aspect-ratio: 4.5 / 1 }
+  .cc-grid { height: auto; min-height: 100svh; grid-template-columns: repeat(3, 1fr); grid-template-rows: none; padding-top: 96px }
+  .cc-head { grid-row: auto; grid-column: 1 / 4; gap: 18px }
+  .cc-ask, .cc-foot { grid-column: 1 / 4 }
+  .cc-shot { aspect-ratio: 2 / 3 }
+  .cc-foot { text-align: left }
+  .dl-bg { width: 100%; -webkit-mask-image: linear-gradient(to top, #000 20%, transparent); mask-image: linear-gradient(to top, #000 20%, transparent) }
 }
 @media (prefers-reduced-motion: reduce) { .cue i { animation: none } }
 </style>
@@ -100,7 +142,7 @@ main { position: relative; z-index: 2 }
   <nav class="small" aria-label="Films and shop">
     <a href="https://shop.3rdworldrevolution.com/">Shop</a>
     <a href="#christians-and-cannibals">Christians and Cannibals</a>
-    <a href="#dead-labor">Dead Labor</a>
+    <a href="#dead-labor">(Dead) Labor</a>
   </nav>
 </header>
 
@@ -108,24 +150,40 @@ main { position: relative; z-index: 2 }
   <section class="story" aria-label="The 3RD WORLD REVOLUTION mark">
     <h1 class="sr">3RD WORLD REVOLUTION Productions, documentary films</h1>
     <div class="cue small" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
-    <blockquote class="verse sky" id="v1"><span class="x" aria-hidden="true">✠</span><p>The discovery of gold and silver in America, the extirpation, enslavement and entombment in mines of the aboriginal population, the beginning of the conquest and looting of the East Indies, the turning of Africa into a warren for the commercial hunting of black-skins, signalised the rosy dawn of the era of capitalist production. These idyllic proceedings are the chief momenta of primitive accumulation. On their heels treads the commercial war of the European nations, with the globe for a theatre.</p></blockquote>
-    <blockquote class="verse burst" id="v2"><span class="x" aria-hidden="true">✠</span><p>If money, according to Augier, “comes into the world with a congenital blood-stain on one cheek,” capital comes dripping from head to foot, from every pore, with blood and dirt.</p></blockquote>
-    <blockquote class="verse sea" id="v3"><span class="x" aria-hidden="true">✠</span><p>Along with the constantly diminishing number of the magnates of capital … grows the mass of misery, oppression, slavery, degradation, exploitation; but with this too grows the revolt of the working class … This integument is burst asunder. The knell of capitalist private property sounds. The expropriators are expropriated.</p><cite class="small">— Karl Marx, Capital, Vol. I, 1867</cite></blockquote>
+    <blockquote class="verse sky" id="v1"><span class="x" aria-hidden="true">☭&#xFE0E;</span><p>The discovery of gold and silver in America, the extirpation, enslavement and entombment in mines of the aboriginal population, the beginning of the conquest and looting of the East Indies, the turning of Africa into a warren for the commercial hunting of black-skins, signalised the rosy dawn of the era of capitalist production. These idyllic proceedings are the chief momenta of primitive accumulation. On their heels treads the commercial war of the European nations, with the globe for a theatre.</p></blockquote>
+    <blockquote class="verse burst" id="v2"><span class="x" aria-hidden="true">☭&#xFE0E;</span><p>If money, according to Augier, “comes into the world with a congenital blood-stain on one cheek,” capital comes dripping from head to foot, from every pore, with blood and dirt.</p></blockquote>
+    <blockquote class="verse sea" id="v3"><span class="x" aria-hidden="true">☭&#xFE0E;</span><p>Along with the constantly diminishing number of the magnates of capital … grows the mass of misery, oppression, slavery, degradation, exploitation; but with this too grows the revolt of the working class … This integument is burst asunder. The knell of capitalist private property sounds. The expropriators are expropriated.</p><cite class="small">— Karl Marx, Capital, Vol. I, 1867</cite></blockquote>
   </section>
 
-  <section class="film" id="christians-and-cannibals" aria-labelledby="t1">
-    <div class="slot" id="slot1"><h2 class="sr" id="t1">Christians and Cannibals</h2></div>
-    <p class="by">a film by Young Ant</p>
-    <div class="go small">
-      <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗</a>
-      <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗</a>
-      <a href="https://christiansandcannibals.com" target="_blank" rel="noopener">Site ↗</a>
+  <section class="film cc" id="christians-and-cannibals" aria-labelledby="t1">
+    <div class="cc-grid">
+      <div class="cc-head">
+        <p class="cc-kick">The independent motion picture</p>
+        <h2 id="t1"><span>Christians</span><span>and</span><span>Cannibals</span></h2>
+        <p class="cc-by">a film by Young Ant</p>
+        <p class="cc-laurel">Official selection <b>San Quentin Film Festival</b> 2025</p>
+        <div class="go">
+          <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗</a>
+          <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗</a>
+          <a href="https://christiansandcannibals.com" target="_blank" rel="noopener">Site ↗</a>
+        </div>
+      </div>
+      <p class="cc-ask">Who am I to you?</p>
+      <figure class="cc-shot"><img src="assets/cc-heat.webp" alt="Two figures in thermal colour, glowing orange and green against the dark" loading="lazy"></figure>
+      <figure class="cc-shot"><img src="assets/cc-figure.webp" alt="A blurred shirtless man in red light, looking away" loading="lazy"></figure>
+      <figure class="cc-shot"><img src="assets/cc-poster.webp" alt="The Christians and Cannibals poster: red title over grainy colour, San Quentin Film Festival 2025 laurel" loading="lazy"></figure>
+      <p class="cc-foot">Two thousand and twenty-fi’ years<br>after the birth of Jesus</p>
     </div>
   </section>
 
-  <section class="film short" id="dead-labor" aria-labelledby="t2">
-    <div class="slot" id="slot2"><h2 class="sr" id="t2">Dead Labor</h2></div>
-    <p class="by">the Amazon Labor Union</p>
+  <section class="film dl" id="dead-labor" aria-labelledby="t2">
+    <div class="dl-frame">
+      <img class="dl-bg" src="assets/dl-liquid.webp" alt="" loading="lazy">
+      <h2 id="t2"><span>(Dead)</span><span>Labor</span></h2>
+      <p class="dl-sub">A story on film of the fight for a new future</p>
+      <p class="dl-sub">The year two thousand and twenty-six</p>
+      <p class="dl-by">the Amazon Labor Union</p>
+    </div>
   </section>
 </main>
 
@@ -208,7 +266,7 @@ const SKY = `
 
 // ── colours of the two worlds (linear) ───────────────────────────────────────────────────────────────
 const DUSK = { zen: new THREE.Color().setRGB(.002, .006, .03), hor: new THREE.Color().setRGB(.01, .016, .045), glow: new THREE.Color().setRGB(.6, .07, .02), fog: new THREE.Color().setRGB(.018, .02, .042) };
-const RED = { zen: new THREE.Color().setRGB(.0015, 0, .0005), hor: new THREE.Color().setRGB(.026, .001, .003), glow: new THREE.Color().setRGB(.36, .014, .005), fog: new THREE.Color().setRGB(.014, .001, .002) };
+const RED = { zen: new THREE.Color().setRGB(.0015, 0, .0005), hor: new THREE.Color().setRGB(.026, .001, .003), glow: new THREE.Color().setRGB(.2, .008, .003), fog: new THREE.Color().setRGB(.014, .001, .002) };
 const SUN = new THREE.Vector3(.2, .045, -.98).normalize();      // low over the far ranges, just right of the opening view
 const SUN_A = SUN.clone(), SUN_E = new THREE.Vector3();   // as the world turns red the sun slides right and the moon overtakes it
 const skyU = { zen: { value: DUSK.zen.clone() }, hor: { value: DUSK.hor.clone() }, glow: { value: DUSK.glow.clone() }, sunDir: { value: SUN }, t: { value: 0 }, red: { value: 0 }, ecl: { value: 0 } };
@@ -303,7 +361,7 @@ const moonMat = new THREE.ShaderMaterial({ uniforms: moonU, fog: false,
       vec3 col = base * alb * (lam * 1.4 + .06) * (1. - red * .35);
       // eclipse: the sun slips behind, the face goes black but for a faint earthshine and a burning limb
       float limb = pow(1. - abs(normalize(vN).z), 4.);
-      col = mix(col, vec3(.012, .002, .002) * alb + vec3(1.2, .12, .05) * limb * .6, ecl);
+      col = mix(col, vec3(.012, .002, .002) * alb + vec3(1.2, .12, .05) * limb * .3, ecl);
       gl_FragColor = vec4(col, 1.); }` });
 const haloTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); const r = g.createRadialGradient(128, 128, 30, 128, 128, 128);
   r.addColorStop(0, 'rgba(255,255,255,.0)'); r.addColorStop(.3, 'rgba(255,255,255,.0)'); r.addColorStop(.34, 'rgba(210,220,255,.22)'); r.addColorStop(.6, 'rgba(200,210,255,.05)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); })();
@@ -394,7 +452,7 @@ let globe = null, actions = [], mixer = null, Rg = 1, globeAnchor = new THREE.Ve
 const mats = { wood: [], iron: [] };
 const sweep = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1e4);
 const T = { ribs: [9.6, 11.4], sweep: [9.8, 11.6] }, DUR = 19.5;
-const titles = {}, FIN = { logoY: 52, globeY: 70 };
+const FIN = { logoY: 52, globeY: 70 };
 const C = { wood: new THREE.Color('#4a2814'), iron: new THREE.Color('#2e2c30'), silver: new THREE.Color('#b0000f'), sunDusk: new THREE.Color('#ffb27a'), sunRed: new THREE.Color('#ff3020'),
   woodGlow: new THREE.Color().setRGB(.16, .045, .01), redGlow: new THREE.Color().setRGB(.12, 0, .01) };
 
@@ -461,21 +519,6 @@ Promise.all([load('assets/globe.gltf.json'), load('assets/logotype.gltf.json')])
   ready.globe = true;
 }).catch((e) => console.warn('globe', e));
 
-load('assets/titles.gltf.json').then((g) => {
-  ['T1', 'T2'].forEach((key) => {
-    const grp = new THREE.Group(), letters = [];
-    g.scene.traverse((o) => { if (o.isMesh && o.name.startsWith(key + '_')) letters.push(o); });
-    const box = new THREE.Box3(); letters.forEach((o) => box.expandByObject(o));
-    const c = box.getCenter(new THREE.Vector3()), w = box.getSize(new THREE.Vector3()).x;
-    letters.forEach((o) => {
-      const m = o.clone(); m.material = new THREE.MeshStandardMaterial({ color: '#b0000f', emissive: new THREE.Color().setRGB(.18, 0, .015), roughness: .3, metalness: .5, envMapIntensity: 1.1 });
-      m.position.sub(c); m.userData = { rest: m.position.clone(), off: new THREE.Vector3(), vel: new THREE.Vector3(), rot: 0, rv: 0, seed: Math.random() * 6.28 };
-      grp.add(m);
-    });
-    grp.userData = { width: w, letters: grp.children };
-    grp.visible = false; scene.add(grp); titles[key] = grp;
-  });
-}).catch((e) => console.warn('titles', e));
 
 function farCull(m) { m.onBeforeCompile = (sh) => {
   sh.uniforms.gc = { value: globeAnchor };
@@ -499,9 +542,9 @@ composer.addPass(new THREE.ShaderPass({ uniforms: { tDiffuse: { value: null }, e
     vec3 srgb(vec3 c){ return mix(c * 12.92, 1.055 * pow(c, vec3(1. / 2.4)) - .055, step(.0031308, c)); }
     void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; c = srgb(aces(c)); c *= mix(.68, 1., smoothstep(1.15, .3, length(vUv - .5))); gl_FragColor = vec4(c, 1.); }` }));
 
-// ── the story: on load the camera descends from the night sky into the opening frame; the first scroll then
-// sets off the whole sequence, which plays itself out (crosses explode, the hand, the red globe, the sea and the
-// logotype all arrive together, the globe spins). Scrolling back to the top rewinds it.
+// ── the story: the page opens looking up into the night sky; scrolling brings the camera down into the opening
+// frame and on through the sequence (crosses explode, the hand, the red globe, the sea and the logotype, the globe
+// spins). Scrolling back up rewinds it all the way to the stars.
 const story = $('.story');
 const storyP = () => clamp01(scrollY / Math.max(1, story.offsetHeight - innerHeight));
 const ready = { world: false, globe: false };
@@ -513,7 +556,8 @@ const KEYS = [ // [seconds into the sequence, camera position, camera target]
   [8.0, [0, 58, 38], [0, 56, -22]],
   [10.5, [0, 56, 40], [0, 50, -22]],
   [19.5, [0, 55, 44], [0, 49, -22]] ];
-let intro = 0, tA = 0, vA = 0;
+const INTRO_S = 3.5;   // playhead seconds spent coming down from the stars
+let intro = 0, tA = 0, play = -INTRO_S, vA = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
@@ -563,16 +607,17 @@ function frame(now) {
   sVel = lerp(sVel, (scrollY - lastY) / Math.max(dt, 1e-3), .15); lastY = scrollY;
   ptr.sx = lerp(ptr.sx, ptr.x, .06); ptr.sy = lerp(ptr.sy, ptr.y, .06);
 
-  // intro on load, then the scroll position scrubs the story (eased, so a flick still reads as motion)
-  const sP = storyP(), past = scrollY > story.offsetHeight - innerHeight * .9;
-  const goal = past ? DUR : DUR * clamp01((sP - .04) / .92);
-  if (REDUCED) { intro = 1; tA = goal; }
+  // one playhead, scrubbed by scroll: first the descent from the stars, then the story. It is a spring with momentum,
+  // and a flick throws it further ahead, so big scrolls keep moving and glide into place; scrolling up goes back to the stars
+  const sP = storyP(), past = scrollY > story.offsetHeight - innerHeight * .9, span = DUR + INTRO_S;
+  let goal = past ? DUR : -INTRO_S + span * clamp01(sP / .96);
+  if (REDUCED) play = goal;
   else {
-    if (ready.world && ready.globe) intro = Math.min(1, intro + dt / (scrollY > 40 ? 1.2 : 5.5));
-    if (intro >= 1) {   // a spring with momentum: big scrolls build speed and carry through, small ones settle softly
-      vA += ((goal - tA) * 10 - vA * 4.6) * dt; tA += vA * dt;
-      if (tA < 0 || tA > DUR) { tA = Math.max(0, Math.min(DUR, tA)); vA = 0; } } }
-  $('#cue').style.opacity = intro >= 1 && scrollY < 40 ? 1 : 0;
+    goal += Math.max(-3, Math.min(3, sVel * span / (.96 * Math.max(1, story.offsetHeight - innerHeight)) * .45));
+    vA += ((goal - play) * 4.2 - vA * 2.9) * dt; play += vA * dt;
+    if (play < -INTRO_S || play > DUR) { play = Math.max(-INTRO_S, Math.min(DUR, play)); vA = 0; } }
+  intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
+  $('#cue').style.opacity = intro < .3 ? 1 : 0;   // the prompt shows while we look at the sky
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
   if (mixer) {
@@ -607,15 +652,15 @@ function frame(now) {
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
   waterU.level.value = lerp(-20, 47, red); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
   skyU.glow.value.multiplyScalar(1 - ecl * .6); waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
-  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, 1.1, red) * (1 - ecl * .8); hemi.intensity = lerp(.55, .14, red) * (1 - ecl * .3); front.intensity = red * .8 * (1 - ecl * .4);
+  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, .5, red) * (1 - ecl * .8); hemi.intensity = lerp(.55, .1, red) * (1 - ecl * .3); front.intensity = red * .5 * (1 - ecl * .4);
   seaLight.intensity = red * (2.5 + ecl * 3.5); seaLight.position.set(0, waterU.level.value + 1.5, -22 + Rg * .6 + 12);
   cityU.t.value = clock; cityU.on.value = 1 - smooth(red * 1.4); cityGlow.intensity = 14 * (1 - red);
   embers.material.opacity = lerp(.2, .85, red);
   if (NE) { const a = eg.attributes.position.array, dir = red > .5 ? 1 : -.35; for (let i = 0; i < NE; i++) { a[i * 3 + 1] += dt * dir * (1.5 + es[i] * 3); if (a[i * 3 + 1] > 95) a[i * 3 + 1] = 40; if (a[i * 3 + 1] < 30) a[i * 3 + 1] = 92; } eg.attributes.position.needsUpdate = true; }
   // the moon keeps an eye on the cursor; the corona flares as the sun is covered
   if (moon) { halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)).multiplyScalar(1 - ecl);
-    corona.material.opacity = smooth((ecl - .55) / .45);
-    corona.material.color.setRGB(1.5, lerp(1.1, .4, red), lerp(1., .3, red)); }
+    corona.material.opacity = smooth((ecl - .55) / .45) * .55;
+    corona.material.color.setRGB(.95, lerp(.7, .26, red), lerp(.6, .2, red)); }
 
   // camera follows the playhead; past the story it turns away over the open sea
   const [cp, ct] = camAt(tA);
@@ -631,7 +676,7 @@ function frame(now) {
   const roll = REDUCED ? 0 : want * smooth(tiltCharge);
   const turn = smooth(after / 1.1) * 1.25 + Math.max(0, after - 1.1) * .18;
   // handheld: once scrolling stops the camera breathes and drifts a little, and settles again when scrolling resumes
-  handK = lerp(handK, REDUCED ? 0 : smooth((idleT - .5) / 1.5) * intro, 1 - Math.exp(-dt * (idleT > 0 ? 1.5 : 6)));
+  handK = lerp(handK, REDUCED ? 0 : smooth((idleT - .5) / 1.5), 1 - Math.exp(-dt * (idleT > 0 ? 1.5 : 6)));
   const hs = (a, b, c) => Math.sin(clock * a) * .5 + Math.sin(clock * b + 1.3) * .3 + Math.sin(clock * c + 4.1) * .2;
   const hx = hs(.53, 1.17, 2.3) * handK, hy = hs(.71, 1.43, 2.9) * handK, hr = hs(.37, .91, 1.9) * handK;
   camera.position.set(cp[0] + ptr.sx * 2.5 + after * 6 + hx * .35, cp[1] + ptr.sy * 1.4 + hy * .25, cp[2] + after * 4);
@@ -644,29 +689,11 @@ function frame(now) {
   if (Math.abs(red - envRed) > .08 || Math.abs(ecl - envEcl) > .1 || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
     const tex = pmrem.fromScene(envScene, .02).texture; if (scene.environment) scene.environment.dispose(); scene.environment = tex; }
 
-  [['T1', '#slot1'], ['T2', '#slot2']].forEach(([key, sel]) => {
-    const grp = titles[key]; if (!grp) return; const r = $(sel).getBoundingClientRect();
-    const on = r.bottom > -innerHeight * .2 && r.top < innerHeight * 1.2; grp.visible = on && red > .5; if (!grp.visible) return;
-    const D = 40, hh = Math.tan(camera.fov * Math.PI / 360) * D, hw = hh * camera.aspect;
-    const nx = ((r.left + r.width / 2) / innerWidth) * 2 - 1, ny = -(((r.top + r.height / 2) / innerHeight) * 2 - 1);
-    grp.position.set(nx * hw, ny * hh, -D).applyMatrix4(camera.matrixWorld); grp.quaternion.copy(camera.quaternion); grp.scale.setScalar((r.width / innerWidth) * 2 * hw / grp.userData.width);
-    ray.setFromCamera({ x: ptr.x, y: ptr.y }, camera);
-    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(tmp.set(0, 0, 1).applyQuaternion(camera.quaternion), grp.position);
-    const hit = ray.ray.intersectPlane(plane, tmp2) ? grp.worldToLocal(tmp2.clone()) : null;
-    grp.userData.letters.forEach((m) => { const u = m.userData; let fx = 0, fy = 0, fz = 0;
-      if (hit && ptr.inside && !REDUCED) { const ddx = u.rest.x + u.off.x - hit.x, ddy = u.rest.y + u.off.y - hit.y, d = Math.hypot(ddx, ddy);
-        if (d < .9) { const f = (1 - d / .9) * 14; fx += ddx / (d + .05) * f; fy += ddy / (d + .05) * f; fz += f * .6; u.rv += (u.seed > 3 ? 1 : -1) * f * .5 * dt * 10; } }
-      if (!REDUCED) fy += -sVel * 0.0009 * (0.4 + Math.sin(u.seed) * .6);
-      u.vel.x += (fx - u.off.x * 26) * dt; u.vel.y += (fy - u.off.y * 26) * dt; u.vel.z += (fz - u.off.z * 26) * dt; u.vel.multiplyScalar(Math.pow(.02, dt));
-      u.off.addScaledVector(u.vel, dt); u.rv += -u.rot * 30 * dt; u.rv *= Math.pow(.05, dt); u.rot += u.rv * dt;
-      m.position.copy(u.rest).add(u.off); m.rotation.set(u.off.y * .4, u.rot + Math.sin(clock * .6 + u.seed) * .04, u.off.x * -.15); });
-  });
-
   // the three passages: in the night sky, as the crosses burst, as the red sea comes in
   const verse = (el, v) => { if (el._v !== undefined && Math.abs(el._v - v) < .002) return; el._v = v;
     el.style.opacity = v; el.style.visibility = v > .001 ? 'visible' : 'hidden';
     if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
-  verse(V[0], smooth((intro - .35) / .45) * (1 - smooth((tA - .35) / .7)));
+  verse(V[0], smooth((clock - .2) / 1.4) * (1 - smooth((intro - .3) / .35)));   // up at once, in the stars
   verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
   verse(V[2], smooth((tA - 10.4) / 1.4) * (1 - smooth((after - .08) / .35)));
 
