@@ -78,8 +78,8 @@ main { position: relative; z-index: 2 }
 .dl-frame { position: absolute; inset: max(16px, 2.6vh) max(16px, 1.8vw); border-radius: 22px; pointer-events: none; opacity: calc(var(--t) * .9);
   box-shadow: inset 0 0 0 1.5px rgba(200,190,200,.55), inset 0 0 0 9px transparent, inset 0 0 0 10px rgba(200,190,200,.2) }
 .osd { position: absolute; font-family: var(--mono); font-weight: 400; color: #e9e2ea; text-shadow: 2px 0 rgba(255,40,60,.6), -2px 0 rgba(60,200,255,.4); letter-spacing: .12em; font-size: clamp(.7rem, 1.1vw, .95rem) }
-.osd.tl { left: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 22px) }
-.osd.tr { right: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 22px) }
+.osd.tl { left: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 64px) }
+.osd.tr { right: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 64px) }
 .osd.bl { left: calc(max(16px, 1.8vw) + 28px); bottom: calc(max(16px, 2.6vh) + 22px) }
 .osd.br { right: calc(max(16px, 1.8vw) + 28px); bottom: calc(max(16px, 2.6vh) + 22px) }
 .osd .rec::before { content: "●"; color: #ff2a2a; margin-right: .5em; animation: blink 1.2s steps(2) infinite }
@@ -97,7 +97,7 @@ main { position: relative; z-index: 2 }
 .dl-sub { margin: 0; color: #ff5a46; font-size: clamp(.9rem, 2.2vw, 2rem); line-height: 1.25; text-shadow: .1em .02em 0 rgba(120,112,125,.28), 0 0 10px rgba(255,60,40,.6), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
 .dl-sub.one { margin-top: 5vh; --a: .3 } .dl-sub.two { --a: .5 }
-.dl-by { margin: 4vh 0 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--ash); font-size: clamp(1rem, 1.5vw, 1.3rem) }
+.dl-by { margin: 4vh 0 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--bone); text-shadow: 0 0 10px #000; font-size: clamp(1rem, 1.5vw, 1.3rem) }
 
 .foot { position: relative; z-index: 2; padding: 40vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
@@ -537,9 +537,9 @@ function heat(m, halo) { m.onBeforeCompile = (sh) => {
     .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObj = position;' + (halo ? '\ntransformed += objectNormal * .03;' : ''));
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vObj; uniform float figT, figOn;' + NOISE)
     .replace('#include <output_fragment>', halo ? `
-      float fres = 1. - abs(dot(normalize(normal), normalize(vViewPosition)));
+      float fres = clamp(1. - abs(dot(normalize(normal), normalize(vViewPosition))), 0., 1.);
       gl_FragColor = vec4(vec3(1.3, .24, .06) * pow(fres, 1.6) * .55 * figOn, 1.);` : `
-      float fres = 1. - abs(dot(normalize(normal), normalize(vViewPosition)));
+      float fres = clamp(1. - abs(dot(normalize(normal), normalize(vViewPosition))), 0., 1.);
       // body heat: hottest at the core and the head, cooling to the silhouette, with blotches that drift like the footage
       float h = .5 + .34 * (1. - fres) - .3 * fres * fres + (fbm3(vObj * 3.4 + vec3(0., figT * .1, figT * .04)) - .5) * 1.05
         + .16 * smoothstep(1.4, 1.62, vObj.y) + .08 * smoothstep(1.05, 1.3, vObj.y) * (1. - abs(vObj.x) * 3.);
