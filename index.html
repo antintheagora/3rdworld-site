@@ -222,6 +222,7 @@ const hemi = new THREE.HemisphereLight('#24305a', '#140c08', .55); scene.add(hem
 const front = new THREE.DirectionalLight('#ffd9cc', 0); front.position.set(-40, 90, 160); scene.add(front);
 const cityGlow = new THREE.PointLight('#ff9a50', 14, 220, 2); cityGlow.position.set(-200, 45, -255); scene.add(cityGlow);
 const core = new THREE.PointLight('#ff7a30', 0, 18, 2); scene.add(core);
+const seaLight = new THREE.PointLight('#ff2414', 0, 90, 1.5); scene.add(seaLight);   // the glowing sea lights the globe and logotype from below
 
 // reflections for the chrome: the current sky plus three warm softboxes, as in the Blender lighting
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -234,10 +235,10 @@ envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.Sha
   b.position.set(x, y, z); b.lookAt(0, 0, 0); envScene.add(b); });
 
 // ── water: waves, a fresnel reflection of the sky, the sun's glitter path; it rises over Jerusalem ─────
-const waterU = Object.assign({ level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 } }, skyU);
+const waterU = Object.assign({ level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
 const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
   vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity; varying vec3 vW;
+  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow; varying vec3 vW;
     vec2 wave(vec2 p, vec2 dir, float f, float a, float s){ float ph = dot(p, dir) * f + t * s; return dir * (a * f * cos(ph)); }
     void main(){
       vec2 p = vW.xz; vec2 g = vec2(0.);
@@ -253,6 +254,9 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
       vec3 col = mix(body, skyCol(normalize(R), .6), fres);
       float sp = max(dot(normalize(R), sunDir), 0.);
       col += (vec3(1., .7, .45) + glow * .5) * (pow(sp, 600.) * 9. + pow(sp, 70.) * .7) * (1. - red * .8);
+      // the red sea glows from within, brightest on the crests, so it still reads when the eclipse takes the light
+      float swell = fbm(p * .045 + vec2(t * .03, -t * .02)), crest = smoothstep(.12, .55, length(g));
+      col += (vec3(.075, .004, .006) * (.55 + swell * .9) + vec3(.32, .03, .02) * crest * (.4 + swell)) * seaGlow;
       col = mix(col, fogC, smoothstep(fogN, fogF, dist) * .85);
       gl_FragColor = vec4(col, opacity); }` }));
 water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
@@ -266,10 +270,10 @@ const embers = new THREE.Points(eg, new THREE.PointsMaterial({ size: .55, map: d
 scene.add(embers);
 
 // ── the moon: craters and maria, lit from the real sun direction, a halo; it turns to blood in the red world
-const moonU = { sunDir: { value: SUN }, red: { value: 0 }, t: { value: 0 } };
+const moonU = { sunDir: { value: SUN }, red: { value: 0 }, t: { value: 0 }, ecl: { value: 0 } };
 const moonMat = new THREE.ShaderMaterial({ uniforms: moonU, fog: false,
   vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(mat3(modelViewMatrix) * position); vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: NOISE + `uniform vec3 sunDir; uniform float red, t; varying vec3 vN; varying vec3 vP;
+  fragmentShader: NOISE + `uniform vec3 sunDir; uniform float red, t, ecl; varying vec3 vN; varying vec3 vP;
     void main(){
       vec3 p = normalize(vP);
       float maria = smoothstep(.5, .66, fbm3(p * 1.6 + 4.)), rough = fbm3(p * 7.), craters = 0.;
@@ -279,10 +283,28 @@ const moonMat = new THREE.ShaderMaterial({ uniforms: moonU, fog: false,
       float lam = smoothstep(-.25, .45, dot(normalize(vN), normalize(vec3(-.45, .25, .86))));
       vec3 base = mix(vec3(.85, .86, .82), vec3(.95, .08, .03), red);
       vec3 col = base * alb * (lam * 1.4 + .06) * (1. - red * .35);
+      // eclipse: the sun slips behind, the face goes black but for a faint earthshine and a burning limb
+      float limb = pow(1. - abs(normalize(vN).z), 4.);
+      col = mix(col, vec3(.012, .002, .002) * alb + vec3(1.2, .12, .05) * limb * .6, ecl);
       gl_FragColor = vec4(col, 1.); }` });
 const haloTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); const r = g.createRadialGradient(128, 128, 30, 128, 128, 128);
   r.addColorStop(0, 'rgba(255,255,255,.0)'); r.addColorStop(.3, 'rgba(255,255,255,.0)'); r.addColorStop(.34, 'rgba(210,220,255,.22)'); r.addColorStop(.6, 'rgba(200,210,255,.05)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); })();
 const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, color: new THREE.Color().setRGB(.6, .65, .8) }));
+// the eclipse: a corona of streamers around the black moon, and the sun's disc that slides in behind it
+const CORONA = 4;   // sprite width in moon diameters
+const coronaTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'), R0 = 256 / CORONA;
+  const r = g.createRadialGradient(256, 256, 0, 256, 256, 256), e = R0 / 256; r.addColorStop(0, 'rgba(0,0,0,0)'); r.addColorStop(e * .97, 'rgba(0,0,0,0)');
+  r.addColorStop(e, 'rgba(255,255,255,.9)'); r.addColorStop(e * 1.25, 'rgba(255,240,230,.45)'); r.addColorStop(e * 2.2, 'rgba(255,200,180,.12)'); r.addColorStop(.7, 'rgba(255,170,150,.02)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 512, 512);
+  g.globalCompositeOperation = 'lighter'; let rnd = 11; const R = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 90; i++) { const a = R() * 6.283, len = R0 * (1.4 + R() * R() * 5), w = .004 + R() * .02;
+    g.save(); g.translate(256, 256); g.rotate(a); const lg = g.createLinearGradient(R0, 0, Math.min(250, R0 + len), 0);
+    lg.addColorStop(0, `rgba(255,235,220,${.12 + R() * .2})`); lg.addColorStop(1, 'rgba(255,200,180,0)'); g.fillStyle = lg;
+    g.beginPath(); g.moveTo(R0 * .95, -R0 * w * 6); g.lineTo(Math.min(250, R0 + len), 0); g.lineTo(R0 * .95, R0 * w * 6); g.fill(); g.restore(); }
+  return new THREE.CanvasTexture(c); })();
+const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: coronaTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 }));
+const eclSun = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(6, 2.4, 1.4), fog: false, transparent: true, opacity: 0, depthWrite: false }));
+corona.renderOrder = eclSun.renderOrder = -6;
+let moonR = 1;
 
 // ── terrain and city detail, added to the exported materials in the shader ─────────────────────────────
 const DETAIL_VERT = ['#include <common>', '#include <common>\nvarying vec3 vWPos;', '#include <worldpos_vertex>', '#include <worldpos_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;'];
@@ -356,7 +378,8 @@ const mats = { wood: [], iron: [] };
 const sweep = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1e4);
 const T = { ribs: [9.6, 11.4], sweep: [9.8, 11.6] }, DUR = 19.5;
 const titles = {}, FIN = { logoY: 52, globeY: 70 };
-const C = { wood: new THREE.Color('#4a2814'), iron: new THREE.Color('#2e2c30'), silver: new THREE.Color('#b0000f'), sunDusk: new THREE.Color('#ffb27a'), sunRed: new THREE.Color('#ff3020') };
+const C = { wood: new THREE.Color('#4a2814'), iron: new THREE.Color('#2e2c30'), silver: new THREE.Color('#b0000f'), sunDusk: new THREE.Color('#ffb27a'), sunRed: new THREE.Color('#ff3020'),
+  woodGlow: new THREE.Color().setRGB(.16, .045, .01), redGlow: new THREE.Color().setRGB(.12, 0, .01) };
 
 load('assets/jerusalem.gltf.json').then((g) => {
   const world = g.scene, cache = {};
@@ -365,7 +388,9 @@ load('assets/jerusalem.gltf.json').then((g) => {
     const name = o.name || '', src = o.material;
     if (/moon/i.test(name)) {
       moon = o; moon.material = moonMat; o.position.set(-2600, 330, -6400); o.scale.multiplyScalar(7.4); moonBase.copy(o.position); moon.renderOrder = -5;
-      halo.scale.setScalar(o.scale.x * 3.2); halo.position.copy(o.position); scene.add(halo); return; }
+      halo.scale.setScalar(o.scale.x * 3.2); halo.position.copy(o.position); scene.add(halo);
+      o.geometry.computeBoundingSphere(); moonR = o.geometry.boundingSphere.radius * o.scale.x;
+      corona.scale.setScalar(moonR * 2 * CORONA); eclSun.scale.setScalar(moonR * 1.02); scene.add(corona, eclSun); return; }
     const kind = /^(Golgotha|Native|Range|Reflective|Dry)/.test(name) ? 'ground' : /windows/i.test(name) ? 'window' : /lamplight/i.test(name) ? 'lamp'
       : /^(Jerusalem|Temple|Hovel|Road|Awning)/.test(name) ? 'stone' : 'plain';
     const key = src.uuid + kind;
@@ -471,7 +496,7 @@ const KEYS = [ // [seconds into the sequence, camera position, camera target]
   [8.0, [0, 58, 38], [0, 56, -22]],
   [10.5, [0, 56, 40], [0, 50, -22]],
   [19.5, [0, 55, 44], [0, 49, -22]] ];
-let intro = 0, tA = 0;
+let intro = 0, tA = 0, vA = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
@@ -506,7 +531,7 @@ const camAt = (p) => { let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1][
 
 const ptr = { x: 0, y: 0, sx: 0, sy: 0, inside: false };
 addEventListener('pointermove', (e) => { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); ptr.inside = true; }, { passive: true });
-let lastY = scrollY, sVel = 0;
+let lastY = scrollY, sVel = 0, tiltCharge = 1;
 
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); composer.setSize(w, h); composer.setPixelRatio && composer.setPixelRatio(DPR);
   bloom.setSize(w * DPR / 2, h * DPR / 2); camera.aspect = w / h; camera.fov = w < h ? 58 : 42; camera.updateProjectionMatrix(); }
@@ -525,15 +550,17 @@ function frame(now) {
   if (REDUCED) { intro = 1; tA = goal; }
   else {
     if (ready.world && ready.globe) intro = Math.min(1, intro + dt / (scrollY > 40 ? 1.2 : 5.5));
-    if (intro >= 1) tA += (goal - tA) * (1 - Math.exp(-dt * 3.2)); }
+    if (intro >= 1) {   // a spring with momentum: big scrolls build speed and carry through, small ones settle softly
+      vA += ((goal - tA) * 10 - vA * 4.6) * dt; tA += vA * dt;
+      if (tA < 0 || tA > DUR) { tA = Math.max(0, Math.min(DUR, tA)); vA = 0; } } }
   $('#cue').style.opacity = intro >= 1 && scrollY < 40 ? 1 : 0;
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
   if (mixer) {
     pose(tA);
-    const k = smooth((tA - 6.2) / 2.2);
-    mats.wood.forEach((m) => { m.color.copy(C.wood).lerp(C.silver, k); m.metalness = k * .55; m.roughness = lerp(.82, .25, k); m.envMapIntensity = lerp(.2, 1, k); });
-    mats.iron.forEach((m) => { m.color.copy(C.iron).lerp(C.silver, k); m.roughness = lerp(.55, .22, k); m.metalness = lerp(.8, .55, k); });
+    const k = smooth((tA - 5.6) / 2.4);   // in step with the globe's ribs sweeping in
+    mats.wood.forEach((m) => { m.color.copy(C.wood).lerp(C.silver, k); m.emissive.copy(C.woodGlow).lerp(C.redGlow, k); m.metalness = k * .55; m.roughness = lerp(.82, .22, k); m.envMapIntensity = lerp(.2, 1, k); });
+    mats.iron.forEach((m) => { m.color.copy(C.iron).lerp(C.silver, k); m.emissive.copy(C.redGlow).multiplyScalar(k); m.roughness = lerp(.55, .22, k); m.metalness = lerp(.8, .55, k); });
     const r = smooth((tA - 5.6) / 2.4);
     const hover = 1 - smooth((tA - 1.0) / 2.0), lift = smooth((tA - 9.3) / 3.4);
     globeAnchor.y = lerp(58, FIN.globeY, lift);
@@ -551,13 +578,22 @@ function frame(now) {
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
   waterU.level.value = lerp(-20, 47, red); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
-  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, 1.1, red); hemi.intensity = lerp(.55, .14, red); front.intensity = red * .8;
+  const ecl = smooth((tA - 11.2) / 3.4);   // the eclipse comes over the red sea
+  skyU.glow.value.multiplyScalar(1 - ecl * .45); moonU.ecl.value = ecl; waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
+  sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, 1.1, red) * (1 - ecl * .6); hemi.intensity = lerp(.55, .14, red) * (1 - ecl * .3); front.intensity = red * .8 * (1 - ecl * .4);
+  seaLight.intensity = red * (2.5 + ecl * 3.5); seaLight.position.set(0, waterU.level.value + 1.5, -22 + Rg * .6 + 12);
   cityU.t.value = clock; cityU.on.value = 1 - smooth(red * 1.4); cityGlow.intensity = 14 * (1 - red);
   embers.material.opacity = lerp(.2, .85, red);
   if (NE) { const a = eg.attributes.position.array, dir = red > .5 ? 1 : -.35; for (let i = 0; i < NE; i++) { a[i * 3 + 1] += dt * dir * (1.5 + es[i] * 3); if (a[i * 3 + 1] > 95) a[i * 3 + 1] = 40; if (a[i * 3 + 1] < 30) a[i * 3 + 1] = 92; } eg.attributes.position.needsUpdate = true; }
   // the moon keeps an eye on the cursor
-  if (moon) { if (!REDUCED) moon.position.set(moonBase.x - ptr.sx * 380, moonBase.y + ptr.sy * 200, moonBase.z); halo.position.copy(moon.position);
-    halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)); }
+  if (moon) { if (!REDUCED) moon.position.set(moonBase.x - ptr.sx * 70, moonBase.y + ptr.sy * 40, moonBase.z); halo.position.copy(moon.position);
+    halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)).multiplyScalar(1 - ecl);
+    // the sun's disc slides in from the lower right, just behind the moon; the corona flares as it is covered
+    tmp.copy(moon.position).sub(camera.position).normalize(); const away = (1 - ecl) * moonR * 2.3;
+    eclSun.position.copy(moon.position).addScaledVector(tmp, moonR * 1.5); eclSun.position.x += away * .8; eclSun.position.y -= away * .6;
+    eclSun.lookAt(camera.position); eclSun.material.opacity = smooth(red * 2) * (ecl < .999 ? 1 : 0);
+    corona.position.copy(moon.position).addScaledVector(tmp, moonR * 1.2); corona.material.opacity = smooth((ecl - .55) / .45);
+    corona.material.color.setRGB(1.5, lerp(1.1, .4, red), lerp(1., .3, red)); }
 
   // camera follows the playhead; past the story it turns away over the open sea
   const [cp, ct] = camAt(tA);
@@ -567,7 +603,10 @@ function frame(now) {
     if (tA > .6 && dist < need) { const f = need / dist; cp[0] = ct[0] + vx * f; cp[1] = ct[1] + vy * f; cp[2] = ct[2] + vz * f; } }
   if (intro < 1) { const e = easeIO(intro); for (let j = 0; j < 3; j++) { cp[j] = lerp(INTRO.pos[j], cp[j], e); ct[j] = lerp(INTRO.tgt[j], ct[j], e); } }
   const after = Math.max(0, scrollY - (story.offsetHeight - innerHeight)) / innerHeight;
-  const roll = REDUCED ? 0 : Math.max(-.12, Math.min(.12, sVel * -0.00006));
+  // the tilt draws on a charge: quick repeat scrolls tilt less, and it refills to full over a few seconds
+  const want = Math.max(-.12, Math.min(.12, sVel * -0.00006)), use = Math.abs(want) / .12;
+  tiltCharge = clamp01(tiltCharge - use * dt * .9 + (1 - use) * dt / 3);
+  const roll = REDUCED ? 0 : want * smooth(tiltCharge);
   const turn = smooth(after / 1.1) * 1.25 + Math.max(0, after - 1.1) * .18;
   camera.position.set(cp[0] + ptr.sx * 2.5 + after * 6, cp[1] + ptr.sy * 1.4, cp[2] + after * 4);
   const dx = ct[0] - cp[0], dz = ct[2] - cp[2], c0 = Math.cos(-turn), s0 = Math.sin(-turn);
