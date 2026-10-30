@@ -54,6 +54,7 @@ main { position: relative; z-index: 2 }
 
 /* the films float over the world: each section pins for a screen while it plays, styled after its poster */
 .film { --k: 1; position: relative; z-index: 2; height: 230vh; margin-top: 30vh }
+.film.dl { margin-top: 110vh }
 .film .pin { position: sticky; top: 0; height: 100svh; overflow: hidden }
 .film .go { display: flex; flex-wrap: wrap; gap: 14px 30px }
 .film .go a { text-decoration: none; padding-bottom: 5px; border-bottom: 1px solid currentColor; transition: letter-spacing .4s, opacity .3s; opacity: .85 }
@@ -92,8 +93,8 @@ main { position: relative; z-index: 2 }
 .foot .row a { text-decoration: none; color: var(--ash) } .foot .row a:hover { color: var(--bone) }
 
 .verse { position: fixed; z-index: 3; margin: 0; max-width: 34ch; pointer-events: none; opacity: 0; visibility: hidden;
-  font-style: italic; font-size: clamp(1.12rem, 1.6vw, 1.5rem); line-height: 1.5; color: var(--hot); text-wrap: pretty;
-  text-shadow: 0 0 2px #000, 0 0 3px #000, 0 0 14px rgba(7,5,16,.95), 0 0 34px rgba(7,5,16,.8);
+  font-style: italic; font-size: clamp(1.12rem, 1.6vw, 1.5rem); line-height: 1.5; color: #ff5a52; text-wrap: pretty;
+  text-shadow: 0 0 1px #000, 0 0 3px #000, 0 0 10px rgba(255,50,40,.55), 0 0 16px rgba(7,5,16,.9), 0 0 34px rgba(7,5,16,.75);
   padding: 1.4em 1.8em; background: radial-gradient(closest-side, rgba(7,5,16,.62), rgba(7,5,16,.3) 70%, transparent) }
 .verse p { margin: 0 }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
@@ -140,8 +141,8 @@ main { position: relative; z-index: 2 }
 
 <header class="top">
   <a class="mark" href="#top" aria-label="3RD WORLD REVOLUTION Productions"><svg viewBox="0 0 1703 417" aria-hidden="true"><use href="#logotype"/></svg></a>
-  <nav class="small" aria-label="Films and shop">
-    <a href="https://shop.3rdworldrevolution.com/">Shop</a>
+  <nav class="small" aria-label="Films and gear">
+    <a href="https://shop.3rdworldrevolution.com/">Gear</a>
     <a href="#christians-and-cannibals"><span class="lg">Christians and Cannibals</span><span class="sh" aria-hidden="true">C&amp;C</span></a>
     <a href="#dead-labor">(Dead) Labor</a>
   </nav>
@@ -192,7 +193,7 @@ main { position: relative; z-index: 2 }
     <span>3RD WORLD REVOLUTION Productions</span>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener">Instagram ↗</a>
     <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener">Letterboxd ↗</a>
-    <a href="https://shop.3rdworldrevolution.com/">Shop / Red Sea</a>
+    <a href="https://shop.3rdworldrevolution.com/">Gear / Red Sea</a>
     <span>© 2026</span>
   </div>
 </footer>
@@ -213,7 +214,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // phones and small tablets get a lighter world: fewer pixels, cheaper terrain, fewer particles, and touch controls
 const TOUCH = matchMedia('(pointer: coarse)').matches, LITE = TOUCH || Math.min(screen.width, screen.height) < 600 || (navigator.hardwareConcurrency || 8) <= 4;
 const $ = (s) => document.querySelector(s);
-const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k;
+const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k, smoothstep = (a, b, x) => { x = clamp01((x - a) / (b - a)); return x * x * (3 - 2 * x); };
 const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const still = () => { document.body.classList.add('static'); $('#still').hidden = false; $('#still').style.backgroundImage = 'url(assets/redsea.jpg)'; $('#world').style.display = 'none'; };
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -321,18 +322,26 @@ envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.Sha
   b.position.set(x, y, z); b.lookAt(0, 0, 0); envScene.add(b); });
 
 // ── water: waves, a fresnel reflection of the sky, the sun's glitter path; it rises over Jerusalem ─────
-const waterU = Object.assign({ fig: { value: new THREE.Vector3() }, figC: { value: new THREE.Color(1, .2, .05) }, figR: { value: 1 }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
-const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
-  vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow, figR; uniform vec3 fig, figC; varying vec3 vW;
+const waterU = Object.assign({ floodW: { value: 1e5 }, floodA: { value: 0 }, foam: { value: 0 }, fig: { value: new THREE.Vector3() }, figC: { value: new THREE.Color(1, .2, .05) }, figR: { value: 1 }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
+// the sea is a sheet dense across x (where the walls run) and sparse along z; it follows the camera
+const waterGeo = (() => { const nx = LITE ? 400 : 800, g = new THREE.PlaneGeometry(2, 2, nx, 60), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i); p.setX(i, Math.sign(x) * Math.pow(Math.abs(x), 2.2) * 15000); p.setY(i, p.getY(i) * 15000); } return g; })();
+const FLOOD = `uniform float floodW, floodA, foam;
+  float floodH(float s){ float x = s - floodW; return floodA * exp(-max(x, 0.) / 70.) * smoothstep(-4., 14., x); }`;
+const water = new THREE.Mesh(waterGeo, new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
+  vertexShader: FLOOD + 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); w.y += floodH(abs(w.x)); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+  fragmentShader: NOISE + SKY + FLOOD + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow, figR; uniform vec3 fig, figC; varying vec3 vW;
     vec2 wave(vec2 p, vec2 dir, float f, float a, float s){ float ph = dot(p, dir) * f + t * s; return dir * (a * f * cos(ph)); }
     void main(){
       vec2 p = vW.xz; vec2 g = vec2(0.);
+      float fs = abs(p.x), fx = fs - floodW + (fbm(vec2(p.y * .05, t * .6)) - .5) * 10. * foam;   // a ragged leading edge
+      if (fx < 0.) discard;   // the dry ground between the walls
       g += wave(p, normalize(vec2(1., .3)), .11, .55, 1.1); g += wave(p, normalize(vec2(-.4, 1.)), .23, .22, 1.6);
       g += wave(p, normalize(vec2(.7, -.7)), .47, .09, 2.3); g += wave(p, normalize(vec2(-.9, -.2)), .9, .035, 3.1);
       float e = .6; vec2 q = p * .35 + t * .25; g += vec2(fbm(q + vec2(e, 0.)) - fbm(q - vec2(e, 0.)), fbm(q + vec2(0., e)) - fbm(q - vec2(0., e))) * .55;
       float dist = length(cameraPosition - vW);
       g *= 1. / (1. + dist * .0025);                                   // calmer toward the horizon
+      g.x += (floodH(fs + 1.) - floodH(fs - 1.)) * .5 * sign(p.x) * smoothstep(0., 8., fs);   // the face of the wall (no seam where the two meet)
       vec3 n = normalize(vec3(-g.x, 1., -g.y));
       vec3 V = normalize(cameraPosition - vW), R = reflect(-V, n); R.y = abs(R.y) + .01;
       float fres = .02 + .98 * pow(1. - max(dot(n, V), 0.), 5.);
@@ -349,6 +358,9 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
         vec2 toC = normalize(cameraPosition.xz - fig.xy); float al = dot(rel, toC), lat = abs(rel.x * toC.y - rel.y * toC.x);
         float streak = exp(-lat / figR * (.22 + max(al, 0.) * .006)) * smoothstep(-2., 4., al) * exp(-max(al, 0.) * .01) * (.25 + crest * 1.6) * smoothstep(.42, .75, fbm(p * .22 + vec2(t * .35, 0.)));
         col += figC * streak * .9 * fig.z; }
+      // foam boils along the front of each wall and trails behind it
+      float fo = (smoothstep(26., 0., fx) * .9 + smoothstep(140., 20., fx) * .25) * smoothstep(.35, .7, fbm(p * vec2(.12, .05) + vec2(t * 1.4, t * .3)));
+      col = mix(col, vec3(.55, .16, .14) + glow * .3, clamp(fo * foam, 0., .85));
       col = mix(col, fogC, smoothstep(fogN, fogF, dist) * .85);
       gl_FragColor = vec4(col, opacity); }` }));
 water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
@@ -585,17 +597,28 @@ const loadFigure = () => { if (figLoading) return; figLoading = true; load('asse
 
 // ── (Dead) Labor: a television from the eighties drifts in the red sea, still on, playing a warehouse camera ──────
 const TVW = 512, TVH = 384, tvCan = document.createElement('canvas'); tvCan.width = TVW; tvCan.height = TVH;
-const tvG = tvCan.getContext('2d'), snowCan = document.createElement('canvas'); snowCan.width = 128; snowCan.height = 96;
+const tvShow = tvCan.getContext('2d'), bufCan = document.createElement('canvas'); bufCan.width = TVW; bufCan.height = TVH;
+const tvG = bufCan.getContext('2d'), snowCan = document.createElement('canvas'); snowCan.width = 128; snowCan.height = 96;
 const snowG = snowCan.getContext('2d'), snowImg = snowG.createImageData(128, 96);
 const tvTex = new THREE.CanvasTexture(tvCan); tvTex.minFilter = THREE.LinearFilter; tvTex.generateMipmaps = false;
-const tvU = { map: { value: tvTex }, glow: { value: 0 }, t: { value: 0 } };
+const tvU = { map: { value: tvTex }, glow: { value: 0 }, t: { value: 0 } }, tvWet = { lvl: { value: 0 } };
 const tvGlow = new THREE.Color(); let tvLum = 0, tv = null, tvSet = null, tvLed = null;
 const rr = (w, h, r, cx = 0, cy = 0, P = THREE.Shape) => { const s = new P(), L = cx - w / 2, R = cx + w / 2, B = cy - h / 2, T = cy + h / 2;   // a rounded rectangle
   s.moveTo(L + r, B); s.lineTo(R - r, B); s.quadraticCurveTo(R, B, R, B + r); s.lineTo(R, T - r); s.quadraticCurveTo(R, T, R - r, T);
   s.lineTo(L + r, T); s.quadraticCurveTo(L, T, L, T - r); s.lineTo(L, B + r); s.quadraticCurveTo(L, B, L + r, B); return s; };
 function buildTV() {   // units: the cabinet is 2.2 wide; the tube faces +z
   const g = new THREE.Group(), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-  const wet = (c, r, cc) => new THREE.MeshPhysicalMaterial({ color: c, roughness: r, metalness: 0, clearcoat: cc, clearcoatRoughness: .14, envMapIntensity: .28 });   // wet black plastic
+  const wet = (c, r, cc) => { const m = new THREE.MeshPhysicalMaterial({ color: c, roughness: r, metalness: 0, clearcoat: cc, clearcoatRoughness: .14, envMapIntensity: .28 });   // wet black plastic
+    m.onBeforeCompile = (sh) => { sh.uniforms.lvl = tvWet.lvl;
+      sh.vertexShader = sh.vertexShader.replace(DETAIL_VERT[0], DETAIL_VERT[1]).replace(DETAIL_VERT[2], DETAIL_VERT[3]);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPos; uniform float lvl;' + NOISE)
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          float sea = smoothstep(lvl + 1.6, lvl - .2, vWPos.y);   // below and just above the waterline: soaked and stained by the sea
+          float drip = smoothstep(.62, .8, n2(vec2(vWPos.x * 2.2, vWPos.y * .12 + vWPos.z * 2.2))) * smoothstep(lvl + 9., lvl + 1., vWPos.y);
+          diffuseColor.rgb *= .78 + .44 * fbm3(vWPos * .9);   // grime
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.07, .006, .008), sea * .85 + drip * .3);`)
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, .12, max(sea, drip * .8));'); };
+    m.customProgramCacheKey = () => 'tvwet'; return m; };
   const shell = wet('#0b0a0b', .55, .7), rear = wet('#080708', .78, .4), trim = wet('#1a181a', .45, .6);
   const dark = new THREE.MeshStandardMaterial({ color: '#050405', roughness: .6 }), steel = new THREE.MeshStandardMaterial({ color: '#7d7a7e', roughness: .3, metalness: .95 });
   const front = new THREE.Mesh(new THREE.ExtrudeGeometry(rr(2.2, 1.8, .14), { depth: .42, bevelEnabled: true, bevelThickness: .05, bevelSize: .05, bevelSegments: 4, curveSegments: 8 }), shell);
@@ -611,6 +634,10 @@ function buildTV() {   // units: the cabinet is 2.2 wide; the tube faces +z
     fragmentShader: `uniform sampler2D map; uniform float glow, t; varying vec2 vUv; varying vec3 vN, vV;
       void main(){
         vec2 cc = vUv - .5, uv = .5 + cc * (1. + .34 * dot(cc, cc));   // the picture curves with the tube
+        vec2 dg = vUv * vec2(30., 23.), id = floor(dg), f = fract(dg) - .5; float rn = fract(sin(dot(id, vec2(12.9898, 78.233))) * 43758.5453);
+        vec2 o = (vec2(fract(rn * 7.3), fract(rn * 3.1)) - .5) * .5, dv = f - o; float rad = .1 + .2 * fract(rn * 13.);
+        float drop = smoothstep(rad, rad * .55, length(dv)) * step(.58, rn) * smoothstep(.15, .5, 1. - vUv.y + fract(rn * 5.) * .6);   // beads of sea water on the glass
+        uv -= dv * drop * .02;
         float inside = step(0., uv.x) * step(uv.x, 1.) * step(0., uv.y) * step(uv.y, 1.);
         vec3 c = vec3(texture2D(map, uv + vec2(.0012, 0.)).r, texture2D(map, uv).g, texture2D(map, uv - vec2(.0012, 0.)).b);
         c = pow(c, vec3(2.2));
@@ -622,12 +649,24 @@ function buildTV() {   // units: the cabinet is 2.2 wide; the tube faces +z
         vec3 N = normalize(vN), V = normalize(vV); float fr = pow(1. - max(dot(N, V), 0.), 4.);
         vec3 glass = vec3(.01, .012, .011) + vec3(.16, .05, .05) * fr;   // dead grey-green glass, the red sky in its curve
         float hl = exp(-pow((vUv.x * .7 + vUv.y - 1.22) * 6., 2.)) * smoothstep(.1, .6, vUv.y) * .05;
-        gl_FragColor = vec4(c + glass + hl, 1.); }` }));
+        float bead = drop * (pow(max(dot(normalize(dv + 1e-4), vec2(-.6, .8)), 0.), 6.) * .12 + .012);   // each bead catches the light at its rim
+        float dust = smoothstep(.55, .85, fract(sin(dot(floor(vUv * vec2(90., 70.)), vec2(41.3, 289.1))) * 9631.7) * .7 + .3 * sin(vUv.x * 9. + vUv.y * 5.)) * .012;
+        gl_FragColor = vec4(c * (1. - drop * .25) + glass + hl + bead + dust, 1.); }` }));
   tube.position.set(0, .13, 0); g.add(tube);
   // the chin: speaker slots, a blank badge, the buttons, a standby lamp
   for (let i = 0; i < 9; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(.014, .17, .02), dark); sl.position.set(-.98 + i * .042, -.72, .052); g.add(sl); }
   const badge = new THREE.Mesh(new THREE.BoxGeometry(.3, .045, .012), steel); badge.position.set(0, -.6, .056); g.add(badge);
   for (let i = 0; i < 4; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.1, .05, .035), trim); b.position.set(.42 + i * .135, -.74, .06); g.add(b); }
+  // a seam where the front shell meets the back
+  const seam = rr(2.24, 1.84, .16); seam.holes.push(rr(2.19, 1.79, .14, 0, 0, THREE.Path));
+  const sm = new THREE.Mesh(new THREE.ExtrudeGeometry(seam, { depth: .018, bevelEnabled: false, curveSegments: 8 }), dark); sm.position.z = -.4; g.add(sm);
+  // the channel dial, ridged, and the front AV jacks (video, left, right)
+  const dial = new THREE.Mesh(new THREE.CylinderGeometry(.075, .08, .05, 28), trim); dial.rotation.x = Math.PI / 2; dial.position.set(.94, -.72, .07); g.add(dial);
+  for (let i = 0; i < 14; i++) { const r = new THREE.Mesh(new THREE.BoxGeometry(.008, .012, .05), dark), a = i / 14 * Math.PI * 2; r.position.set(.94 + Math.cos(a) * .078, -.72 + Math.sin(a) * .078, .07); r.rotation.z = a; g.add(r); }
+  const notch = new THREE.Mesh(new THREE.BoxGeometry(.012, .05, .01), steel); notch.position.set(.94, -.69, .097); g.add(notch);
+  ['#c9a400', '#d6d3cc', '#a8141a'].forEach((c, i) => { const j = new THREE.Mesh(new THREE.CylinderGeometry(.021, .021, .022, 16), new THREE.MeshStandardMaterial({ color: c, roughness: .35 }));
+    j.rotation.x = Math.PI / 2; j.position.set(-.48 + i * .07, -.74, .06); g.add(j);
+    const h = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .024, 10), dark); h.rotation.x = Math.PI / 2; h.position.set(-.48 + i * .07, -.74, .062); g.add(h); });
   tvLed = new THREE.Mesh(new THREE.SphereGeometry(.017, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(3, .08, .04), fog: false })); tvLed.position.set(.28, -.74, .06); g.add(tvLed);
   // the bulk of the tube behind, tapering, with vents
   const hg = new THREE.BoxGeometry(1.9, 1.5, 1.3), hp = hg.attributes.position;
@@ -635,11 +674,14 @@ function buildTV() {   // units: the cabinet is 2.2 wide; the tube faces +z
   hg.computeVertexNormals();
   const hump = new THREE.Mesh(hg, rear); hump.position.set(0, .02, -1.17); g.add(hump);
   for (let i = 0; i < 7; i++) { const v = new THREE.Mesh(new THREE.BoxGeometry(.6, .022, .02), dark); v.position.set(0, -.2 + i * .07, -1.83); g.add(v); }
+  [-1, 1].forEach((sd) => { for (let i = 0; i < 6; i++) { const v = new THREE.Mesh(new THREE.BoxGeometry(.02, .02, .42), dark); v.position.set(sd * (.86 - .02), .25 - i * .08, -.82); v.rotation.y = sd * .19; g.add(v); } });   // side vents
+  [[-.42, -.3], [.42, -.3], [-.42, .44], [.42, .44]].forEach(([x, y]) => { const sc = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .015, 12), steel); sc.rotation.x = Math.PI / 2; sc.position.set(x, y, -1.83); g.add(sc); });
   // rabbit ears, one of them bent over
   const base = new THREE.Mesh(new THREE.CylinderGeometry(.11, .14, .06, 20), trim); base.position.set(0, .66, -1.0); base.rotation.x = .2; g.add(base);
   const ear = (rz, bend) => { const e = new THREE.Group(); e.position.set(0, .69, -1.0); e.rotation.set(-.2, 0, rz); let y = 0, parent = e;
     [[.016, .42], [.012, .4], [.009, .36]].forEach(([r, l], i) => { const seg = new THREE.Group(); seg.position.y = y; if (i === 2 && bend) seg.rotation.z = bend;
-      const rod = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 8), steel); rod.position.y = l / 2; seg.add(rod); parent.add(seg); parent = seg; y = l; });
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 8), steel); rod.position.y = l / 2; seg.add(rod);
+      const collar = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.5, r * 1.5, .03, 10), steel); collar.position.y = l - .015; seg.add(collar); parent.add(seg); parent = seg; y = l; });
     const tip = new THREE.Mesh(new THREE.SphereGeometry(.026, 10, 8), steel); tip.position.y = .36; parent.add(tip); return e; };
   g.add(ear(.42, 0), ear(-.5, -1.25));
   // the cord it was unplugged from, trailing down into the sea
@@ -699,11 +741,12 @@ function drawTV(k, t) { const g = tvG; let lum = .3;
   else { snow(1, .55 * (1 - clamp01((k - TS[7]) / .09))); lum = .2; }
   if (k >= TS[2] && k < TS[7]) snow(.12, 1);   // grain
   if (k >= TS[0]) { const rb = ((t * .11) % 1.3 - .15) * TVH; g.fillStyle = 'rgba(255,255,255,.045)'; g.fillRect(0, rb, TVW, 46); }   // a slow roll bar
-  if (TS.some((b) => Math.abs(k - b) < .006)) { const y = Math.random() * TVH; g.drawImage(tvCan, 0, y, TVW, 40, 16, y, TVW, 40); }   // hard cuts tear
+  if (TS.some((b) => Math.abs(k - b) < .006)) { const y = Math.random() * TVH; g.drawImage(bufCan, 0, y, TVW, 40, 16, y, TVW, 40); }   // hard cuts tear
   if (k >= TS[0] && k < TS[1]) band(clamp01((k - TS[0]) / (TS[1] - TS[0])));   // switched on: a line opens into the picture
   if (k > TS[8]) { const p = 1 - clamp01((k - TS[8]) / .03);   // switched off: the picture collapses to a line, then a point
     if (p > 0) band(p); else { g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH); const a = 1 - clamp01((k - .98) / .02); g.fillStyle = `rgba(235,242,255,${a})`; g.beginPath(); g.arc(TVW / 2, TVH / 2, 5 * a + 1, 0, 7); g.fill(); }
     lum *= Math.max(p, .05); }
+  tvShow.globalAlpha = .6; tvShow.drawImage(bufCan, 0, 0); tvShow.globalAlpha = 1;   // phosphor afterglow: the last picture fades rather than vanishes
   tvTex.needsUpdate = true; tvLum = lum;
   tvGlow.setRGB(.55, .66, .63); }
 const tvLight = new THREE.PointLight('#a8c4bc', 0, 160, 1.4); scene.add(tvLight);
@@ -746,7 +789,7 @@ const KEYS = [ // [seconds into the sequence, camera position, camera target]
   [10.5, [0, 56, 40], [0, 50, -22]],
   [19.5, [0, 55, 44], [0, 49, -22]] ];
 const INTRO_S = 3.5;   // playhead seconds spent coming down from the stars
-let intro = 0, tA = 0, play = -INTRO_S, vA = 0;
+let intro = 0, tA = 0, play = -INTRO_S, vA = 0, globeIdle = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
@@ -838,10 +881,12 @@ function frame(now) {
     mats.iron.forEach((m) => { m.color.copy(C.iron).lerp(C.silver, k); m.emissive.copy(C.redGlow).multiplyScalar(k); m.roughness = lerp(.55, .22, k); m.metalness = lerp(.8, .55, k); });
     const r = smooth((tA - 5.6) / 2.4);
     const hover = 1 - smooth((tA - 1.0) / 2.0), lift = smooth((tA - 9.3) / 3.4);
-    globeAnchor.y = lerp(58, FIN.globeY, lift);
+    const lr = smooth((tA - 6.6) / 2.8), logoTop = logo ? lerp(34 - logo.userData.h, FIN.logoY, lr) + logo.userData.h / 2 : -1e4;
+    globeAnchor.y = Math.max(lerp(58, FIN.globeY, lift), logoTop + Rg * 1.1);   // the logotype rises under the globe and carries it up
     sweep.constant = tA < 5.6 ? -1e4 : (r >= 1 ? 1e4 : lerp(globeAnchor.y - Rg * 1.15, globeAnchor.y + Rg * 1.15, r));
     globe.position.set(globeAnchor.x + globe.userData.crossOffset.x * hover, globeAnchor.y + globe.userData.crossOffset.y * hover + Math.sin(clock * .8) * .6 * hover, globeAnchor.z + globe.userData.crossOffset.z * hover);
-    globe.rotation.y = tA >= DUR - .01 && !REDUCED ? globe.rotation.y + dt * .08 : lerp(globe.rotation.y, 0, .1);
+    globeIdle = tA >= DUR - .01 && !REDUCED ? globeIdle + dt * .08 : lerp(globeIdle, 0, .1);
+    globe.rotation.y = easeIO(clamp01((tA - 11.6) / (DUR - 12.4))) * Math.PI * 6 + globeIdle;   // three turns on the red sea, scrubbed by scroll
     if (logo) { const rise = smooth((tA - 6.6) / 2.8);   // it rises out of the ground; the sea comes up around it later
       logo.position.set(logo.userData.off.x, lerp(34 - logo.userData.h, FIN.logoY, rise) + logo.userData.off.y + Math.sin(clock * .7) * .25 * rise, -22 + Rg * .6 + logo.userData.off.z); logo.visible = rise > 0; }
     core.position.copy(globe.position); core.intensity = (Math.max(.6, smooth((tA - 2.5) / 1.5)) * (1 - smooth((tA - 9) / 3)) * 2.2 + smooth((tA - 9) / 3) * .4) * 45;
@@ -863,7 +908,11 @@ function frame(now) {
   skyU.zen.value.copy(DUSK.zen).lerp(RED.zen, red); skyU.hor.value.copy(DUSK.hor).lerp(RED.hor, red); skyU.glow.value.copy(DUSK.glow).lerp(RED.glow, red);
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
-  waterU.level.value = lerp(-20, 47, red); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
+  const flood = clamp01((tA - 9.2) / 3.4);   // the walls run in from far off and crash together over the globe
+  const fW = 460 * Math.pow(1 - smooth(flood), 1.35) - 10;   // they start at the edges of the view and close on the middle
+  waterU.floodW.value = REDUCED ? -10 : fW; waterU.floodA.value = REDUCED ? 0 : 16 * smooth(flood * 4) * smoothstep(-10, 90, fW) + 1.2 * smooth(flood * 4) * (1 - smooth((flood - .9) / .1));
+  waterU.foam.value = REDUCED ? 0 : smooth(flood * 5) * (1 - smooth((flood - .85) / .15) * .85);
+  waterU.level.value = lerp(-20, 47, smooth((tA - 9.2) / 1.6) * .82 + red * .18); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
   skyU.glow.value.multiplyScalar(1 - ecl * .6); waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
   sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, .5, red) * (1 - ecl * .8); hemi.intensity = lerp(.55, .1, red) * (1 - ecl * .3); front.intensity = red * .5 * (1 - ecl * .4);
   seaLight.intensity = red * (2.5 + ecl * 3.5); seaLight.position.set(0, waterU.level.value + 1.5, -22 + Rg * .6 + 12);
@@ -916,7 +965,7 @@ function frame(now) {
   let pool = 0;
   // the man rises from the sea as Christians and Cannibals plays, and sinks again as (Dead) Labor comes on
   if (fig) {
-    const rise = smooth((innerHeight - ccR.top) / (innerHeight * 1.6)) * (1 - smooth(dlIn * 1.4));
+    const rise = smooth((innerHeight - ccR.top) / (innerHeight * 1.6)) * (1 - smooth((innerHeight * .9 - ccR.bottom) / (innerHeight * .6)));   // he goes under as his section leaves
     fig.visible = rise > .001 && red > .9;
     if (fig.visible) {
       const a = anchor(CC, 36, camera.aspect >= 1 ? halfW(36) * .06 : 0);
@@ -931,7 +980,7 @@ function frame(now) {
     if (!tv) { tv = buildTV(); tvSet = buildSet(); scene.add(tv, tvSet); }
     const up = easeIO(clamp01(dlIn * 1.2)) * (1 - easeIO(dlOut)), a = anchor(DL, 95, camera.aspect >= 1 ? halfW(95) * .16 : 0), sc = Math.min(19, halfW(95) * .62 / 1.1);
     const lv = waterU.level.value, yaw = Math.atan2(a.px - a.x, a.pz - a.z);
-    tv.visible = tvSet.visible = up > .001; tv.scale.setScalar(sc); tvSet.scale.setScalar(sc);
+    tv.visible = tvSet.visible = up > .001; tv.scale.setScalar(sc); tvSet.scale.setScalar(sc); tvWet.lvl.value = lv;
     const bob = Math.sin(clock * .62) * .06 + Math.sin(clock * .37 + 1.3) * .045;
     tv.position.set(a.x, lv + sc * (-2.1 + 2.22 * up + bob), a.z);   // risen, it floats with a little over half of it clear of the water
     tv.rotation.set(-.11 + Math.sin(clock * .51 + 1) * .045, yaw - .55 + Math.sin(clock * .23) * .06, .2 + Math.sin(clock * .43) * .055, 'YXZ');   // listing, turned away
@@ -955,7 +1004,7 @@ function frame(now) {
     if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
   verse(V[0], smooth((clock - .2) / 1.4) * (1 - smooth((intro - .3) / .35)));   // up at once, in the stars
   verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
-  verse(V[2], smooth((tA - 10.4) / 1.4) * (1 - smooth((after - .05) / .25)));
+  verse(V[2], smooth((tA - 17.4) / 1.3) * (1 - smooth((after - .05) / .25)));   // after the globe has turned
 
   composer.render(dt);
   requestAnimationFrame(frame);
