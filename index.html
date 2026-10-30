@@ -246,7 +246,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(42, 1, 1, 16000);
 
 // ── shared GLSL: noise and the sky, so the water can reflect the very sky that is drawn ─────────────
-const NOISE = (LITE ? '#define LITE_NOISE\n' : '') + `
+const NOISE = (LITE ? '\n#define LITE_NOISE\n' : '\n') + `
   #ifdef LITE_NOISE
   #define OCT3 3
   #define OCTF 4
@@ -909,7 +909,7 @@ function frame(now) {
     if (!tv) { tv = buildTV(); scene.add(tv); }
     const up = easeIO(clamp01(dlIn * 1.25)) * (1 - easeIO(dlOut)), a = anchor(DL, 34, 0), sc = Math.min(8.5, halfW(34) * .78 / 1.1);
     tv.visible = up > .001; tv.scale.setScalar(sc);
-    tv.position.set(a.x, waterU.level.value - sc * 2.2 + sc * 2.05 * up + Math.sin(clock * .9) * .25, a.z);
+    tv.position.set(a.x, waterU.level.value - sc * 1.7 + sc * 2.3 * up + Math.sin(clock * .9) * .25, a.z);   // it rides up until only its base is wet
     tv.rotation.set(-.06 + Math.sin(clock * .7) * .015, Math.atan2(a.px - a.x, a.pz - a.z) + .12, .07 + Math.sin(clock * .55) * .025);
     drawTV(clamp01(dlK * 1.08 - .02), clock);
     tvLight.color.copy(tvGlow); tvLight.intensity = up * 3.2; tvLight.position.copy(tv.position).add(tmp2.set(0, 0, sc * 1.4).applyEuler(tv.rotation));
