@@ -375,13 +375,6 @@ water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
 const waterPatch = new THREE.Mesh(new THREE.RingGeometry(.01, 70, 128, 44), water.material.clone());
 waterPatch.material.uniforms = waterU; waterPatch.material.defines = { PATCH: 1 };
 waterPatch.rotation.x = -Math.PI / 2; waterPatch.renderOrder = 1; waterPatch.visible = false; scene.add(waterPatch);
-// spray thrown up as he breaks the surface
-const NSP = REDUCED ? 0 : LITE ? 90 : 200, spG = new THREE.BufferGeometry(), spP = new Float32Array(NSP * 3), spV = new Float32Array(NSP * 3);
-for (let i = 0; i < NSP; i++) spP[i * 3 + 1] = -1e4;
-spG.setAttribute('position', new THREE.BufferAttribute(spP, 3));
-const spray = new THREE.Points(spG, new THREE.PointsMaterial({ size: .5, map: dotTex, transparent: true, depthWrite: false, opacity: .9, color: new THREE.Color().setRGB(.9, .16, .12) }));
-spray.frustumCulled = false; scene.add(spray);
-let spNext = 0;
 
 // embers drift; once the world turns red they fall the wrong way
 const NE = REDUCED ? 0 : LITE ? 220 : 600, eg = new THREE.BufferGeometry(), ep = new Float32Array(NE * 3), es = new Float32Array(NE);
@@ -390,6 +383,13 @@ eg.setAttribute('position', new THREE.BufferAttribute(ep, 3));
 const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'); const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#fff'); r.addColorStop(.35, 'rgba(255,170,90,.8)'); r.addColorStop(1, 'rgba(255,80,20,0)'); g.fillStyle = r; g.fillRect(0, 0, 32, 32); return new THREE.CanvasTexture(c); })();
 const embers = new THREE.Points(eg, new THREE.PointsMaterial({ size: .55, map: dotTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .2, color: new THREE.Color().setRGB(3, 1.4, .6) }));
 scene.add(embers);
+// spray thrown up as he breaks the surface
+const NSP = REDUCED ? 0 : LITE ? 90 : 200, spG = new THREE.BufferGeometry(), spP = new Float32Array(NSP * 3), spV = new Float32Array(NSP * 3);
+for (let i = 0; i < NSP; i++) spP[i * 3 + 1] = -1e4;
+spG.setAttribute('position', new THREE.BufferAttribute(spP, 3));
+const spray = new THREE.Points(spG, new THREE.PointsMaterial({ size: .5, map: dotTex, transparent: true, depthWrite: false, opacity: .9, color: new THREE.Color().setRGB(.9, .16, .12) }));
+spray.frustumCulled = false; scene.add(spray);
+let spNext = 0;
 
 // ── the moon: craters and maria, lit from the real sun direction, a halo; it turns to blood in the red world
 const moonU = { sunDir: { value: SUN }, red: { value: 0 }, t: { value: 0 }, ecl: { value: 0 } };
