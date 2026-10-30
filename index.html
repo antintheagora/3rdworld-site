@@ -27,13 +27,13 @@
 }
 * { box-sizing: border-box }
 html { background: var(--night) }
-body { margin: 0; background: var(--night); color: var(--bone); font-family: var(--serif); overflow-x: hidden; -webkit-font-smoothing: antialiased }
+body { touch-action: pan-y pinch-zoom; margin: 0; background: var(--night); color: var(--bone); font-family: var(--serif); overflow-x: hidden; -webkit-font-smoothing: antialiased }
 a { color: inherit }
 :focus-visible { outline: 1px solid var(--bone); outline-offset: 6px }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 .small { font-family: var(--mono); font-stretch: 87.5%; font-weight: 400; font-size: .68rem; letter-spacing: .22em; text-transform: uppercase }
 
-#world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; touch-action: pan-y }
+#world { position: fixed; left: 0; top: 0; width: 100%; height: 100%; height: 100lvh; display: block; z-index: 0; touch-action: pan-y }
 .still { position: fixed; inset: 0; z-index: 0; background: center / cover no-repeat }
 
 .top { position: fixed; z-index: 5; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center;
@@ -44,6 +44,7 @@ a { color: inherit }
 .top nav { display: flex; gap: 34px }
 .top nav a { text-decoration: none; color: var(--ash); transition: color .3s }
 .top nav a:hover { color: var(--bone) }
+.top nav .sh { display: none }
 
 main { position: relative; z-index: 2 }
 .story { height: 640vh; position: relative }
@@ -119,11 +120,14 @@ main { position: relative; z-index: 2 }
 
 @media (max-width: 700px) {
   .verse, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: 1.08rem }
-  .verse.sky { top: 14vh }
-  .verse.burst { top: auto; bottom: 14vh }
-  .verse.sea { bottom: auto; top: 13vh }
-  .top nav { display: flex }
-  .top nav a:not([href="https://shop.3rdworldrevolution.com/"]) { display: none }
+  .verse.sky { top: 12svh }
+  .verse.burst { top: auto; bottom: 12svh }
+  .verse.sea { bottom: auto; top: 11svh }
+  .top nav { gap: 18px; letter-spacing: .16em }
+  .top nav a { padding: 12px 0; margin: -12px 0 }
+  .top nav .lg { display: none } .top nav .sh { display: inline }
+  .mark svg { height: 20px }
+  .film .go a { padding-block: 12px 6px }
   .cc-head { top: 92px; transform: none; width: auto; right: var(--gutr); gap: 14px }
   .cc h2 { font-size: 2.5rem }
   .cc-ask { top: auto; bottom: 13vh; font-size: 2.3rem }
@@ -146,7 +150,7 @@ main { position: relative; z-index: 2 }
   <a class="mark" href="#top" aria-label="3RD WORLD REVOLUTION Productions"><svg viewBox="0 0 1703 417" aria-hidden="true"><use href="#logotype"/></svg></a>
   <nav class="small" aria-label="Films and shop">
     <a href="https://shop.3rdworldrevolution.com/">Shop</a>
-    <a href="#christians-and-cannibals">Christians and Cannibals</a>
+    <a href="#christians-and-cannibals"><span class="lg">Christians and Cannibals</span><span class="sh" aria-hidden="true">C&amp;C</span></a>
     <a href="#dead-labor">(Dead) Labor</a>
   </nav>
 </header>
@@ -217,6 +221,8 @@ main { position: relative; z-index: 2 }
 <script>
 (() => {
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// phones and small tablets get a lighter world: fewer pixels, cheaper terrain, fewer particles, and touch controls
+const TOUCH = matchMedia('(pointer: coarse)').matches, LITE = TOUCH || Math.min(screen.width, screen.height) < 600 || (navigator.hardwareConcurrency || 8) <= 4;
 const $ = (s) => document.querySelector(s);
 const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k;
 const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
@@ -227,15 +233,23 @@ if (!window.THREE || !THREE.GLTFLoader) { still(); return; }
 try {
 THREE.ColorManagement.legacyMode = false;
 const canvas = $('#world');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-const DPR = Math.min(devicePixelRatio, 1.5);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });   // anti-aliasing happens in the HDR target
+const DPR_MAX = Math.min(devicePixelRatio, LITE ? 1.25 : 1.5);
+let DPR = DPR_MAX;
 renderer.setPixelRatio(DPR);
 renderer.localClippingEnabled = true;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(42, 1, 1, 16000);
 
 // ── shared GLSL: noise and the sky, so the water can reflect the very sky that is drawn ─────────────
-const NOISE = `
+const NOISE = (LITE ? '#define LITE_NOISE\n' : '') + `
+  #ifdef LITE_NOISE
+  #define OCT3 3
+  #define OCTF 4
+  #else
+  #define OCT3 4
+  #define OCTF 6
+  #endif
   float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
   float n2(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f); return mix(mix(h21(i),h21(i+vec2(1,0)),f.x), mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x), f.y); }
   float fbm(vec2 p){ float a=.5, s=0.; for(int i=0;i<5;i++){ s+=a*n2(p); p=p*2.03+vec2(1.7,9.2); a*=.5; } return s; }
@@ -243,9 +257,9 @@ const NOISE = `
   float n3(vec3 p){ vec3 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
     return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x), mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x), f.y),
                mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x), mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x), f.y), f.z); }
-  float fbm3(vec3 p){ float a=.5, s=0.; for(int i=0;i<4;i++){ s+=a*n3(p); p=p*2.07+vec3(3.1,1.7,5.3); a*=.5; } return s; }
+  float fbm3(vec3 p){ float a=.5, s=0.; for(int i=0;i<OCT3;i++){ s+=a*n3(p); p=p*2.07+vec3(3.1,1.7,5.3); a*=.5; } return s; }
   #ifdef DETAIL_FILTERED
-  float fbmF(vec3 p){ float a=.5, s=0.; for(int i=0;i<6;i++){ float w = 1. - smoothstep(.25, .75, length(fwidth(p))); s += a * mix(.5, n3(p), w); p = p*2.07 + vec3(3.1,1.7,5.3); a *= .5; } return s; }
+  float fbmF(vec3 p){ float a=.5, s=0.; for(int i=0;i<OCTF;i++){ float w = 1. - smoothstep(.25, .75, length(fwidth(p))); s += a * mix(.5, n3(p), w); p = p*2.07 + vec3(3.1,1.7,5.3); a *= .5; } return s; }
   #endif
 `;
 const SKY = `
@@ -347,7 +361,7 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
 water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
 
 // embers drift; once the world turns red they fall the wrong way
-const NE = REDUCED ? 0 : 600, eg = new THREE.BufferGeometry(), ep = new Float32Array(NE * 3), es = new Float32Array(NE);
+const NE = REDUCED ? 0 : LITE ? 220 : 600, eg = new THREE.BufferGeometry(), ep = new Float32Array(NE * 3), es = new Float32Array(NE);
 for (let i = 0; i < NE; i++) { ep[i * 3] = (Math.random() - .5) * 160; ep[i * 3 + 1] = 30 + Math.random() * 65; ep[i * 3 + 2] = (Math.random() - .5) * 160 - 20; es[i] = Math.random(); }
 eg.setAttribute('position', new THREE.BufferAttribute(ep, 3));
 const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'); const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#fff'); r.addColorStop(.35, 'rgba(255,170,90,.8)'); r.addColorStop(1, 'rgba(255,80,20,0)'); g.fillStyle = r; g.fillRect(0, 0, 32, 32); return new THREE.CanvasTexture(c); })();
@@ -417,8 +431,13 @@ function detail(m, kind) {
           float rippleW = smoothstep(.9, .98, nW.y) * smoothstep(.35, .7, fbm3(vWPos * .03 + 7.)) * fineK;
           // far dune field: long crests across the wind, gentle windward slope and a steep slip face, in patches with flat pans between
           float farK = smoothstep(40., 200., L) * smoothstep(.75, .95, nW.y), bandK = clamp(1.3 - L * .0012, 0., 1.);
+          #ifdef LITE_NOISE
+          #define FINE(P) .5
+          #else
+          #define FINE(P) fbm3(P)
+          #endif
           #define DUNE(P) (smoothstep(0., .78, fract(dot((P).xz, vec2(.82, .57)) * .028 + fbm3((P) * .006) * 3.)) * (1. - smoothstep(.78, 1., fract(dot((P).xz, vec2(.82, .57)) * .028 + fbm3((P) * .006) * 3.))))
-          #define HGT(P) (fbm3((P) * .35) * .9 * midK + fbm3((P) * 1.5) * .32 * fineK + (1. - abs(sin((dot((P).xz, vec2(.82, .57)) * 1.35 + fbm3((P) * .07) * 14.) * .5))) * .07 * rippleW             + fbm3((P) * .12) * .5 * bandK + (fbm3((P) * .02) * 1.2 + DUNE(P) * 4.5 * smoothstep(.38, .62, fbm3((P) * .0035 + 5.))) * farK)
+          #define HGT(P) (fbm3((P) * .35) * .9 * midK + FINE((P) * 1.5) * .32 * fineK + (1. - abs(sin((dot((P).xz, vec2(.82, .57)) * 1.35 + fbm3((P) * .07) * 14.) * .5))) * .07 * rippleW             + fbm3((P) * .12) * .5 * bandK + (fbm3((P) * .02) * 1.2 + DUNE(P) * 4.5 * smoothstep(.38, .62, fbm3((P) * .0035 + 5.))) * farK)
           float e = .06 + L * .0015;
           float h0 = HGT(vWPos), hx = HGT(vWPos + vec3(e, 0., 0.)), hz = HGT(vWPos + vec3(0., 0., e));
           vec3 gW = vec3((hx - h0) / e, 0., (hz - h0) / e) * 1.15;
@@ -554,14 +573,15 @@ function heat(m) { m.onBeforeCompile = (sh) => {
   m.customProgramCacheKey = () => 'heat'; }
 let fig = null, figMixer = null, figHead = null;
 const figPos = new THREE.Vector3(), FIG_H = 34;
-load('assets/figure.gltf.json').then((g) => {
+let figLoading = false;
+const loadFigure = () => { if (figLoading) return; figLoading = true; load('assets/figure.gltf.json').then((g) => {
   fig = g.scene; const s = FIG_H / 1.8; fig.scale.setScalar(s);
   const body = new THREE.MeshStandardMaterial(); heat(body);
   const skinned = []; fig.traverse((o) => { if (o.isSkinnedMesh) skinned.push(o); if (/Head$/.test(o.name)) figHead = o; });
   skinned.forEach((o) => { o.material = body; o.frustumCulled = false; });
   figMixer = new THREE.AnimationMixer(fig); const idle = g.animations.find((c) => c.name === 'idle'); if (idle) figMixer.clipAction(idle).play();
   fig.visible = false; scene.add(fig);
-}).catch((e) => console.warn('figure', e));
+}).catch((e) => console.warn('figure', e)); };   // fetched only as the films come near
 
 function farCull(m) { m.onBeforeCompile = (sh) => {
   sh.uniforms.gc = { value: globeAnchor };
@@ -571,7 +591,7 @@ function farCull(m) { m.onBeforeCompile = (sh) => {
 function pose(t) { actions.forEach((a) => { a.paused = false; a.enabled = true; a.time = Math.min(Math.max(0, t), a.getClip().duration - 1e-4); }); mixer && mixer.update(0); }
 
 // ── post: HDR scene -> bloom -> filmic tone map, sRGB, a soft vignette ────────────────────────────────
-const rt = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, samples: 4 });
+const rt = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, samples: LITE ? 2 : 4 });
 const composer = new THREE.EffectComposer(renderer, rt);
 composer.addPass(new THREE.RenderPass(scene, camera));
 const bloom = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), .55, .45, 1.15); composer.addPass(bloom);
@@ -624,7 +644,7 @@ function scatterStones(world) {
   if (!meshes.length) return;
   const rocks = [], pebbles = [], a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), nrm = new THREE.Vector3(), e1 = new THREE.Vector3(), e2 = new THREE.Vector3();
   let rnd = 7; const R = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
-  for (let tries = 0; tries < 90000 && (rocks.length < 1400 || pebbles.length < 5200); tries++) {
+  for (let tries = 0; tries < 90000 && (rocks.length < (LITE ? 600 : 1400) || pebbles.length < (LITE ? 1600 : 5200)); tries++) {
     const m = meshes[(R() * meshes.length) | 0], g = m.geometry, P = g.attributes.position, I = g.index; m.updateMatrixWorld();
     const tri = (R() * ((I ? I.count : P.count) / 3)) | 0, ia = I ? I.getX(tri * 3) : tri * 3, ib = I ? I.getX(tri * 3 + 1) : tri * 3 + 1, ic = I ? I.getX(tri * 3 + 2) : tri * 3 + 2;
     a.fromBufferAttribute(P, ia).applyMatrix4(m.matrixWorld); b.fromBufferAttribute(P, ib).applyMatrix4(m.matrixWorld); c.fromBufferAttribute(P, ic).applyMatrix4(m.matrixWorld);
@@ -649,19 +669,41 @@ const camAt = (p) => { let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1][
   return [a0.map((v, j) => lerp(v, a1[j], k)), b0.map((v, j) => lerp(v, b1[j], k))]; };
 
 const ptr = { x: 0, y: 0, sx: 0, sy: 0, inside: false };
-addEventListener('pointermove', (e) => { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); ptr.inside = true; }, { passive: true });
+const drag = { x: 0, y: 0, on: false };
+addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') { drag.x = e.clientX; drag.y = e.clientY; drag.on = true; } }, { passive: true });
+addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') { if (!drag.on) return;   // a finger drags the view from wherever it landed
+    ptr.x = Math.max(-1, Math.min(1, (e.clientX - drag.x) / (innerWidth * .45))); ptr.y = Math.max(-1, Math.min(1, -(e.clientY - drag.y) / (innerHeight * .45))); }
+  else { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); }
+  ptr.inside = true; }, { passive: true });
+if (TOUCH) {   // a finger is not a cursor: look around while it is down, settle back when it lifts
+  const rest = () => { ptr.x = ptr.y = 0; ptr.inside = false; drag.on = false; };
+  addEventListener('pointerup', rest, { passive: true }); addEventListener('pointercancel', rest, { passive: true });
+  let g0 = null; addEventListener('deviceorientation', (e) => { if (e.gamma == null || ptr.inside) return;
+    if (!g0) g0 = { g: e.gamma, b: e.beta };
+    g0.g = lerp(g0.g, e.gamma, .004); g0.b = lerp(g0.b, e.beta, .004);   // the rest pose follows slowly, so holding the phone at any angle recentres
+    ptr.x = Math.max(-1, Math.min(1, (e.gamma - g0.g) / 22)); ptr.y = Math.max(-1, Math.min(1, -(e.beta - g0.b) / 22)); }, { passive: true }); }
 let lastY = scrollY, sVel = 0, tiltCharge = 1, idleT = 0, handK = 0;
 
-function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); composer.setSize(w, h); composer.setPixelRatio && composer.setPixelRatio(DPR);
-  bloom.setSize(w * DPR / 2, h * DPR / 2); post.uniforms.res.value.set(w * DPR, h * DPR); camera.aspect = w / h; camera.fov = w < h ? 58 : 42; camera.updateProjectionMatrix(); }
-addEventListener('resize', resize); resize();
+let sizeW = 0, sizeH = 0;
+function resize(force) { const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+  if (!force && w === sizeW && h === sizeH) return; sizeW = w; sizeH = h;
+  renderer.setPixelRatio(DPR); renderer.setSize(w, h, false); composer.setPixelRatio && composer.setPixelRatio(DPR); composer.setSize(w, h);
+  bloom.setSize(w * DPR / (LITE ? 3 : 2), h * DPR / (LITE ? 3 : 2)); post.uniforms.res.value.set(w * DPR, h * DPR);
+  camera.aspect = w / h; camera.fov = w < h ? 58 : 42; camera.updateProjectionMatrix(); }
+addEventListener('resize', () => resize()); resize(true);
+// adaptive resolution: if frames run slow for a couple of seconds, render fewer pixels; give them back when there is headroom
+let frameAvg = 1 / 60, perfT = 0;
+function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT < 2) return;
+  const next = frameAvg > 1 / 42 ? Math.max(.6, DPR * .85) : frameAvg < 1 / 57 ? Math.min(DPR_MAX, DPR * 1.08) : DPR;
+  if (Math.abs(next - DPR) > .02) { DPR = next; resize(true); } perfT = 0; }
 
 const V = ['#v1', '#v2', '#v3'].map($), CC = $('#christians-and-cannibals'), DL = $('#dead-labor'), TC = $('#tc');
 let tcLast = '';
 const ray = new THREE.Raycaster(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 let tPrev = performance.now(), clock = 0, envRed = -1, envEcl = -1;
 function frame(now) {
-  const dt = Math.min(.05, (now - tPrev) / 1000); tPrev = now; clock += dt;
+  const dt = Math.min(.05, (now - tPrev) / 1000); tPrev = now; clock += dt; adapt(dt);
   idleT = Math.abs(scrollY - lastY) > .5 ? 0 : idleT + dt;
   sVel = lerp(sVel, (scrollY - lastY) / Math.max(dt, 1e-3), .15); lastY = scrollY;
   ptr.sx = lerp(ptr.sx, ptr.x, .06); ptr.sy = lerp(ptr.sy, ptr.y, .06);
@@ -672,7 +714,7 @@ function frame(now) {
   let goal = past ? DUR : -INTRO_S + span * clamp01(sP / .96);
   if (REDUCED) play = goal;
   else {
-    goal += Math.max(-3, Math.min(3, sVel * span / (.96 * Math.max(1, story.offsetHeight - innerHeight)) * .45));
+    goal += Math.max(-3, Math.min(3, sVel * span / (.96 * Math.max(1, story.offsetHeight - innerHeight)) * (TOUCH ? .18 : .45)));
     vA += ((goal - play) * 4.2 - vA * 2.9) * dt; play += vA * dt;
     if (play < -INTRO_S || play > DUR) { play = Math.max(-INTRO_S, Math.min(DUR, play)); vA = 0; } }
   intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
@@ -699,6 +741,8 @@ function frame(now) {
   skyU.t.value = clock; skyU.red.value = red; skyU.ecl.value = ecl; moonU.red.value = red; moonU.ecl.value = ecl;
   // sun and moon both drift right; the moon overtakes the sun and covers it, and the light comes from there, dimming
   if (moon) { const mv = smooth((tA - 9.3) / 4.6);
+    if (camera.aspect < 1) { const az = Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect) * .5;   // a phone sees a narrow slice: meet inside it, higher
+      moonEcl.set(Math.sin(az) * 6760, 1250, -Math.cos(az) * 6760); } else moonEcl.set(2500, 520, -6300);
     moon.position.lerpVectors(moonBase, moonEcl, mv); if (!REDUCED) { moon.position.x -= ptr.sx * 70; moon.position.y += ptr.sy * 40; }
     halo.position.copy(moon.position);
     tmp.copy(moon.position).sub(camera.position).normalize(); const away = (1 - ecl) * moonR * 2.6;
@@ -730,7 +774,7 @@ function frame(now) {
   if (intro < 1) { const e = easeIO(intro); for (let j = 0; j < 3; j++) { cp[j] = lerp(INTRO.pos[j], cp[j], e); ct[j] = lerp(INTRO.tgt[j], ct[j], e); } }
   const after = Math.max(0, scrollY - (story.offsetHeight - innerHeight)) / innerHeight;
   // the tilt draws on a charge: quick repeat scrolls tilt less, and it refills to full over a few seconds
-  const want = Math.max(-.12, Math.min(.12, sVel * -0.00006)), use = Math.abs(want) / .12;
+  const want = Math.max(-.12, Math.min(.12, sVel * (TOUCH ? -0.00003 : -0.00006))), use = Math.abs(want) / .12;
   tiltCharge = clamp01(tiltCharge - use * dt * .9 + (1 - use) * dt / 3);
   const roll = REDUCED ? 0 : want * smooth(tiltCharge);
   const turn = smooth(after / 1.1) * 1.25 + Math.max(0, after - 1.1) * .18;
@@ -747,7 +791,8 @@ function frame(now) {
 
   // the films: how far each pinned section has played (0 as it arrives, 1 as it leaves)
   const filmK = (el) => { const r = el.getBoundingClientRect(); return clamp01(-r.top / Math.max(1, r.height - innerHeight)); };
-  const ccR = CC.getBoundingClientRect(), ccK = filmK(CC), dlR = DL.getBoundingClientRect(), dlK = filmK(DL);
+  const ccR = CC.getBoundingClientRect(); if (ccR.top < innerHeight * 5) loadFigure();
+  const ccK = filmK(CC), dlR = DL.getBoundingClientRect(), dlK = filmK(DL);
   CC.style.setProperty('--k', (clamp01((innerHeight - ccR.top) / innerHeight) * .25 + ccK * .75).toFixed(3));
   DL.style.setProperty('--k', (clamp01((innerHeight - dlR.top) / innerHeight) * .25 + dlK * .75).toFixed(3));
   const dlIn = smooth((innerHeight - dlR.top) / innerHeight), dlOut = smooth((-dlR.bottom + innerHeight * 1.2) / (innerHeight * .6));
@@ -772,7 +817,7 @@ function frame(now) {
       waterU.fig.value.set(figPos.x, figPos.z, smooth(rise * 2)); }
     else waterU.fig.value.z = 0; }
 
-  if (Math.abs(red - envRed) > .08 || Math.abs(ecl - envEcl) > .1 || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
+  if (Math.abs(red - envRed) > (LITE ? .16 : .08) || Math.abs(ecl - envEcl) > (LITE ? .2 : .1) || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
     const tex = pmrem.fromScene(envScene, .02).texture; if (scene.environment) scene.environment.dispose(); scene.environment = tex; }
 
   // the three passages: in the night sky, as the crosses burst, as the red sea comes in
