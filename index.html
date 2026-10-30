@@ -214,7 +214,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // phones and small tablets get a lighter world: fewer pixels, cheaper terrain, fewer particles, and touch controls
 const TOUCH = matchMedia('(pointer: coarse)').matches, LITE = TOUCH || Math.min(screen.width, screen.height) < 600 || (navigator.hardwareConcurrency || 8) <= 4;
 const $ = (s) => document.querySelector(s);
-const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k;
+const clamp01 = (x) => Math.max(0, Math.min(1, x)), lerp = (a, b, k) => a + (b - a) * k, smoothstep = (a, b, x) => { x = clamp01((x - a) / (b - a)); return x * x * (3 - 2 * x); };
 const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const still = () => { document.body.classList.add('static'); $('#still').hidden = false; $('#still').style.backgroundImage = 'url(assets/redsea.jpg)'; $('#world').style.display = 'none'; };
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -341,7 +341,7 @@ const water = new THREE.Mesh(waterGeo, new THREE.ShaderMaterial({ uniforms: wate
       float e = .6; vec2 q = p * .35 + t * .25; g += vec2(fbm(q + vec2(e, 0.)) - fbm(q - vec2(e, 0.)), fbm(q + vec2(0., e)) - fbm(q - vec2(0., e))) * .55;
       float dist = length(cameraPosition - vW);
       g *= 1. / (1. + dist * .0025);                                   // calmer toward the horizon
-      g.x += (floodH(fs + 1.) - floodH(fs - 1.)) * .5 * sign(p.x);   // the face of the wall
+      g.x += (floodH(fs + 1.) - floodH(fs - 1.)) * .5 * sign(p.x) * smoothstep(0., 8., fs);   // the face of the wall (no seam where the two meet)
       vec3 n = normalize(vec3(-g.x, 1., -g.y));
       vec3 V = normalize(cameraPosition - vW), R = reflect(-V, n); R.y = abs(R.y) + .01;
       float fres = .02 + .98 * pow(1. - max(dot(n, V), 0.), 5.);
@@ -909,7 +909,8 @@ function frame(now) {
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
   const flood = clamp01((tA - 9.2) / 3.4);   // the walls run in from far off and crash together over the globe
-  waterU.floodW.value = REDUCED ? -10 : 1500 * Math.pow(1 - smooth(flood), 1.7) - 10; waterU.floodA.value = REDUCED ? 0 : 18 * smooth(flood * 4) * (1 - smooth((flood - .8) / .2)) + 2 * smooth(flood * 4);
+  const fW = 460 * Math.pow(1 - smooth(flood), 1.35) - 10;   // they start at the edges of the view and close on the middle
+  waterU.floodW.value = REDUCED ? -10 : fW; waterU.floodA.value = REDUCED ? 0 : 16 * smooth(flood * 4) * smoothstep(-10, 90, fW) + 1.2 * smooth(flood * 4) * (1 - smooth((flood - .9) / .1));
   waterU.foam.value = REDUCED ? 0 : smooth(flood * 5) * (1 - smooth((flood - .85) / .15) * .85);
   waterU.level.value = lerp(-20, 47, smooth((tA - 9.2) / 1.6) * .82 + red * .18); water.position.set(camera.position.x, waterU.level.value, camera.position.z); waterU.opacity.value = smooth(red * 3);
   skyU.glow.value.multiplyScalar(1 - ecl * .6); waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6);
