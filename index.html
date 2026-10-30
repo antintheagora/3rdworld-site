@@ -118,6 +118,8 @@ main { position: relative; z-index: 2 }
 .verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(32ch, 32vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
 .verse.sea { top: 15vh; left: var(--gut); max-width: min(36ch, 31vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
 
+.gl .dl h2, .gl .dl-sub, .gl .dl-by { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+
 @media (max-width: 700px) {
   .verse, .verse.sky, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: 1.06rem; padding: 1em .6em; line-height: 1.45 }
   .verse.burst .x, .verse.sea .x { margin-inline: auto }
@@ -233,6 +235,7 @@ scrollTo(0, 0);
 if (!window.THREE || !THREE.GLTFLoader) { still(); return; }
 try {
 THREE.ColorManagement.legacyMode = false;
+document.body.classList.add('gl');
 const canvas = $('#world');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });   // anti-aliasing happens in the HDR target
 const DPR_MAX = Math.min(devicePixelRatio, LITE ? 1.25 : 1.5);
@@ -332,10 +335,10 @@ envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.Sha
   b.position.set(x, y, z); b.lookAt(0, 0, 0); envScene.add(b); });
 
 // ── water: waves, a fresnel reflection of the sky, the sun's glitter path; it rises over Jerusalem ─────
-const waterU = Object.assign({ fig: { value: new THREE.Vector3() }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
+const waterU = Object.assign({ fig: { value: new THREE.Vector3() }, figC: { value: new THREE.Color(1, .2, .05) }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
 const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
   vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow; uniform vec3 fig; varying vec3 vW;
+  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow; uniform vec3 fig, figC; varying vec3 vW;
     vec2 wave(vec2 p, vec2 dir, float f, float a, float s){ float ph = dot(p, dir) * f + t * s; return dir * (a * f * cos(ph)); }
     void main(){
       vec2 p = vW.xz; vec2 g = vec2(0.);
@@ -356,7 +359,7 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
       col += (vec3(.075, .004, .006) * (.55 + swell * .9) + vec3(.32, .03, .02) * crest * (.4 + swell)) * seaGlow;
       if (fig.z > 0.) {   // the figure's heat on the water: a warm pool and rings spreading from where he stands
         float fr = length(p - fig.xy), ring = pow(max(.5 + .5 * sin(fr * 1.5 - t * 2.2), 0.), 8.) * smoothstep(1.2, 3., fr) * exp(-fr * .09);
-        col += (vec3(.9, .2, .04) * exp(-fr * .3) * .4 + vec3(1., .16, .05) * ring * (.3 + crest * .7)) * fig.z; }
+        col += (figC * exp(-fr * .3) * .4 + figC * ring * (.3 + crest * .7)) * fig.z; }
       col = mix(col, fogC, smoothstep(fogN, fogF, dist) * .85);
       gl_FragColor = vec4(col, opacity); }` }));
 water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
@@ -550,11 +553,19 @@ Promise.all([load('assets/globe.gltf.json'), load('assets/logotype.gltf.json')])
 
 
 // ── Christians and Cannibals: a man rises out of the red sea, seen through a heat camera ──────────────────────
-const figU = { t: { value: 0 }, on: { value: 0 } };
+const figU = { t: { value: 0 }, on: { value: 0 }, look: { value: new THREE.Vector2() } };
 function heat(m) { m.onBeforeCompile = (sh) => {
-  sh.uniforms.figT = figU.t; sh.uniforms.figOn = figU.on;
-  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vObj;')
-    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObj = position;');
+  sh.uniforms.figT = figU.t; sh.uniforms.figOn = figU.on; sh.uniforms.figLook = figU.look;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vObj; uniform float figT; uniform vec2 figLook;')
+    .replace('#include <begin_vertex>', `#include <begin_vertex>
+      vObj = position;
+      { // he breathes, and his head turns toward you
+        float br = (sin(figT * 1.25) * .5 + .5) * smoothstep(1.02, 1.22, position.y) * (1. - smoothstep(1.4, 1.5, position.y));
+        transformed.z += br * .014 * smoothstep(-.02, .1, position.z); transformed.x *= 1. + br * .012;
+        float hw = smoothstep(1.47, 1.6, position.y); vec3 hp = transformed - vec3(0., 1.54, .02);
+        float ay = figLook.x * hw, ax = figLook.y * hw;
+        hp.xz = mat2(cos(ay), -sin(ay), sin(ay), cos(ay)) * hp.xz; hp.zy = mat2(cos(ax), -sin(ax), sin(ax), cos(ax)) * hp.zy;
+        transformed = hp + vec3(0., 1.54, .02); }`);
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vObj; uniform float figT, figOn;' + NOISE)
     .replace('#include <output_fragment>', `
       float fres = clamp(1. - abs(dot(normalize(normal), normalize(vViewPosition))), 0., 1.);
@@ -572,17 +583,91 @@ function heat(m) { m.onBeforeCompile = (sh) => {
       c *= .75 + .5 * gr;   // sensor grain
       gl_FragColor = vec4(c * figOn, 1.);`); };
   m.customProgramCacheKey = () => 'heat'; }
-let fig = null, figMixer = null, figHead = null;
+let fig = null;
 const figPos = new THREE.Vector3(), FIG_H = 34;
 let figLoading = false;
-const loadFigure = () => { if (figLoading) return; figLoading = true; load('assets/figure.gltf.json').then((g) => {
-  fig = g.scene; const s = FIG_H / 1.8; fig.scale.setScalar(s);
+// the man is the MakeHuman base body (CC0) with its young-male and muscle targets, arms lowered, 1.8 m tall
+const loadFigure = () => { if (figLoading) return; figLoading = true; load('assets/man.gltf.json').then((g) => {
+  fig = g.scene; fig.scale.setScalar(FIG_H / 1.8);
   const body = new THREE.MeshStandardMaterial(); heat(body);
-  const skinned = []; fig.traverse((o) => { if (o.isSkinnedMesh) skinned.push(o); if (/Head$/.test(o.name)) figHead = o; });
-  skinned.forEach((o) => { o.material = body; o.frustumCulled = false; });
-  figMixer = new THREE.AnimationMixer(fig); const idle = g.animations.find((c) => c.name === 'idle'); if (idle) figMixer.clipAction(idle).play();
+  fig.traverse((o) => { if (o.isMesh) { o.material = body; o.frustumCulled = false; } });
   fig.visible = false; scene.add(fig);
 }).catch((e) => console.warn('figure', e)); };   // fetched only as the films come near
+
+// ── (Dead) Labor: an old television surfaces from the red sea and plays the film's title card as you scroll ─────
+const TVW = 512, TVH = 384, tvCan = document.createElement('canvas'); tvCan.width = TVW; tvCan.height = TVH;
+const tvG = tvCan.getContext('2d'), snowCan = document.createElement('canvas'); snowCan.width = 128; snowCan.height = 96;
+const snowG = snowCan.getContext('2d'), snowImg = snowG.createImageData(128, 96);
+const tvTex = new THREE.CanvasTexture(tvCan); tvTex.encoding = THREE.sRGBEncoding;
+const tvGlow = new THREE.Color();
+let tv = null, tvScreen = null;
+function buildTV() {
+  const rr = (w, h, r, cx = 0, P = THREE.Shape) => { const s = new P(), L = cx - w / 2, R = cx + w / 2, B = -h / 2, T = h / 2;   // a rounded rectangle
+    s.moveTo(L + r, B); s.lineTo(R - r, B); s.quadraticCurveTo(R, B, R, B + r); s.lineTo(R, T - r); s.quadraticCurveTo(R, T, R - r, T);
+    s.lineTo(L + r, T); s.quadraticCurveTo(L, T, L, T - r); s.lineTo(L, B + r); s.quadraticCurveTo(L, B, L + r, B); return s; };
+  const g = new THREE.Group(), shell = new THREE.MeshStandardMaterial({ color: '#3a2a26', roughness: .38, metalness: .15, envMapIntensity: .8 });
+  const dark = new THREE.MeshStandardMaterial({ color: '#120d0e', roughness: .5, metalness: .2 }), chrome = new THREE.MeshStandardMaterial({ color: '#b9aeb0', roughness: .18, metalness: 1 });
+  const body = new THREE.Mesh(new THREE.ExtrudeGeometry(rr(2.1, 1.5, .22), { depth: 1.15, bevelEnabled: true, bevelThickness: .07, bevelSize: .07, bevelSegments: 4, curveSegments: 8 }), shell);
+  body.position.z = -1.15; g.add(body);
+  const face = rr(2.1, 1.5, .22); face.holes.push(rr(1.36, 1.06, .16, -.3, THREE.Path));   // the bezel, with the screen opening to the left
+  const bezel = new THREE.Mesh(new THREE.ExtrudeGeometry(face, { depth: .06, bevelEnabled: true, bevelThickness: .02, bevelSize: .02, bevelSegments: 2, curveSegments: 8 }), dark);
+  bezel.position.z = .05; g.add(bezel);
+  // the tube: a bulging glass face showing the canvas
+  const sg = new THREE.PlaneGeometry(1.36, 1.06, 24, 18), sp = sg.attributes.position;
+  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i) / .68, y = sp.getY(i) / .53; sp.setZ(i, .07 * Math.max(0, 1 - (x * x + y * y) * .5)); }
+  sg.computeVertexNormals();
+  tvScreen = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ map: tvTex, toneMapped: false, fog: false }));
+  tvScreen.material.color.setScalar(1.9); tvScreen.position.set(-.3, 0, .03); g.add(tvScreen);
+  // the control panel: two knobs and a speaker grille
+  [[.43, .3], [.73, .3]].forEach(([x, y]) => { const k = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .08, 20), chrome); k.rotation.x = Math.PI / 2; k.position.set(x, y, .13); g.add(k); });
+  for (let i = 0; i < 6; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.42, .018, .02), dark); b.position.set(.58, -.08 - i * .07, .12); g.add(b); }
+  // rabbit ears
+  [-1, 1].forEach((sd) => { const a = new THREE.Group(); a.position.set(.1, .82, -.6);
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .018, 1.5, 8), chrome); rod.position.y = .75; a.add(rod);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), chrome); tip.position.y = 1.5; a.add(tip);
+    a.rotation.z = sd * .55; a.rotation.x = -.15; g.add(a); });
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(.12, .16, .08, 20), dark); base.position.set(.1, .8, -.6); g.add(base);
+  g.visible = false; return g; }
+// what the tube plays, scrubbed by the section's progress
+const SUB1 = 'A STORY ON FILM OF THE FIGHT FOR A NEW FUTURE', SUB2 = 'THE YEAR TWO THOUSAND AND TWENTY-SIX';
+function snow(a) { const d = snowImg.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+  snowG.putImageData(snowImg, 0, 0); tvG.globalAlpha = a; tvG.imageSmoothingEnabled = false; tvG.drawImage(snowCan, 0, 0, TVW, TVH); tvG.globalAlpha = 1; }
+function card(lines, size, col, y0, ghost) { tvG.textAlign = 'center'; tvG.textBaseline = 'middle'; tvG.font = `bold ${size}px "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif`;
+  lines.forEach((l, i) => { const y = y0 + i * size * .95; if (ghost) { tvG.fillStyle = 'rgba(130,120,135,.35)'; tvG.fillText(l, TVW / 2 + size * .09, y + 2); }
+    tvG.shadowColor = col; tvG.shadowBlur = size * .25; tvG.fillStyle = col; tvG.fillText(l, TVW / 2, y); tvG.shadowBlur = 0; }); }
+function wrap(txt, max) { const w = txt.split(' '), out = ['']; w.forEach((x) => { if ((out[out.length - 1] + ' ' + x).trim().length > max) out.push(x); else out[out.length - 1] = (out[out.length - 1] + ' ' + x).trim(); }); return out; }
+function drawTV(k, t) {
+  const g = tvG; g.fillStyle = '#0b0710'; g.fillRect(0, 0, TVW, TVH);
+  const seg = [.1, .2, .44, .6, .8, 1], cut = seg.some((b) => Math.abs(k - b) < .012);   // channel-change static between segments
+  if (k < seg[0]) snow(1);
+  else if (k < seg[1]) { const bars = ['#c0c0c0', '#c0c000', '#00c0c0', '#00c000', '#c000c0', '#c00000', '#0000c0'];
+    bars.forEach((c, i) => { g.fillStyle = c; g.fillRect(i * TVW / 7, 0, TVW / 7 + 1, TVH * .68); });
+    ['#0000c0', '#131313', '#c000c0', '#131313', '#00c0c0', '#131313', '#c0c0c0'].forEach((c, i) => { g.fillStyle = c; g.fillRect(i * TVW / 7, TVH * .68, TVW / 7 + 1, TVH * .08); });
+    g.fillStyle = '#ffffff'; g.fillRect(0, TVH * .76, TVW * .3, TVH * .24); g.fillStyle = '#1a0040'; g.fillRect(TVW * .3, TVH * .76, TVW * .3, TVH * .24); }
+  else if (k < seg[2]) { const fl = (t * 7 % 5.5) > 5 && Math.random() > .4;   // (DEAD) dies out now and then
+    card([fl ? '' : '(DEAD)', 'LABOR'], 118, '#ffd6cc', TVH / 2 - 52, true); }
+  else if (k < seg[3]) { const n = Math.floor(SUB1.length * clamp01((k - seg[2]) / (seg[3] - seg[2]) * 1.3));
+    card(wrap(SUB1.slice(0, n), 17), 40, '#ff5a46', TVH / 2 - 40, true); }
+  else if (k < seg[4]) {   // footage: a conveyor that never stops, and the rate it is set to
+    const sp = (k - seg[3]) / (seg[4] - seg[3]);
+    g.fillStyle = '#1d1416'; g.fillRect(0, TVH * .62, TVW, TVH * .38); g.fillStyle = '#3a2a2c'; g.fillRect(0, TVH * .6, TVW, 10);
+    for (let i = -1; i < 7; i++) { const x = ((i * 92 + t * 70 * (1 + sp * 2)) % (TVW + 92)) - 92; g.fillStyle = '#a07850'; g.fillRect(x, TVH * .6 - 46, 70, 46); g.fillStyle = '#7a5a3c'; g.fillRect(x, TVH * .6 - 46, 70, 8); }
+    for (let i = 0; i < 3; i++) { const x = 90 + i * 150, b = Math.sin(t * (4 + sp * 6) + i) * 6;   // workers, bending to it
+      g.fillStyle = '#05030a'; g.beginPath(); g.arc(x, TVH * .25 + b, 16, 0, 7); g.fill(); g.fillRect(x - 18, TVH * .25 + 18 + b, 36, 70); g.fillRect(x + 10, TVH * .25 + 34 + b, 34, 12); }
+    g.font = 'bold 26px "Martian Mono", ui-monospace, monospace'; g.textAlign = 'left'; g.fillStyle = '#ff5a46'; g.fillText(`RATE ${Math.round(300 + sp * sp * 900)} / HR`, 24, 40); }
+  else if (k < seg[5]) { const n = Math.floor(SUB2.length * clamp01((k - seg[4]) / (seg[5] - seg[4]) * 1.4));
+    card(wrap(SUB2.slice(0, n), 17), 40, '#ff5a46', TVH / 2 - 60, true);
+    g.font = 'italic 26px "Sorts Mill Goudy", Georgia, serif'; g.fillStyle = 'rgba(239,231,223,.85)'; g.fillText('the Amazon Labor Union', TVW / 2, TVH - 70); }
+  if (cut) snow(.85);
+  g.font = '18px "Martian Mono", ui-monospace, monospace'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = 'rgba(240,235,245,.85)';
+  g.fillText(k < seg[0] ? 'CH 03' : 'PLAY ▶', 22, 18);
+  // a rolling tracking glitch and scanlines
+  const by = (t * 60) % (TVH + 80) - 40; g.drawImage(tvCan, 0, by, TVW, 22, 8 + Math.random() * 10, by, TVW, 22);
+  g.fillStyle = 'rgba(0,0,0,.22)'; for (let y = 0; y < TVH; y += 3) g.fillRect(0, y, TVW, 1);
+  tvTex.needsUpdate = true;
+  // the screen's average colour lights the water and the cabinet
+  tvGlow.set(k < seg[0] ? '#8a8a96' : k < seg[1] ? '#9a8a7a' : k < seg[2] ? '#ff9f90' : '#ff4a3a'); }
+const tvLight = new THREE.PointLight('#ff6050', 0, 70, 1.6); scene.add(tvLight);
 
 function farCull(m) { m.onBeforeCompile = (sh) => {
   sh.uniforms.gc = { value: globeAnchor };
@@ -797,26 +882,40 @@ function frame(now) {
   CC.style.setProperty('--k', (clamp01((innerHeight - ccR.top) / innerHeight) * .25 + ccK * .75).toFixed(3));
   DL.style.setProperty('--k', (clamp01((innerHeight - dlR.top) / innerHeight) * .25 + dlK * .75).toFixed(3));
   const dlIn = smooth((innerHeight - dlR.top) / innerHeight), dlOut = smooth((-dlR.bottom + innerHeight * 1.2) / (innerHeight * .6));
-  post.uniforms.vhs.value = REDUCED ? 0 : dlIn * (1 - dlOut) * .85; post.uniforms.vt.value = clock;
+  post.uniforms.vhs.value = REDUCED ? 0 : dlIn * (1 - dlOut) * .6; post.uniforms.vt.value = clock;
   if (TC && dlIn > 0) { const sec = Math.floor(dlK * 5400), t = `${Math.floor(sec / 3600)}:${String(Math.floor(sec / 60) % 60).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`; if (t !== tcLast) { TC.textContent = t; tcLast = t; } }
+  // each film stands its thing in the sea where the camera will be looking halfway through the section, so it holds
+  // still in the world while we drift past; returns the spot D ahead (shifted sideways by `side`) and the camera's position there
+  const anchor = (el, D, side) => { const aR = (el.offsetTop + (el.offsetHeight - innerHeight) / 2 - (story.offsetHeight - innerHeight)) / innerHeight;
+    const tR = smooth(aR / 1.1) * 1.25 + Math.max(0, aR - 1.1) * .18, cR = Math.cos(-tR), sR = Math.sin(-tR);
+    const fx = dx * cR - dz * sR, fz = dx * sR + dz * cR, fl = Math.hypot(fx, fz), ux = fx / fl, uz = fz / fl, px = cp[0] + aR * 6, pz = cp[2] + aR * 4;
+    return { x: px + ux * D - uz * side, z: pz + uz * D + ux * side, px, pz }; };
+  const halfW = (D) => Math.tan(camera.fov * Math.PI / 360) * camera.aspect * D;
+  let pool = 0;
   // the man rises from the sea as Christians and Cannibals plays, and sinks again as (Dead) Labor comes on
   if (fig) {
     const rise = smooth((innerHeight - ccR.top) / (innerHeight * 1.6)) * (1 - smooth(dlIn * 1.4));
     fig.visible = rise > .001 && red > .9;
     if (fig.visible) {
-      // stand him where the camera will be looking halfway through the section, so he holds still in the world as we drift
-      const aR = (CC.offsetTop + (CC.offsetHeight - innerHeight) / 2 - (story.offsetHeight - innerHeight)) / innerHeight;
-      const tR = smooth(aR / 1.1) * 1.25 + Math.max(0, aR - 1.1) * .18, cR = Math.cos(-tR), sR = Math.sin(-tR);
-      const fx = dx * cR - dz * sR, fz = dx * sR + dz * cR, fl = Math.hypot(fx, fz), D = 36;
-      const hw = Math.tan(camera.fov * Math.PI / 360) * camera.aspect * D, side = camera.aspect >= 1 ? hw * .22 : 0;
-      const px = cp[0] + aR * 6, pz = cp[2] + aR * 4, ux = fx / fl, uz = fz / fl;
-      figPos.set(px + ux * D - uz * side, waterU.level.value - FIG_H * (1.02 - .6 * easeIO(rise)) + Math.sin(clock * .6) * .15 * rise, pz + uz * D + ux * side);
+      const a = anchor(CC, 36, camera.aspect >= 1 ? halfW(36) * .22 : 0);
+      figPos.set(a.x, waterU.level.value - FIG_H * (1.02 - .6 * easeIO(rise)) + Math.sin(clock * .6) * .15 * rise, a.z);
       fig.position.copy(figPos);
-      fig.rotation.y = Math.atan2(px - figPos.x, pz - figPos.z) - .32;   // turned a little away, as in the footage
-      figMixer.update(dt); if (figHead && !REDUCED) { figHead.rotation.y += ptr.sx * .35; figHead.rotation.x += -ptr.sy * .15; }
+      fig.rotation.set(0, Math.atan2(a.px - a.x, a.pz - a.z) - .32, Math.sin(clock * .45) * .012);   // turned a little away, as in the footage
+      figU.look.value.set(REDUCED ? 0 : lerp(figU.look.value.x, ptr.sx * .5 + .25, .08), REDUCED ? 0 : lerp(figU.look.value.y, -ptr.sy * .22, .08));
       figU.t.value = clock; figU.on.value = smooth(rise * 3);
-      waterU.fig.value.set(figPos.x, figPos.z, smooth(rise * 2)); }
-    else waterU.fig.value.z = 0; }
+      waterU.fig.value.set(figPos.x, figPos.z, smooth(rise * 2)); waterU.figC.value.setRGB(.95, .2, .045); pool = 1; } }
+  // the television surfaces as (Dead) Labor comes on and plays it out; it goes back under as the section ends
+  if (red > .9 && dlIn > 0 && dlOut < 1) {
+    if (!tv) { tv = buildTV(); scene.add(tv); }
+    const up = easeIO(clamp01(dlIn * 1.25)) * (1 - easeIO(dlOut)), a = anchor(DL, 34, 0), sc = Math.min(8.5, halfW(34) * .78 / 1.1);
+    tv.visible = up > .001; tv.scale.setScalar(sc);
+    tv.position.set(a.x, waterU.level.value - sc * 2.2 + sc * 2.05 * up + Math.sin(clock * .9) * .25, a.z);
+    tv.rotation.set(-.06 + Math.sin(clock * .7) * .015, Math.atan2(a.px - a.x, a.pz - a.z) + .12, .07 + Math.sin(clock * .55) * .025);
+    drawTV(clamp01(dlK * 1.08 - .02), clock);
+    tvLight.color.copy(tvGlow); tvLight.intensity = up * 3.2; tvLight.position.copy(tv.position).add(tmp2.set(0, 0, sc * 1.4).applyEuler(tv.rotation));
+    if (!pool) { waterU.fig.value.set(tv.position.x, tv.position.z, up * .8); waterU.figC.value.copy(tvGlow).multiplyScalar(.6); pool = 1; } }
+  else if (tv) { tv.visible = false; tvLight.intensity = 0; }
+  if (!pool) waterU.fig.value.z = 0;
 
   if (Math.abs(red - envRed) > (LITE ? .16 : .08) || Math.abs(ecl - envEcl) > (LITE ? .2 : .1) || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
     const tex = pmrem.fromScene(envScene, .02).texture; if (scene.environment) scene.environment.dispose(); scene.environment = tex; }
