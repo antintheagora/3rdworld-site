@@ -75,30 +75,16 @@ main { position: relative; z-index: 2 }
 .cc-ask span { display: block }
 .cc-foot { position: absolute; right: var(--gutr); top: calc(max(92px, 13vh) + clamp(2.2rem, 5.2vw, 6.2rem) * 1.8 + 3vh); margin: 0; text-align: right; font-size: clamp(.9rem, 1.5vw, 1.5rem); line-height: 1.05 }
 
-.dl .pin { display: grid; place-content: center; justify-items: center; text-align: center; font-family: var(--poster); font-weight: 700; text-transform: uppercase }
-.dl-frame { position: absolute; inset: max(16px, 2.6vh) max(16px, 1.8vw); border-radius: 22px; pointer-events: none; opacity: calc(var(--t) * .9);
-  box-shadow: inset 0 0 0 1.5px rgba(200,190,200,.55), inset 0 0 0 9px transparent, inset 0 0 0 10px rgba(200,190,200,.2) }
-.osd { position: absolute; font-family: var(--mono); font-weight: 400; color: #e9e2ea; text-shadow: 2px 0 rgba(255,40,60,.6), -2px 0 rgba(60,200,255,.4); letter-spacing: .12em; font-size: clamp(.7rem, 1.1vw, .95rem) }
-.osd.tl { left: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 64px) }
-.osd.tr { right: calc(max(16px, 1.8vw) + 28px); top: calc(max(16px, 2.6vh) + 64px) }
-.osd.bl { left: calc(max(16px, 1.8vw) + 28px); bottom: calc(max(16px, 2.6vh) + 22px) }
-.osd.br { right: calc(max(16px, 1.8vw) + 28px); bottom: calc(max(16px, 2.6vh) + 22px) }
-.osd .rec::before { content: "●"; color: #ff2a2a; margin-right: .5em; animation: blink 1.2s steps(2) infinite }
-@keyframes blink { 50% { opacity: 0 } }
-.dl h2 { margin: 0; color: #ffd6cc; font-size: clamp(3.4rem, 12.5vw, 12rem); line-height: .86; letter-spacing: calc(-.01em + (1 - var(--t)) * .4em);
-  text-shadow: .1em .02em 0 rgba(120,112,125,.32), 0 0 14px rgba(255,110,90,.75), 0 0 46px rgba(255,40,30,.45) }
-.dl h2 > span { display: block; position: relative }
-.dl h2 .dead { animation: dying 5.5s infinite }
-@keyframes dying { 0%, 61%, 66%, 71%, 100% { opacity: 1 } 62%, 64.5%, 70% { opacity: .08 } 63% { opacity: .6 } 69% { opacity: .3 } }
-.dl h2 > span::before, .dl h2 > span::after { content: attr(data-t); position: absolute; inset: 0; pointer-events: none; text-shadow: none; opacity: .75 }
-.dl h2 > span::before { color: #ff2a3a; mix-blend-mode: screen; animation: slip 3.1s steps(1) infinite }
-.dl h2 > span::after { color: #35d8ff; mix-blend-mode: screen; opacity: .45; animation: slip 2.3s steps(1) infinite reverse }
-@keyframes slip { 0% { clip-path: inset(0 0 100% 0) } 8% { clip-path: inset(12% 0 70% 0); transform: translateX(-.04em) } 10% { clip-path: inset(58% 0 22% 0); transform: translateX(.05em) }
-  12% { clip-path: inset(0 0 100% 0) } 54% { clip-path: inset(80% 0 4% 0); transform: translateX(.03em) } 56% { clip-path: inset(0 0 100% 0) } }
-.dl-sub { margin: 0; color: #ff5a46; font-size: clamp(.9rem, 2.2vw, 2rem); line-height: 1.25; text-shadow: .1em .02em 0 rgba(120,112,125,.28), 0 0 10px rgba(255,60,40,.6), 0 0 2px #000;
+.dl-text { position: absolute; left: var(--gut); bottom: 9svh; max-width: min(38vw, 600px); font-family: var(--poster); font-weight: 700; text-transform: uppercase }
+.dl h2 { margin: 0; color: #f0d0c8; font-size: clamp(2.8rem, 6.4vw, 7rem); line-height: .86; letter-spacing: calc(-.01em + (1 - var(--t)) * .3em);
+  text-shadow: .09em .02em 0 rgba(120,112,125,.28), 0 0 12px rgba(255,110,90,.5), 0 0 40px rgba(255,40,30,.3), 0 0 2px #000 }
+.dl h2 > span { display: block }
+.dl h2 .dead { animation: dying 7s infinite }
+@keyframes dying { 0%, 61%, 66%, 71%, 100% { opacity: 1 } 62%, 64.5%, 70% { opacity: .2 } 63% { opacity: .7 } 69% { opacity: .45 } }
+.dl-sub { margin: 0; color: #ff5a46; font-size: clamp(.82rem, 1.25vw, 1.2rem); line-height: 1.35; letter-spacing: .02em; text-shadow: 0 0 10px rgba(255,60,40,.5), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
-.dl-sub.one { margin-top: 5vh; --a: .3 } .dl-sub.two { --a: .5 }
-.dl-by { margin: 4vh 0 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--bone); text-shadow: 0 0 10px #000; font-size: clamp(1rem, 1.5vw, 1.3rem) }
+.dl-sub.one { margin-top: 3.2vh; --a: .3 } .dl-sub.two { --a: .5 }
+.dl-by { margin: 2.6vh 0 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--bone); text-shadow: 0 0 10px #000; font-size: clamp(1rem, 1.4vw, 1.25rem) }
 
 .foot { position: relative; z-index: 2; padding: 40vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
@@ -118,8 +104,6 @@ main { position: relative; z-index: 2 }
 .verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(32ch, 32vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
 .verse.sea { top: 15vh; left: var(--gut); max-width: min(36ch, 31vw); font-size: clamp(1rem, 1.45vw, 1.42rem) }
 
-.gl .dl h2, .gl .dl-sub, .gl .dl-by { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
-
 @media (max-width: 700px) {
   .verse, .verse.sky, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: 1.06rem; padding: 1em .6em; line-height: 1.45 }
   .verse.burst .x, .verse.sea .x { margin-inline: auto }
@@ -138,9 +122,10 @@ main { position: relative; z-index: 2 }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 15svh; left: var(--gut); text-align: left; font-size: 2.1rem }
   .cc-foot { top: auto; bottom: 5svh; left: var(--gut); text-align: left; font-size: .8rem }
-  .osd.tr, .osd.br { display: none }
+  .dl-text { right: var(--gutr); bottom: 6svh; max-width: none }
+  .dl h2 { font-size: 2.7rem }
 }
-@media (prefers-reduced-motion: reduce) { .cue i, .dl h2 .dead, .dl h2 > span::before, .dl h2 > span::after, .osd .rec::before { animation: none } }
+@media (prefers-reduced-motion: reduce) { .cue i, .dl h2 .dead { animation: none } }
 </style>
 
 </head>
@@ -190,15 +175,12 @@ main { position: relative; z-index: 2 }
 
   <section class="film dl" id="dead-labor" aria-labelledby="t2">
     <div class="pin">
-      <div class="dl-frame in" style="--a:.02; --s:4" aria-hidden="true"></div>
-      <span class="osd tl in rec" style="--a:.04" aria-hidden="true">PLAY ▶</span>
-      <span class="osd tr in" style="--a:.04" aria-hidden="true">SP</span>
-      <span class="osd bl in" style="--a:.04" aria-hidden="true" id="tc">0:00:00</span>
-      <span class="osd br in" style="--a:.04" aria-hidden="true">CH 03</span>
-      <h2 id="t2" class="in" style="--a:.06; --s:3"><span class="dead" data-t="(DEAD)">(Dead)</span><span data-t="LABOR">Labor</span></h2>
-      <p class="dl-sub one">A story on film of the fight for a new future</p>
-      <p class="dl-sub two">The year two thousand and twenty-six</p>
-      <p class="dl-by in" style="--a:.68">the Amazon Labor Union</p>
+      <div class="dl-text">
+        <h2 id="t2" class="in" style="--a:.04; --s:3"><span class="dead">(Dead)</span><span>Labor</span></h2>
+        <p class="dl-sub one">A story on film of the fight for a new future</p>
+        <p class="dl-sub two">The year two thousand and twenty-six</p>
+        <p class="dl-by in" style="--a:.68">the Amazon Labor Union</p>
+      </div>
     </div>
   </section>
 </main>
@@ -338,10 +320,10 @@ envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), new THREE.Sha
   b.position.set(x, y, z); b.lookAt(0, 0, 0); envScene.add(b); });
 
 // ── water: waves, a fresnel reflection of the sky, the sun's glitter path; it rises over Jerusalem ─────
-const waterU = Object.assign({ fig: { value: new THREE.Vector3() }, figC: { value: new THREE.Color(1, .2, .05) }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
+const waterU = Object.assign({ fig: { value: new THREE.Vector3() }, figC: { value: new THREE.Color(1, .2, .05) }, figR: { value: 1 }, level: { value: -20 }, fogC: { value: DUSK.fog.clone() }, fogN: { value: 380 }, fogF: { value: 7800 }, opacity: { value: 0 }, seaGlow: { value: 0 } }, skyU);
 const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
   vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow; uniform vec3 fig, figC; varying vec3 vW;
+  fragmentShader: NOISE + SKY + `uniform vec3 fogC; uniform float fogN, fogF, opacity, seaGlow, figR; uniform vec3 fig, figC; varying vec3 vW;
     vec2 wave(vec2 p, vec2 dir, float f, float a, float s){ float ph = dot(p, dir) * f + t * s; return dir * (a * f * cos(ph)); }
     void main(){
       vec2 p = vW.xz; vec2 g = vec2(0.);
@@ -361,8 +343,11 @@ const water = new THREE.Mesh(new THREE.PlaneGeometry(30000, 30000, 1, 1), new TH
       float swell = fbm(p * .045 + vec2(t * .03, -t * .02)), crest = smoothstep(.12, .55, length(g));
       col += (vec3(.075, .004, .006) * (.55 + swell * .9) + vec3(.32, .03, .02) * crest * (.4 + swell)) * seaGlow;
       if (fig.z > 0.) {   // the figure's heat on the water: a warm pool and rings spreading from where he stands
-        float fr = length(p - fig.xy), ring = pow(max(.5 + .5 * sin(fr * 1.5 - t * 2.2), 0.), 8.) * smoothstep(1.2, 3., fr) * exp(-fr * .09);
-        col += (figC * exp(-fr * .3) * .4 + figC * ring * (.3 + crest * .7)) * fig.z; }
+        vec2 rel = p - fig.xy; float fr = length(rel) / figR, ring = pow(max(.5 + .5 * sin(fr * 1.5 - t * 2.2), 0.), 8.) * smoothstep(1.2, 3., fr) * exp(-fr * .09);
+        col += (figC * exp(-fr * .3) * .4 + figC * ring * (.3 + crest * .7)) * fig.z;
+        vec2 toC = normalize(cameraPosition.xz - fig.xy); float al = dot(rel, toC), lat = abs(rel.x * toC.y - rel.y * toC.x);
+        float streak = exp(-lat / figR * (.22 + max(al, 0.) * .006)) * smoothstep(-2., 4., al) * exp(-max(al, 0.) * .01) * (.25 + crest * 1.6) * smoothstep(.42, .75, fbm(p * .22 + vec2(t * .35, 0.)));
+        col += figC * streak * .9 * fig.z; }
       col = mix(col, fogC, smoothstep(fogN, fogF, dist) * .85);
       gl_FragColor = vec4(col, opacity); }` }));
 water.rotation.x = -Math.PI / 2; water.renderOrder = 1; scene.add(water);
@@ -597,81 +582,130 @@ const loadFigure = () => { if (figLoading) return; figLoading = true; load('asse
   fig.visible = false; scene.add(fig);
 }).catch((e) => console.warn('figure', e)); };   // fetched only as the films come near
 
-// ── (Dead) Labor: an old television surfaces from the red sea and plays the film's title card as you scroll ─────
+// ── (Dead) Labor: a television from the eighties drifts in the red sea, still on, playing a warehouse camera ──────
 const TVW = 512, TVH = 384, tvCan = document.createElement('canvas'); tvCan.width = TVW; tvCan.height = TVH;
 const tvG = tvCan.getContext('2d'), snowCan = document.createElement('canvas'); snowCan.width = 128; snowCan.height = 96;
 const snowG = snowCan.getContext('2d'), snowImg = snowG.createImageData(128, 96);
-const tvTex = new THREE.CanvasTexture(tvCan); tvTex.encoding = THREE.sRGBEncoding;
-const tvGlow = new THREE.Color();
-let tv = null, tvScreen = null;
-function buildTV() {
-  const rr = (w, h, r, cx = 0, P = THREE.Shape) => { const s = new P(), L = cx - w / 2, R = cx + w / 2, B = -h / 2, T = h / 2;   // a rounded rectangle
-    s.moveTo(L + r, B); s.lineTo(R - r, B); s.quadraticCurveTo(R, B, R, B + r); s.lineTo(R, T - r); s.quadraticCurveTo(R, T, R - r, T);
-    s.lineTo(L + r, T); s.quadraticCurveTo(L, T, L, T - r); s.lineTo(L, B + r); s.quadraticCurveTo(L, B, L + r, B); return s; };
-  const g = new THREE.Group(), shell = new THREE.MeshStandardMaterial({ color: '#3a2a26', roughness: .38, metalness: .15, envMapIntensity: .8 });
-  const dark = new THREE.MeshStandardMaterial({ color: '#120d0e', roughness: .5, metalness: .2 }), chrome = new THREE.MeshStandardMaterial({ color: '#b9aeb0', roughness: .18, metalness: 1 });
-  const body = new THREE.Mesh(new THREE.ExtrudeGeometry(rr(2.1, 1.5, .22), { depth: 1.15, bevelEnabled: true, bevelThickness: .07, bevelSize: .07, bevelSegments: 4, curveSegments: 8 }), shell);
-  body.position.z = -1.15; g.add(body);
-  const face = rr(2.1, 1.5, .22); face.holes.push(rr(1.36, 1.06, .16, -.3, THREE.Path));   // the bezel, with the screen opening to the left
-  const bezel = new THREE.Mesh(new THREE.ExtrudeGeometry(face, { depth: .06, bevelEnabled: true, bevelThickness: .02, bevelSize: .02, bevelSegments: 2, curveSegments: 8 }), dark);
-  bezel.position.z = .05; g.add(bezel);
-  // the tube: a bulging glass face showing the canvas
-  const sg = new THREE.PlaneGeometry(1.36, 1.06, 24, 18), sp = sg.attributes.position;
-  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i) / .68, y = sp.getY(i) / .53; sp.setZ(i, .05 * Math.max(0, 1 - (x * x + y * y) * .5)); }
+const tvTex = new THREE.CanvasTexture(tvCan); tvTex.minFilter = THREE.LinearFilter; tvTex.generateMipmaps = false;
+const tvU = { map: { value: tvTex }, glow: { value: 0 }, t: { value: 0 } };
+const tvGlow = new THREE.Color(); let tvLum = 0, tv = null, tvSet = null, tvLed = null;
+const rr = (w, h, r, cx = 0, cy = 0, P = THREE.Shape) => { const s = new P(), L = cx - w / 2, R = cx + w / 2, B = cy - h / 2, T = cy + h / 2;   // a rounded rectangle
+  s.moveTo(L + r, B); s.lineTo(R - r, B); s.quadraticCurveTo(R, B, R, B + r); s.lineTo(R, T - r); s.quadraticCurveTo(R, T, R - r, T);
+  s.lineTo(L + r, T); s.quadraticCurveTo(L, T, L, T - r); s.lineTo(L, B + r); s.quadraticCurveTo(L, B, L + r, B); return s; };
+function buildTV() {   // units: the cabinet is 2.2 wide; the tube faces +z
+  const g = new THREE.Group(), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const wet = (c, r, cc) => new THREE.MeshPhysicalMaterial({ color: c, roughness: r, metalness: 0, clearcoat: cc, clearcoatRoughness: .08, envMapIntensity: 1 });   // wet plastic
+  const shell = wet('#171517', .5, 1), rear = wet('#121012', .72, .55), trim = wet('#262427', .4, .8);
+  const dark = new THREE.MeshStandardMaterial({ color: '#050405', roughness: .6 }), steel = new THREE.MeshStandardMaterial({ color: '#7d7a7e', roughness: .3, metalness: .95 });
+  const front = new THREE.Mesh(new THREE.ExtrudeGeometry(rr(2.2, 1.8, .14), { depth: .42, bevelEnabled: true, bevelThickness: .05, bevelSize: .05, bevelSegments: 4, curveSegments: 8 }), shell);
+  front.position.z = -.47; g.add(front);
+  const face = rr(2.2, 1.8, .14); face.holes.push(rr(1.7, 1.3, .1, 0, .13, THREE.Path));   // the bezel stands proud of the shell; the tube is set back in it
+  const bez = new THREE.Mesh(new THREE.ExtrudeGeometry(face, { depth: .05, bevelEnabled: true, bevelThickness: .03, bevelSize: .025, bevelSegments: 3, curveSegments: 8 }), shell);
+  bez.position.z = -.01; g.add(bez);
+  const sg = new THREE.PlaneGeometry(1.76, 1.36, 32, 24), sp = sg.attributes.position;
+  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i) / .88, y = sp.getY(i) / .68; sp.setZ(i, .062 * (1 - .5 * (x * x + y * y))); }   // the glass bulges
   sg.computeVertexNormals();
-  tvScreen = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ map: tvTex, toneMapped: false, fog: false }));
-  tvScreen.material.color.setScalar(1.9); tvScreen.position.set(-.3, 0, .1); g.add(tvScreen);   // sits in the bezel opening, glass bulging out
-  // the control panel: two knobs and a speaker grille
-  [[.43, .3], [.73, .3]].forEach(([x, y]) => { const k = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .08, 20), chrome); k.rotation.x = Math.PI / 2; k.position.set(x, y, .13); g.add(k); });
-  for (let i = 0; i < 6; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.42, .018, .02), dark); b.position.set(.58, -.08 - i * .07, .12); g.add(b); }
-  // rabbit ears
-  [-1, 1].forEach((sd) => { const a = new THREE.Group(); a.position.set(.1, .82, -.6);
-    const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .018, 1.15, 8), chrome); rod.position.y = .575; a.add(rod);
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), chrome); tip.position.y = 1.15; a.add(tip);
-    a.rotation.z = sd * .55; a.rotation.x = -.15; g.add(a); });
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(.12, .16, .08, 20), dark); base.position.set(.1, .8, -.6); g.add(base);
+  const tube = new THREE.Mesh(sg, new THREE.ShaderMaterial({ uniforms: tvU, fog: false, extensions: { derivatives: true },
+    vertexShader: 'varying vec2 vUv; varying vec3 vN, vV; void main(){ vUv = uv; vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position, 1.); vV = -mv.xyz; gl_Position = projectionMatrix * mv; }',
+    fragmentShader: `uniform sampler2D map; uniform float glow, t; varying vec2 vUv; varying vec3 vN, vV;
+      void main(){
+        vec2 cc = vUv - .5, uv = .5 + cc * (1. + .34 * dot(cc, cc));   // the picture curves with the tube
+        float inside = step(0., uv.x) * step(uv.x, 1.) * step(0., uv.y) * step(uv.y, 1.);
+        vec3 c = vec3(texture2D(map, uv + vec2(.0012, 0.)).r, texture2D(map, uv).g, texture2D(map, uv - vec2(.0012, 0.)).b);
+        c = pow(c, vec3(2.2));
+        float ly = uv.y * 288., fy = clamp(1. - fwidth(ly) * .8, 0., 1.);   // scanlines, faded out where they would alias
+        c *= mix(1., .55 + .45 * pow(sin(ly * 3.14159), 2.), fy);
+        float gx = uv.x * 960., fx = clamp(1. - fwidth(gx) * .7, 0., 1.), m = mod(floor(gx), 3.);   // aperture grille
+        c *= mix(vec3(1.), vec3(m < .5 ? 1.3 : .8, m > .5 && m < 1.5 ? 1.3 : .8, m > 1.5 ? 1.3 : .8), fx);
+        c *= mix(.3, 1., smoothstep(.66, .18, length(cc * vec2(1., 1.12)))) * inside * glow * (.97 + .03 * sin(t * 120.));
+        vec3 N = normalize(vN), V = normalize(vV); float fr = pow(1. - max(dot(N, V), 0.), 4.);
+        vec3 glass = vec3(.01, .012, .011) + vec3(.16, .05, .05) * fr;   // dead grey-green glass, the red sky in its curve
+        float hl = exp(-pow((vUv.x * .7 + vUv.y - 1.22) * 6., 2.)) * smoothstep(.1, .6, vUv.y) * .05;
+        gl_FragColor = vec4(c + glass + hl, 1.); }` }));
+  tube.position.set(0, .13, 0); g.add(tube);
+  // the chin: speaker slots, a blank badge, the buttons, a standby lamp
+  for (let i = 0; i < 9; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(.014, .17, .02), dark); sl.position.set(-.98 + i * .042, -.72, .052); g.add(sl); }
+  const badge = new THREE.Mesh(new THREE.BoxGeometry(.3, .045, .012), steel); badge.position.set(0, -.6, .056); g.add(badge);
+  for (let i = 0; i < 4; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.1, .05, .035), trim); b.position.set(.42 + i * .135, -.74, .06); g.add(b); }
+  tvLed = new THREE.Mesh(new THREE.SphereGeometry(.017, 10, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(3, .08, .04), fog: false })); tvLed.position.set(.28, -.74, .06); g.add(tvLed);
+  // the bulk of the tube behind, tapering, with vents
+  const hg = new THREE.BoxGeometry(1.9, 1.5, 1.3), hp = hg.attributes.position;
+  for (let i = 0; i < hp.count; i++) if (hp.getZ(i) < 0) { hp.setX(i, hp.getX(i) * .52); hp.setY(i, hp.getY(i) * .58 + .07); }
+  hg.computeVertexNormals();
+  const hump = new THREE.Mesh(hg, rear); hump.position.set(0, .02, -1.17); g.add(hump);
+  for (let i = 0; i < 7; i++) { const v = new THREE.Mesh(new THREE.BoxGeometry(.6, .022, .02), dark); v.position.set(0, -.2 + i * .07, -1.83); g.add(v); }
+  // rabbit ears, one of them bent over
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(.11, .14, .06, 20), trim); base.position.set(0, .66, -1.0); base.rotation.x = .2; g.add(base);
+  const ear = (rz, bend) => { const e = new THREE.Group(); e.position.set(0, .69, -1.0); e.rotation.set(-.2, 0, rz); let y = 0, parent = e;
+    [[.016, .42], [.012, .4], [.009, .36]].forEach(([r, l], i) => { const seg = new THREE.Group(); seg.position.y = y; if (i === 2 && bend) seg.rotation.z = bend;
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 8), steel); rod.position.y = l / 2; seg.add(rod); parent.add(seg); parent = seg; y = l; });
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(.026, 10, 8), steel); tip.position.y = .36; parent.add(tip); return e; };
+  g.add(ear(.42, 0), ear(-.5, -1.25));
+  // the cord it was unplugged from, trailing down into the sea
+  const cord = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V3(.35, -.45, -1.78), V3(.5, -.9, -2.1), V3(.3, -1.9, -2.6), V3(-.2, -3.4, -3.1)]), 40, .022, 6), dark); g.add(cord);
   g.visible = false; return g; }
-// what the tube plays, scrubbed by the section's progress
-const SUB1 = 'A STORY ON FILM OF THE FIGHT FOR A NEW FUTURE', SUB2 = 'THE YEAR TWO THOUSAND AND TWENTY-SIX';
-function snow(a) { const d = snowImg.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+const mistTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  r.addColorStop(0, 'rgba(255,255,255,.75)'); r.addColorStop(.5, 'rgba(255,255,255,.22)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+function buildSet() {   // what drifts with it: sodden shipping boxes, and a low mist on the water
+  const s = new THREE.Group(), card = new THREE.MeshStandardMaterial({ color: '#33281d', roughness: .92 }), tape = new THREE.MeshStandardMaterial({ color: '#5d564e', roughness: .55 });
+  s.userData.boxes = [[-2.7, 1.6, .9], [3.2, -.6, .7], [-4.6, -2.2, .55], [5.4, 2.8, .82], [1.6, 4.6, .6], [-1.2, -4.2, .5]].map(([x, z, k], i) => {
+    const b = new THREE.Group(), m = new THREE.Mesh(new THREE.BoxGeometry(1, .7, .8), card), t = new THREE.Mesh(new THREE.BoxGeometry(1.01, .015, .13), tape);
+    t.position.y = .355; b.add(m, t); b.scale.setScalar(k); b.userData = { x, z, k, ph: i * 1.9 }; s.add(b); return b; });
+  s.userData.mist = Array.from({ length: LITE ? 4 : 7 }, (_, i) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: mistTex, color: new THREE.Color().setRGB(.3, .06, .06), transparent: true, opacity: 0, depthWrite: false }));
+    m.userData = { x: (i - 3) * 2.6, z: ((i * 37) % 7) - 3.5, w: 7 + (i % 3) * 2.5, ph: i * 2.3 }; s.add(m); return m; });
+  s.visible = false; return s; }
+
+// what the tube plays, scrubbed by scroll: a dead channel, then a warehouse camera at night; a figure stands in the aisle,
+// nearer each time it cuts back; then it is too close; then the set dies
+const R1 = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function snow(a, v) { const d = snowImg.data; for (let i = 0; i < d.length; i += 4) { const n = Math.random() * 255 * v; d[i] = n * .96; d[i + 1] = d[i + 2] = n; d[i + 3] = 255; }
   snowG.putImageData(snowImg, 0, 0); tvG.globalAlpha = a; tvG.imageSmoothingEnabled = false; tvG.drawImage(snowCan, 0, 0, TVW, TVH); tvG.globalAlpha = 1; }
-function card(lines, size, col, y0, ghost) { tvG.textAlign = 'center'; tvG.textBaseline = 'middle'; tvG.font = `bold ${size}px "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif`;
-  lines.forEach((l, i) => { const y = y0 + i * size * .95; if (ghost) { tvG.fillStyle = 'rgba(130,120,135,.35)'; tvG.fillText(l, TVW / 2 + size * .09, y + 2); }
-    tvG.shadowColor = col; tvG.shadowBlur = size * .25; tvG.fillStyle = col; tvG.fillText(l, TVW / 2, y); tvG.shadowBlur = 0; }); }
-function wrap(txt, max) { const w = txt.split(' '), out = ['']; w.forEach((x) => { if ((out[out.length - 1] + ' ' + x).trim().length > max) out.push(x); else out[out.length - 1] = (out[out.length - 1] + ' ' + x).trim(); }); return out; }
-function drawTV(k, t) {
-  const g = tvG; g.fillStyle = '#0b0710'; g.fillRect(0, 0, TVW, TVH);
-  const seg = [.1, .2, .44, .6, .8, 1], cut = seg.some((b) => Math.abs(k - b) < .012);   // channel-change static between segments
-  if (k < seg[0]) snow(1);
-  else if (k < seg[1]) { const bars = ['#c0c0c0', '#c0c000', '#00c0c0', '#00c000', '#c000c0', '#c00000', '#0000c0'];
-    bars.forEach((c, i) => { g.fillStyle = c; g.fillRect(i * TVW / 7, 0, TVW / 7 + 1, TVH * .68); });
-    ['#0000c0', '#131313', '#c000c0', '#131313', '#00c0c0', '#131313', '#c0c0c0'].forEach((c, i) => { g.fillStyle = c; g.fillRect(i * TVW / 7, TVH * .68, TVW / 7 + 1, TVH * .08); });
-    g.fillStyle = '#ffffff'; g.fillRect(0, TVH * .76, TVW * .3, TVH * .24); g.fillStyle = '#1a0040'; g.fillRect(TVW * .3, TVH * .76, TVW * .3, TVH * .24); }
-  else if (k < seg[2]) { const fl = (t * 7 % 5.5) > 5 && Math.random() > .4;   // (DEAD) dies out now and then
-    card([fl ? '' : '(DEAD)', 'LABOR'], 118, '#ffd6cc', TVH / 2 - 52, true); }
-  else if (k < seg[3]) { const n = Math.floor(SUB1.length * clamp01((k - seg[2]) / (seg[3] - seg[2]) * 1.3));
-    card(wrap(SUB1.slice(0, n), 17), 40, '#ff5a46', TVH / 2 - 40, true); }
-  else if (k < seg[4]) {   // footage: a conveyor that never stops, and the rate it is set to
-    const sp = (k - seg[3]) / (seg[4] - seg[3]);
-    const wh = g.createLinearGradient(0, 0, 0, TVH); wh.addColorStop(0, '#5a5262'); wh.addColorStop(.6, '#2c2632'); g.fillStyle = wh; g.fillRect(0, 0, TVW, TVH);   // the warehouse
-    g.fillStyle = '#1d1416'; g.fillRect(0, TVH * .62, TVW, TVH * .38); g.fillStyle = '#3a2a2c'; g.fillRect(0, TVH * .6, TVW, 10);
-    for (let i = -1; i < 7; i++) { const x = ((i * 92 + t * 70 * (1 + sp * 2)) % (TVW + 92)) - 92; g.fillStyle = '#a07850'; g.fillRect(x, TVH * .6 - 46, 70, 46); g.fillStyle = '#7a5a3c'; g.fillRect(x, TVH * .6 - 46, 70, 8); }
-    for (let i = 0; i < 3; i++) { const x = 90 + i * 150, b = Math.sin(t * (4 + sp * 6) + i) * 6;   // workers, bending to it
-      g.fillStyle = '#05030a'; g.beginPath(); g.arc(x, TVH * .25 + b, 16, 0, 7); g.fill(); g.fillRect(x - 18, TVH * .25 + 18 + b, 36, 70); g.fillRect(x + 10, TVH * .25 + 34 + b, 34, 12); }
-    g.font = 'bold 26px "Martian Mono", ui-monospace, monospace'; g.textAlign = 'left'; g.fillStyle = '#ff5a46'; g.fillText(`RATE ${Math.round(300 + sp * sp * 900)} / HR`, 24, 40); }
-  else if (k < seg[5]) { const n = Math.floor(SUB2.length * clamp01((k - seg[4]) / (seg[5] - seg[4]) * 1.4));
-    card(wrap(SUB2.slice(0, n), 17), 40, '#ff5a46', TVH / 2 - 60, true);
-    g.font = 'italic 26px "Sorts Mill Goudy", Georgia, serif'; g.fillStyle = 'rgba(239,231,223,.85)'; g.fillText('the Amazon Labor Union', TVW / 2, TVH - 70); }
-  if (cut) snow(.85);
-  g.font = '18px "Martian Mono", ui-monospace, monospace'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = 'rgba(240,235,245,.85)';
-  g.fillText(k < seg[0] ? 'CH 03' : 'PLAY ▶', 22, 18);
-  // a rolling tracking glitch and scanlines
-  const by = (t * 60) % (TVH + 80) - 40; g.drawImage(tvCan, 0, by, TVW, 22, 8 + Math.random() * 10, by, TVW, 22);
-  g.fillStyle = 'rgba(0,0,0,.22)'; for (let y = 0; y < TVH; y += 3) g.fillRect(0, y, TVW, 1);
-  tvTex.needsUpdate = true;
-  // the screen's average colour lights the water and the cabinet
-  tvGlow.set(k < seg[0] ? '#8a8a96' : k < seg[1] ? '#9a8a7a' : k < seg[2] ? '#ff9f90' : '#ff4a3a'); }
-const tvLight = new THREE.PointLight('#ff6050', 0, 120, 1.6); scene.add(tvLight);
+function silhouette(x, feet, h, a) { const g = tvG, hr = h * .064; g.fillStyle = `rgba(3,4,4,${a})`; g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = Math.min(30, h * .03);
+  g.beginPath(); g.ellipse(x, feet - h + hr, hr * .84, hr, 0, 0, 7); g.fill();
+  g.beginPath(); g.moveTo(x - h * .025, feet - h + hr * 1.85); g.lineTo(x - h * .12, feet - h * .81); g.lineTo(x - h * .118, feet - h * .43); g.lineTo(x - h * .085, feet - h * .44);
+  g.lineTo(x - h * .07, feet); g.lineTo(x - h * .02, feet); g.lineTo(x, feet - h * .46); g.lineTo(x + h * .02, feet); g.lineTo(x + h * .07, feet);
+  g.lineTo(x + h * .085, feet - h * .44); g.lineTo(x + h * .118, feet - h * .43); g.lineTo(x + h * .12, feet - h * .81); g.lineTo(x + h * .025, feet - h + hr * 1.85); g.closePath(); g.fill(); g.shadowBlur = 0; }
+function camText(t) { const g = tvG; g.fillStyle = 'rgba(222,232,228,.78)'; g.font = '15px "Martian Mono", ui-monospace, monospace'; g.textBaseline = 'top';
+  g.textAlign = 'left'; g.fillText('CAM 03   AISLE 14', 20, 18); g.textAlign = 'right'; g.fillText(`02:13:${String(7 + Math.floor(t) % 52).padStart(2, '0')} AM`, TVW - 20, TVH - 34); }
+function aisle(near, t) { const g = tvG, vx = TVW * .5, vy = TVH * .45;
+  const bg = g.createLinearGradient(0, 0, 0, TVH); bg.addColorStop(0, '#262a29'); bg.addColorStop(.45, '#151817'); bg.addColorStop(1, '#3b403e'); g.fillStyle = bg; g.fillRect(0, 0, TVW, TVH);
+  g.fillStyle = '#454b49'; g.beginPath(); g.moveTo(0, TVH); g.lineTo(vx - 16, vy + 12); g.lineTo(vx + 16, vy + 12); g.lineTo(TVW, TVH); g.fill();
+  for (let i = 9; i >= 0; i--) { const z = 1 + i * 1.15, s = 1 / z, xl = vx - 225 * s, xr = vx + 225 * s, top = vy - 235 * s, bot = vy + 172 * s;
+    if (!(i === 3 && Math.sin(t * 23) + Math.sin(t * 7.1) > .6)) { g.fillStyle = `rgba(222,236,230,${.85 - i * .06})`; g.fillRect(vx - 38 * s, top - 34 * s, 76 * s, 6 * s + 1); }   // one tube will not stay lit
+    [[xl - 125 * s, xl], [xr, xr + 125 * s]].forEach(([a0, a1], sd) => { const sh = 16 + i * 2;
+      g.fillStyle = `rgb(${sh},${sh + 2},${sh + 1})`; g.fillRect(a0, top, a1 - a0, bot - top);
+      for (let l = 0; l < 4; l++) { const y = top + (bot - top) * (l + 1) / 4.3, n = 2 + Math.floor(R1(i * 9 + l * 3 + sd) * 2);
+        g.fillStyle = '#525a57'; g.fillRect(a0, y, a1 - a0, 3 * s + 1);
+        for (let b = 0; b < n; b++) { const bw = (a1 - a0) / n * (.55 + R1(i + l * 5 + b * 7) * .35), bh = (bot - top) / 4.3 * (.4 + R1(i * 3 + l + b * 11) * .45), c = 64 - i * 4 + R1(b + i * 2) * 16 | 0;
+          g.fillStyle = `rgb(${c},${c - 4},${c - 11})`; g.fillRect(a0 + (a1 - a0) / n * b + 2, y - bh, bw, bh); } }
+      g.fillStyle = '#0b0d0d'; g.fillRect(sd ? a0 : a1 - 6 * s, top, 6 * s + 1, bot - top); }); }
+  const zf = lerp(9.5, 1.3, near), s = 1 / zf;
+  silhouette(vx + 30 * s * (1 - near) + Math.sin(t * .7) * s, vy + 172 * s, 370 * s, .94);
+  camText(t); }
+function closeUp(t) { const g = tvG, l = g.createRadialGradient(TVW * .5, -40, 20, TVW * .5, 60, 420); l.addColorStop(0, '#9aa6a2'); l.addColorStop(1, '#141716'); g.fillStyle = l; g.fillRect(0, 0, TVW, TVH);
+  silhouette(TVW * .5 + Math.sin(t * .5) * 3, 1000, 920 * (1 + Math.sin(t * 1.1) * .006), .97); camText(t); }
+function band(p) { const g = tvG, h = Math.max(1.5, TVH / 2 * p * p * p); g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH / 2 - h); g.fillRect(0, TVH / 2 + h, TVW, TVH / 2 - h + 1);
+  if (p < .4) { g.fillStyle = `rgba(232,240,255,${(1 - p / .4) * .9})`; g.fillRect(0, TVH / 2 - h, TVW, h * 2); } }
+const TS = [.08, .13, .28, .46, .52, .7, .74, .86, .95];
+function drawTV(k, t) { const g = tvG; let lum = .3;
+  if (k < TS[0]) { g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH); lum = 0; }
+  else if (k < TS[2]) snow(1, .5);
+  else if (k < TS[3]) aisle(.03, t);
+  else if (k < TS[4]) { snow(1, .75); lum = .4; }
+  else if (k < TS[5]) aisle(.52, t);
+  else if (k < TS[6]) { g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH); snow(.3, .5); lum = .06; }
+  else if (k < TS[7]) { closeUp(t); lum = .24; }
+  else { snow(1, .55 * (1 - clamp01((k - TS[7]) / .09))); lum = .2; }
+  if (k >= TS[2] && k < TS[7]) snow(.12, 1);   // grain
+  if (k >= TS[0]) { const rb = ((t * .11) % 1.3 - .15) * TVH; g.fillStyle = 'rgba(255,255,255,.045)'; g.fillRect(0, rb, TVW, 46); }   // a slow roll bar
+  if (TS.some((b) => Math.abs(k - b) < .006)) { const y = Math.random() * TVH; g.drawImage(tvCan, 0, y, TVW, 40, 16, y, TVW, 40); }   // hard cuts tear
+  if (k >= TS[0] && k < TS[1]) band(clamp01((k - TS[0]) / (TS[1] - TS[0])));   // switched on: a line opens into the picture
+  if (k > TS[8]) { const p = 1 - clamp01((k - TS[8]) / .03);   // switched off: the picture collapses to a line, then a point
+    if (p > 0) band(p); else { g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH); const a = 1 - clamp01((k - .98) / .02); g.fillStyle = `rgba(235,242,255,${a})`; g.beginPath(); g.arc(TVW / 2, TVH / 2, 5 * a + 1, 0, 7); g.fill(); }
+    lum *= Math.max(p, .05); }
+  tvTex.needsUpdate = true; tvLum = lum;
+  tvGlow.setRGB(.55, .66, .63); }
+const tvLight = new THREE.PointLight('#a8c4bc', 0, 160, 1.4); scene.add(tvLight);
 
 function farCull(m) { m.onBeforeCompile = (sh) => {
   sh.uniforms.gc = { value: globeAnchor };
@@ -685,29 +719,15 @@ const rt = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, sample
 const composer = new THREE.EffectComposer(renderer, rt);
 composer.addPass(new THREE.RenderPass(scene, camera));
 const bloom = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), .55, .45, 1.15); composer.addPass(bloom);
-const post = new THREE.ShaderPass({ uniforms: { tDiffuse: { value: null }, exposure: { value: 1.1 }, vhs: { value: 0 }, vt: { value: 0 }, res: { value: new THREE.Vector2(1, 1) } },
+const post = new THREE.ShaderPass({ uniforms: { tDiffuse: { value: null }, exposure: { value: 1.1 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float exposure, vhs, vt; uniform vec2 res; varying vec2 vUv;
-    float hh(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float exposure; varying vec2 vUv;
     vec3 fit(vec3 v){ vec3 a = v * (v + .0245786) - .000090537; vec3 b = v * (.983729 * v + .4329510) + .238081; return a / b; }
     vec3 aces(vec3 c){ const mat3 I = mat3(vec3(.59719,.07600,.02840), vec3(.35458,.90834,.13383), vec3(.04823,.01566,.83777));
       const mat3 O = mat3(vec3(1.60475,-.10208,-.00327), vec3(-.53108,1.10813,-.07276), vec3(-.07367,-.00605,1.07602));
       c *= exposure / .6; return clamp(O * fit(I * c), 0., 1.); }
     vec3 srgb(vec3 c){ return mix(c * 12.92, 1.055 * pow(c, vec3(1. / 2.4)) - .055, step(.0031308, c)); }
-    void main(){
-      vec2 uv = vUv; float band = 0.;
-      if (vhs > 0.) {   // (Dead) Labor: the world plays back off a worn tape: line jitter, a rolling tracking band, colour bleed, scanlines, snow
-        float line = floor(vUv.y * res.y / 2.); band = smoothstep(.06, 0., abs(vUv.y - (1. - fract(vt * .085))));
-        uv.x += ((hh(vec2(line, floor(vt * 24.))) - .5) * .0022 + band * (hh(vec2(line, vt)) - .35) * .035 + sin(vUv.y * 8. + vt * 1.1) * .0012) * vhs; }
-      float ca = .004 * vhs;
-      vec3 c = vec3(texture2D(tDiffuse, uv + vec2(ca, 0.)).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - vec2(ca, 0.)).b);
-      c = srgb(aces(c));
-      if (vhs > 0.) {
-        float l = dot(c, vec3(.3, .59, .11)); c = mix(c, vec3(l) * vec3(1.06, .9, 1.), .3 * vhs);
-        c = mix(c, c * .86 + vec3(.04, .028, .07), vhs);
-        c *= 1. - vhs * .2 * (.5 + .5 * sin(vUv.y * res.y * 1.5708));
-        c += ((hh(vUv * res + vt * 91.) - .5) * .1 + band * hh(vUv * res * .5 + vt) * .16) * vhs; }
-      c *= mix(.68, 1., smoothstep(1.15, .3, length(vUv - .5))); gl_FragColor = vec4(c, 1.); }` });
+    void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; c = srgb(aces(c)); c *= mix(.68, 1., smoothstep(1.15, .3, length(vUv - .5))); gl_FragColor = vec4(c, 1.); }` });
 composer.addPass(post);
 
 // ── the story: the page opens looking up into the night sky; scrolling brings the camera down into the opening
@@ -779,7 +799,7 @@ let sizeW = 0, sizeH = 0;
 function resize(force) { const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
   if (!force && w === sizeW && h === sizeH) return; sizeW = w; sizeH = h;
   renderer.setPixelRatio(DPR); renderer.setSize(w, h, false); composer.setPixelRatio && composer.setPixelRatio(DPR); composer.setSize(w, h);
-  bloom.setSize(w * DPR / (LITE ? 3 : 2), h * DPR / (LITE ? 3 : 2)); post.uniforms.res.value.set(w * DPR, h * DPR);
+  bloom.setSize(w * DPR / (LITE ? 3 : 2), h * DPR / (LITE ? 3 : 2));
   camera.aspect = w / h; camera.fov = w < h ? 58 : 42; camera.updateProjectionMatrix(); }
 addEventListener('resize', () => resize()); resize(true);
 // adaptive resolution: if frames run slow for a couple of seconds, render fewer pixels; give them back when there is headroom
@@ -788,8 +808,7 @@ function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT 
   const next = frameAvg > 1 / 42 ? Math.max(.6, DPR * .85) : frameAvg < 1 / 57 ? Math.min(DPR_MAX, DPR * 1.08) : DPR;
   if (Math.abs(next - DPR) > .02) { DPR = next; resize(true); } perfT = 0; }
 
-const V = ['#v1', '#v2', '#v3'].map($), CC = $('#christians-and-cannibals'), DL = $('#dead-labor'), TC = $('#tc');
-let tcLast = '';
+const V = ['#v1', '#v2', '#v3'].map($), CC = $('#christians-and-cannibals'), DL = $('#dead-labor');
 const ray = new THREE.Raycaster(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 let tPrev = performance.now(), clock = 0, envRed = -1, envEcl = -1;
 function frame(now) {
@@ -886,8 +905,6 @@ function frame(now) {
   CC.style.setProperty('--k', (clamp01((innerHeight - ccR.top) / innerHeight) * .25 + ccK * .75).toFixed(3));
   DL.style.setProperty('--k', (clamp01((innerHeight - dlR.top) / innerHeight) * .25 + dlK * .75).toFixed(3));
   const dlIn = smooth((innerHeight - dlR.top) / innerHeight), dlOut = smooth((-dlR.bottom + innerHeight * 1.2) / (innerHeight * .6));
-  post.uniforms.vhs.value = REDUCED ? 0 : dlIn * (1 - dlOut) * .6; post.uniforms.vt.value = clock;
-  if (TC && dlIn > 0) { const sec = Math.floor(dlK * 5400), t = `${Math.floor(sec / 3600)}:${String(Math.floor(sec / 60) % 60).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`; if (t !== tcLast) { TC.textContent = t; tcLast = t; } }
   // each film stands its thing in the sea where the camera will be looking halfway through the section, so it holds
   // still in the world while we drift past; returns the spot D ahead (shifted sideways by `side`) and the camera's position there
   const anchor = (el, D, side) => { const aR = (el.offsetTop + (el.offsetHeight - innerHeight) / 2 - (story.offsetHeight - innerHeight)) / innerHeight;
@@ -907,18 +924,25 @@ function frame(now) {
       fig.rotation.set(0, Math.atan2(a.px - a.x, a.pz - a.z) - .32, Math.sin(clock * .45) * .012);   // turned a little away, as in the footage
       figU.look.value.set(REDUCED ? 0 : lerp(figU.look.value.x, ptr.sx * .5 + .25, .08), REDUCED ? 0 : lerp(figU.look.value.y, -ptr.sy * .22, .08));
       figU.t.value = clock; figU.on.value = smooth(rise * 3);
-      waterU.fig.value.set(figPos.x, figPos.z, smooth(rise * 2)); waterU.figC.value.setRGB(.95, .2, .045); pool = 1; } }
-  // the television surfaces as (Dead) Labor comes on and plays it out; it goes back under as the section ends
+      waterU.fig.value.set(figPos.x, figPos.z, smooth(rise * 2)); waterU.figC.value.setRGB(.95, .2, .045); waterU.figR.value = 1; pool = 1; } }
+  // the television surfaces as (Dead) Labor comes on, listing and bobbing on the swell, and goes back under as the section ends
   if (red > .9 && dlIn > 0 && dlOut < 1) {
-    if (!tv) { tv = buildTV(); scene.add(tv); }
-    const up = easeIO(clamp01(dlIn * 1.25)) * (1 - easeIO(dlOut)), a = anchor(DL, 70, 0), sc = Math.min(16, halfW(70) * .72 / 1.05);   // far enough out that its waterline is in frame
-    tv.visible = up > .001; tv.scale.setScalar(sc);
-    tv.position.set(a.x, waterU.level.value - sc * 1.5 + sc * 2.07 * up + Math.sin(clock * .9) * .3, a.z);   // it rides up until only its base is wet
-    tv.rotation.set(-.06 + Math.sin(clock * .7) * .015, Math.atan2(a.px - a.x, a.pz - a.z) + .12, .07 + Math.sin(clock * .55) * .025);
-    drawTV(clamp01(dlK * 1.08 - .02), clock);
-    tvLight.color.copy(tvGlow); tvLight.intensity = up * 4; tvLight.position.copy(tv.position).add(tmp2.set(0, 0, sc * 1.4).applyEuler(tv.rotation));
-    if (!pool) { waterU.fig.value.set(tv.position.x, tv.position.z, up * .8); waterU.figC.value.copy(tvGlow).multiplyScalar(.6); pool = 1; } }
-  else if (tv) { tv.visible = false; tvLight.intensity = 0; }
+    if (!tv) { tv = buildTV(); tvSet = buildSet(); scene.add(tv, tvSet); }
+    const up = easeIO(clamp01(dlIn * 1.2)) * (1 - easeIO(dlOut)), a = anchor(DL, 95, camera.aspect >= 1 ? halfW(95) * .16 : 0), sc = Math.min(19, halfW(95) * .62 / 1.1);
+    const lv = waterU.level.value, yaw = Math.atan2(a.px - a.x, a.pz - a.z);
+    tv.visible = tvSet.visible = up > .001; tv.scale.setScalar(sc); tvSet.scale.setScalar(sc);
+    const bob = Math.sin(clock * .62) * .06 + Math.sin(clock * .37 + 1.3) * .045;
+    tv.position.set(a.x, lv + sc * (-2.1 + 2.22 * up + bob), a.z);   // risen, it floats with a little over half of it clear of the water
+    tv.rotation.set(-.11 + Math.sin(clock * .51 + 1) * .045, yaw - .55 + Math.sin(clock * .23) * .06, .2 + Math.sin(clock * .43) * .055, 'YXZ');   // listing, turned away
+    tvSet.position.set(a.x, lv, a.z); tvSet.rotation.y = yaw;
+    tvSet.userData.boxes.forEach((b) => { const u = b.userData; b.position.set(u.x, (-.42 + .3 * up) * u.k + Math.sin(clock * .7 + u.ph) * .04, u.z);
+      b.rotation.set(Math.sin(clock * .41 + u.ph) * .07, u.ph + clock * .02, .12 * Math.sin(u.ph) + Math.sin(clock * .5 + u.ph) * .06); });
+    tvSet.userData.mist.forEach((m) => { const u = m.userData; m.position.set(u.x + Math.sin(clock * .05 + u.ph) * 1.5, .35, u.z); m.scale.set(u.w, u.w * .22, 1); m.material.opacity = up * .16; });
+    if (!LITE || (Math.floor(clock * 60) & 1)) drawTV(clamp01(dlK * 1.06 - .02), clock);
+    tvU.glow.value = up * 2.4; tvU.t.value = clock; tvLed.material.color.setRGB(3 * (.6 + .4 * Math.sin(clock * 2.1)), .08, .04);
+    tvLight.color.copy(tvGlow); tvLight.intensity = up * tvLum * 16; tvLight.position.copy(tv.position).add(tmp2.set(0, .2 * sc, 1.6 * sc).applyEuler(tv.rotation));
+    if (!pool) { waterU.fig.value.set(tvLight.position.x, tvLight.position.z, up); waterU.figC.value.copy(tvGlow).multiplyScalar(tvLum * 1.1); waterU.figR.value = sc / 5; pool = 1; } }
+  else if (tv) { tv.visible = tvSet.visible = false; tvLight.intensity = 0; }
   if (!pool) waterU.fig.value.z = 0;
 
   if (Math.abs(red - envRed) > (LITE ? .16 : .08) || Math.abs(ecl - envEcl) > (LITE ? .2 : .1) || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
