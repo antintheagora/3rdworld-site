@@ -650,6 +650,7 @@ function drawTV(k, t) {
     card(wrap(SUB1.slice(0, n), 17), 40, '#ff5a46', TVH / 2 - 40, true); }
   else if (k < seg[4]) {   // footage: a conveyor that never stops, and the rate it is set to
     const sp = (k - seg[3]) / (seg[4] - seg[3]);
+    const wh = g.createLinearGradient(0, 0, 0, TVH); wh.addColorStop(0, '#5a5262'); wh.addColorStop(.6, '#2c2632'); g.fillStyle = wh; g.fillRect(0, 0, TVW, TVH);   // the warehouse
     g.fillStyle = '#1d1416'; g.fillRect(0, TVH * .62, TVW, TVH * .38); g.fillStyle = '#3a2a2c'; g.fillRect(0, TVH * .6, TVW, 10);
     for (let i = -1; i < 7; i++) { const x = ((i * 92 + t * 70 * (1 + sp * 2)) % (TVW + 92)) - 92; g.fillStyle = '#a07850'; g.fillRect(x, TVH * .6 - 46, 70, 46); g.fillStyle = '#7a5a3c'; g.fillRect(x, TVH * .6 - 46, 70, 8); }
     for (let i = 0; i < 3; i++) { const x = 90 + i * 150, b = Math.sin(t * (4 + sp * 6) + i) * 6;   // workers, bending to it
