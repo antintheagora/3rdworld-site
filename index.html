@@ -419,19 +419,22 @@ const coronaTex = (() => { const S = 1024, C = S / 2, R0 = C / CORONA, c = docum
   // the inner corona: a pearly glow that falls away steeply from the limb
   const r = g.createRadialGradient(C, C, R0 * .98, C, C, C); [[0, .95], [.015, .62], [.05, .34], [.12, .15], [.24, .055], [.45, .016], [1, 0]].forEach(([k, a]) => r.addColorStop(k, `rgba(255,246,240,${a})`));
   g.fillStyle = r; g.fillRect(0, 0, S, S); g.globalCompositeOperation = 'lighter';
-  // fine filaments, longest where the streamers run (a broad fan either side), each faint
-  g.filter = 'blur(1.2px)';
+  // fine filaments, longest where the streamers run (a broad fan either side), each faint; drawn crisp on their own
+  // layer, then softened once as a whole (a blur per stroke would stall the page)
+  const fc = document.createElement('canvas'); fc.width = fc.height = S; const f = fc.getContext('2d'); f.globalCompositeOperation = 'lighter';
   for (let i = 0; i < 900; i++) { const a = R() * 6.283, eq = Math.pow(Math.abs(Math.cos(a - .35)), 4), len = R0 * (.25 + R() * (.5 + eq * 2.8));
-    const lg = g.createLinearGradient(C + Math.cos(a) * R0, C + Math.sin(a) * R0, C + Math.cos(a) * (R0 + len), C + Math.sin(a) * (R0 + len));
+    const lg = f.createLinearGradient(C + Math.cos(a) * R0, C + Math.sin(a) * R0, C + Math.cos(a) * (R0 + len), C + Math.sin(a) * (R0 + len));
     lg.addColorStop(0, `rgba(255,248,242,${.03 + R() * .06 * (.4 + eq)})`); lg.addColorStop(1, 'rgba(255,248,242,0)');
-    g.strokeStyle = lg; g.lineWidth = .5 + R() * 1.3; g.beginPath(); g.moveTo(C + Math.cos(a) * R0, C + Math.sin(a) * R0);
-    const bend = (R() - .5) * .08; g.quadraticCurveTo(C + Math.cos(a + bend) * (R0 + len * .55), C + Math.sin(a + bend) * (R0 + len * .55), C + Math.cos(a + bend * 1.6) * (R0 + len), C + Math.sin(a + bend * 1.6) * (R0 + len)); g.stroke(); }
-  // a few broad helmet streamers, very soft
-  g.filter = 'blur(10px)';
+    f.strokeStyle = lg; f.lineWidth = .5 + R() * 1.3; f.beginPath(); f.moveTo(C + Math.cos(a) * R0, C + Math.sin(a) * R0);
+    const bend = (R() - .5) * .08; f.quadraticCurveTo(C + Math.cos(a + bend) * (R0 + len * .55), C + Math.sin(a + bend) * (R0 + len * .55), C + Math.cos(a + bend * 1.6) * (R0 + len), C + Math.sin(a + bend * 1.6) * (R0 + len)); f.stroke(); }
+  g.filter = 'blur(1.2px)'; g.drawImage(fc, 0, 0);
+  // a few broad helmet streamers, very soft (likewise drawn, then blurred once)
+  f.globalCompositeOperation = 'source-over'; f.clearRect(0, 0, S, S);
   [.35, .35 + Math.PI, 1.6, 4.4].forEach((a, i) => { const len = R0 * (2.2 + i % 2), w = .12 + R() * .1;
-    g.fillStyle = `rgba(255,244,236,${i < 2 ? .07 : .04})`; g.beginPath(); g.moveTo(C + Math.cos(a - w) * R0, C + Math.sin(a - w) * R0);
-    g.quadraticCurveTo(C + Math.cos(a) * (R0 + len * .7), C + Math.sin(a) * (R0 + len * .7), C + Math.cos(a) * (R0 + len), C + Math.sin(a) * (R0 + len));
-    g.quadraticCurveTo(C + Math.cos(a) * (R0 + len * .7), C + Math.sin(a) * (R0 + len * .7), C + Math.cos(a + w) * R0, C + Math.sin(a + w) * R0); g.fill(); });
+    f.fillStyle = `rgba(255,244,236,${i < 2 ? .07 : .04})`; f.beginPath(); f.moveTo(C + Math.cos(a - w) * R0, C + Math.sin(a - w) * R0);
+    f.quadraticCurveTo(C + Math.cos(a) * (R0 + len * .7), C + Math.sin(a) * (R0 + len * .7), C + Math.cos(a) * (R0 + len), C + Math.sin(a) * (R0 + len));
+    f.quadraticCurveTo(C + Math.cos(a) * (R0 + len * .7), C + Math.sin(a) * (R0 + len * .7), C + Math.cos(a + w) * R0, C + Math.sin(a + w) * R0); f.fill(); });
+  g.filter = 'blur(10px)'; g.drawImage(fc, 0, 0);
   // the chromosphere: a thin rose rim right at the limb
   g.filter = 'blur(1px)'; const ch = g.createRadialGradient(C, C, R0 * .985, C, C, R0 * 1.035); ch.addColorStop(0, 'rgba(255,120,140,0)'); ch.addColorStop(.35, 'rgba(255,128,146,.55)'); ch.addColorStop(1, 'rgba(255,120,140,0)');
   g.fillStyle = ch; g.fillRect(0, 0, S, S); g.filter = 'none';
