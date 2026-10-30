@@ -45,7 +45,9 @@ a { color: inherit }
 .top nav { display: flex; gap: 26px }
 .top nav a { text-decoration: none; color: var(--ash); transition: color .3s }
 .top nav a:hover { color: var(--bone) }
+.top nav a { white-space: nowrap }
 .top nav .sh { display: none }
+@media (max-width: 1180px) { .top nav { gap: 20px } .top nav .lg { display: none } .top nav .sh { display: inline } }
 
 main { position: relative; z-index: 2 }
 .story { height: 640vh; position: relative }
@@ -80,9 +82,9 @@ main { position: relative; z-index: 2 }
 .dl-text { position: absolute; left: var(--gut); bottom: 9svh; max-width: min(48vw, 680px); font-family: var(--poster); font-weight: 700; text-transform: uppercase }
 .dl h2 { margin: 0; font-size: clamp(3rem, 7vw, 7.6rem); line-height: .84; letter-spacing: calc(-.02em + (1 - var(--t)) * .3em);
   filter: drop-shadow(0 0 .05em rgba(255,120,96,.9)) drop-shadow(0 0 .22em rgba(255,40,28,.55)) }
-.dl h2 > span { display: block; position: relative; color: transparent; -webkit-text-fill-color: transparent;   /* white at the core, bleeding to red, through grain */
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(120% 140% at 45% 40%, #fff6ef 0%, #ffd2c4 30%, #ff7a62 62%, #ff2a1e 100%);
+.dl h2 > span { display: table; position: relative; color: transparent; -webkit-text-fill-color: transparent;   /* white at the core, bleeding to red, through grain */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(to bottom, #fffaf6 2%, #ffd8cc 26%, #ff7058 56%, #ff2a18 86%);
   -webkit-background-clip: text; background-clip: text }
 .dl h2 > span::before { content: attr(data-t); position: absolute; left: .075em; top: .035em; z-index: -1; color: rgba(112,104,120,.5); -webkit-text-fill-color: rgba(112,104,120,.5); background: none }
 .dl-status { margin: 0 0 1.4vh; color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
@@ -539,7 +541,7 @@ load('assets/jerusalem.gltf.json').then((g) => {
     if (!o.isMesh) return;
     const name = o.name || '', src = o.material;
     if (/moon/i.test(name)) {
-      moon = o; moon.material = moonMat; o.position.set(-3640, 462, -8960); o.scale.multiplyScalar(10.36);   // behind every range; same apparent size as before moonBase.copy(o.position); moon.renderOrder = -5;
+      moon = o; moon.material = moonMat; o.position.set(-3640, 800, -8960); o.scale.multiplyScalar(10.36);   // behind every range; same apparent size as before moonBase.copy(o.position); moon.renderOrder = -5;
       halo.scale.setScalar(o.scale.x * 3.2); halo.position.copy(o.position); scene.add(halo);
       o.geometry.computeBoundingSphere(); moonR = o.geometry.boundingSphere.radius * o.scale.x;
       corona.scale.setScalar(moonR * 2 * CORONA); scene.add(corona); return; }
