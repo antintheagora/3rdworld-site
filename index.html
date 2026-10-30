@@ -614,17 +614,17 @@ function buildTV() {
   bezel.position.z = .05; g.add(bezel);
   // the tube: a bulging glass face showing the canvas
   const sg = new THREE.PlaneGeometry(1.36, 1.06, 24, 18), sp = sg.attributes.position;
-  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i) / .68, y = sp.getY(i) / .53; sp.setZ(i, .07 * Math.max(0, 1 - (x * x + y * y) * .5)); }
+  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i) / .68, y = sp.getY(i) / .53; sp.setZ(i, .05 * Math.max(0, 1 - (x * x + y * y) * .5)); }
   sg.computeVertexNormals();
   tvScreen = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ map: tvTex, toneMapped: false, fog: false }));
-  tvScreen.material.color.setScalar(1.9); tvScreen.position.set(-.3, 0, .03); g.add(tvScreen);
+  tvScreen.material.color.setScalar(1.9); tvScreen.position.set(-.3, 0, .1); g.add(tvScreen);   // sits in the bezel opening, glass bulging out
   // the control panel: two knobs and a speaker grille
   [[.43, .3], [.73, .3]].forEach(([x, y]) => { const k = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .08, 20), chrome); k.rotation.x = Math.PI / 2; k.position.set(x, y, .13); g.add(k); });
   for (let i = 0; i < 6; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.42, .018, .02), dark); b.position.set(.58, -.08 - i * .07, .12); g.add(b); }
   // rabbit ears
   [-1, 1].forEach((sd) => { const a = new THREE.Group(); a.position.set(.1, .82, -.6);
-    const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .018, 1.5, 8), chrome); rod.position.y = .75; a.add(rod);
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), chrome); tip.position.y = 1.5; a.add(tip);
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .018, 1.15, 8), chrome); rod.position.y = .575; a.add(rod);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), chrome); tip.position.y = 1.15; a.add(tip);
     a.rotation.z = sd * .55; a.rotation.x = -.15; g.add(a); });
   const base = new THREE.Mesh(new THREE.CylinderGeometry(.12, .16, .08, 20), dark); base.position.set(.1, .8, -.6); g.add(base);
   g.visible = false; return g; }
@@ -667,7 +667,7 @@ function drawTV(k, t) {
   tvTex.needsUpdate = true;
   // the screen's average colour lights the water and the cabinet
   tvGlow.set(k < seg[0] ? '#8a8a96' : k < seg[1] ? '#9a8a7a' : k < seg[2] ? '#ff9f90' : '#ff4a3a'); }
-const tvLight = new THREE.PointLight('#ff6050', 0, 70, 1.6); scene.add(tvLight);
+const tvLight = new THREE.PointLight('#ff6050', 0, 120, 1.6); scene.add(tvLight);
 
 function farCull(m) { m.onBeforeCompile = (sh) => {
   sh.uniforms.gc = { value: globeAnchor };
@@ -897,7 +897,7 @@ function frame(now) {
     const rise = smooth((innerHeight - ccR.top) / (innerHeight * 1.6)) * (1 - smooth(dlIn * 1.4));
     fig.visible = rise > .001 && red > .9;
     if (fig.visible) {
-      const a = anchor(CC, 36, camera.aspect >= 1 ? halfW(36) * .22 : 0);
+      const a = anchor(CC, 36, camera.aspect >= 1 ? halfW(36) * .06 : 0);
       figPos.set(a.x, waterU.level.value - FIG_H * (1.02 - .6 * easeIO(rise)) + Math.sin(clock * .6) * .15 * rise, a.z);
       fig.position.copy(figPos);
       fig.rotation.set(0, Math.atan2(a.px - a.x, a.pz - a.z) - .32, Math.sin(clock * .45) * .012);   // turned a little away, as in the footage
@@ -907,12 +907,12 @@ function frame(now) {
   // the television surfaces as (Dead) Labor comes on and plays it out; it goes back under as the section ends
   if (red > .9 && dlIn > 0 && dlOut < 1) {
     if (!tv) { tv = buildTV(); scene.add(tv); }
-    const up = easeIO(clamp01(dlIn * 1.25)) * (1 - easeIO(dlOut)), a = anchor(DL, 34, 0), sc = Math.min(8.5, halfW(34) * .78 / 1.1);
+    const up = easeIO(clamp01(dlIn * 1.25)) * (1 - easeIO(dlOut)), a = anchor(DL, 70, 0), sc = Math.min(16, halfW(70) * .72 / 1.05);   // far enough out that its waterline is in frame
     tv.visible = up > .001; tv.scale.setScalar(sc);
-    tv.position.set(a.x, waterU.level.value - sc * 1.7 + sc * 2.3 * up + Math.sin(clock * .9) * .25, a.z);   // it rides up until only its base is wet
+    tv.position.set(a.x, waterU.level.value - sc * 1.5 + sc * 2.07 * up + Math.sin(clock * .9) * .3, a.z);   // it rides up until only its base is wet
     tv.rotation.set(-.06 + Math.sin(clock * .7) * .015, Math.atan2(a.px - a.x, a.pz - a.z) + .12, .07 + Math.sin(clock * .55) * .025);
     drawTV(clamp01(dlK * 1.08 - .02), clock);
-    tvLight.color.copy(tvGlow); tvLight.intensity = up * 3.2; tvLight.position.copy(tv.position).add(tmp2.set(0, 0, sc * 1.4).applyEuler(tv.rotation));
+    tvLight.color.copy(tvGlow); tvLight.intensity = up * 4; tvLight.position.copy(tv.position).add(tmp2.set(0, 0, sc * 1.4).applyEuler(tv.rotation));
     if (!pool) { waterU.fig.value.set(tv.position.x, tv.position.z, up * .8); waterU.figC.value.copy(tvGlow).multiplyScalar(.6); pool = 1; } }
   else if (tv) { tv.visible = false; tvLight.intensity = 0; }
   if (!pool) waterU.fig.value.z = 0;
