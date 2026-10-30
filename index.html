@@ -94,19 +94,19 @@ main { position: relative; z-index: 2 }
 .foot .row a { text-decoration: none; color: var(--ash) } .foot .row a:hover { color: var(--bone) }
 
 .verse { position: fixed; z-index: 3; margin: 0; max-width: 34ch; pointer-events: none; opacity: 0; visibility: hidden;
-  font-style: italic; font-size: clamp(1.15rem, 1.75vw, 1.75rem); line-height: 1.38; letter-spacing: .03em; text-transform: uppercase; color: #ff5e54; text-wrap: pretty;
+  font-style: italic; font-size: clamp(.95rem, min(1.75vw, 2.7vh), 1.75rem); line-height: 1.38; letter-spacing: .03em; text-transform: uppercase; color: #ff5e54; text-wrap: pretty;
   text-shadow: 0 0 1px #200, 0 0 6px rgba(255,80,66,.9), 0 0 16px rgba(255,36,24,.65), 0 0 38px rgba(255,10,0,.4), 0 0 60px rgba(7,5,16,.8);
   padding: 1.4em 1.8em; background: radial-gradient(closest-side, rgba(7,5,16,.62), rgba(7,5,16,.3) 70%, transparent) }
 .verse p { margin: 0 }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
 .verse .x { display: block; width: .62em; height: .62em; margin: 0 auto .9em; fill: var(--hot); filter: drop-shadow(0 0 8px rgba(255,30,30,.6)) }
 .verse cite { display: block; margin-top: 1.3em; color: var(--ash); font-style: normal; text-shadow: 0 0 14px rgba(7,5,16,.9) }
-.verse.sky { top: 10vh; left: 50%; max-width: min(66ch, 88vw); text-align: center; translate: -50% 0 }
-.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; max-width: min(34ch, 36vw); font-size: clamp(1.05rem, 1.55vw, 1.6rem) }
-.verse.sea { top: 14vh; left: var(--gut); max-width: min(38ch, 34vw); font-size: clamp(1.05rem, 1.55vw, 1.6rem) }
+.verse.sky { top: 10vh; left: 50%; width: min(66ch, 88vw); max-width: none; text-align: center; translate: -50% 0 }
+.verse.burst { top: 50%; right: var(--gutr); translate: 0 -50%; text-align: right; width: min(36ch, 40vw); max-width: none; font-size: clamp(.9rem, min(1.55vw, 2.4vh), 1.6rem) }
+.verse.sea { top: 13vh; left: var(--gut); width: min(40ch, 38vw); max-width: none; font-size: clamp(.9rem, min(1.55vw, 2.4vh), 1.6rem) }
 
 @media (max-width: 700px) {
-  .verse, .verse.sky, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); max-width: none; text-align: center; translate: none; font-size: 1rem; padding: 1em .4em; line-height: 1.38 }
+  .verse, .verse.sky, .verse.burst, .verse.sea { left: var(--gut); right: var(--gutr); width: auto; max-width: none; text-align: center; translate: none; font-size: 1rem; padding: 1em .4em; line-height: 1.38 }
   .verse.sky { top: 12svh }
   .verse.burst { top: auto; bottom: 12svh }
   .verse.sea { bottom: auto; top: 11svh }
@@ -731,8 +731,8 @@ function snow(a, v) { const d = snowImg.data; for (let i = 0; i < d.length; i +=
 function band(p) { const g = tvG, h = Math.max(1.5, TVH / 2 * p * p * p); g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH / 2 - h); g.fillRect(0, TVH / 2 + h, TVW, TVH / 2 - h + 1);
   if (p < .4) { g.fillStyle = `rgba(232,240,255,${(1 - p / .4) * .9})`; g.fillRect(0, TVH / 2 - h, TVW, h * 2); } }
 function subCard(a) { const g = tvG; g.save(); g.translate(TVW / 2, TVH / 2); g.scale(.8, 1); g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.font = 'bold 52px "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif';
-  [['A STORY ON FILM OF THE', -32], ['FIGHT FOR A NEW FUTURE', 32]].forEach(([l, y]) => {
+  g.font = 'bold 40px "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif';
+  [['A STORY ON FILM OF THE', -26], ['FIGHT FOR A NEW FUTURE', 26]].forEach(([l, y]) => {
     g.fillStyle = `rgba(118,108,124,${.4 * a})`; g.fillText(l, 9, y + 4);   // its ghost, offset as on the card
     g.shadowColor = `rgba(255,70,48,${.95 * a})`; g.shadowBlur = 18; g.fillStyle = `rgba(255,104,80,${a})`; g.fillText(l, 0, y); g.shadowBlur = 0; });
   g.restore(); }
