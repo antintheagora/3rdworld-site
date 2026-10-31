@@ -896,7 +896,6 @@ function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT 
   if (Math.abs(next - DPR) > .02) { DPR = next; resize(true); } perfT = 0; }
 
 let cueN = 0, cueT = 0, inSky = false;
-writeOut($('#v1')); writeOut($('#v3'));
 addEventListener('scroll', () => { const n = performance.now(); if (n - cueT > 450) cueN++; cueT = n; }, { passive: true });
 const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent; p.innerHTML = '';   // each letter in a span, so the passage can be written out
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = txt; p.appendChild(sr);
@@ -905,6 +904,7 @@ const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent;
 const writeTo = (el, f) => { const n = Math.round(clamp01(f) * el._ch.length); if (n === el._n) return;
   for (let i = Math.min(n, el._n); i < Math.max(n, el._n); i++) el._ch[i].classList.toggle('on', i < n); el._n = n; };
 const V = ['#v1', '#v2', '#v3'].map($), CC = $('#christians-and-cannibals'), DL = $('#dead-labor');
+writeOut($('#v1')); writeOut($('#v3'));
 const ray = new THREE.Raycaster(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 let tPrev = performance.now(), clock = 0, envRed = -1, envEcl = -1;
 function frame(now) {
