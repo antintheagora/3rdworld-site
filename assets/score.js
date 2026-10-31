@@ -15,6 +15,23 @@ const CHORDS = [
   { bass: 43, v: [53, 58, 60, 65], tones: [60, 62, 65, 67, 72] },   // Gm11
   { bass: 45, v: [55, 58, 61, 65], tones: [61, 64, 65, 69, 70] },   // A7b9 (sus, dark)
 ];
+// when the sea comes in the harmony lifts into the theme: a ballad that rises, breaks and falls back to D minor
+//   Bbmaj7 | C | Am7 | Dm | Gm7 | C/E | F | A7
+const THEME = [
+  { bass: 34, v: [57, 62, 65, 69], tones: [58, 62, 65, 69, 74], lh: [34, 41, 46, 50, 53] },
+  { bass: 36, v: [55, 60, 64, 67], tones: [60, 64, 67, 72, 76], lh: [36, 43, 48, 52, 55] },
+  { bass: 33, v: [57, 60, 64, 67], tones: [57, 60, 64, 67, 72], lh: [33, 40, 45, 48, 52] },
+  { bass: 38, v: [57, 62, 65, 69], tones: [62, 65, 69, 74, 77], lh: [38, 45, 50, 53, 57] },
+  { bass: 43, v: [58, 62, 65, 67], tones: [55, 58, 62, 65, 70], lh: [31, 38, 43, 46, 50] },
+  { bass: 40, v: [55, 60, 64, 67], tones: [60, 64, 67, 72, 76], lh: [40, 43, 48, 52, 55] },
+  { bass: 41, v: [57, 60, 65, 69], tones: [60, 65, 69, 72, 77], lh: [41, 48, 53, 57, 60] },
+  { bass: 45, v: [55, 61, 64, 67], tones: [61, 64, 67, 69, 73], lh: [33, 40, 45, 49, 52] },
+];
+// the hook, on the piano: eighth notes, 0 = rest (held)
+const HOOK = [
+  [69, 0, 72, 0, 74, 0, 0, 72], [76, 0, 0, 0, 74, 72, 0, 0], [72, 0, 76, 0, 81, 0, 0, 79], [77, 0, 0, 76, 74, 0, 0, 0],
+  [74, 0, 77, 0, 79, 0, 0, 77], [76, 0, 0, 79, 84, 0, 82, 0], [81, 0, 0, 0, 79, 77, 0, 0], [76, 0, 0, 73, 0, 0, 69, 0]];
+const LH = [0, 1, 2, 3, 4, 3, 2, 1];   // the left hand's broken chord, low to high and back, in eighths
 // the lead: eight bars of eighth notes (null = rest)
 const MEL = [
   [69, 0, 0, 65, 64, 0, 62, 0], [0, 0, 67, 0, 65, 0, 63, 0], [62, 0, 0, 0, 58, 0, 57, 0], [61, 0, 0, 64, 0, 67, 0, 70],
@@ -29,7 +46,7 @@ function Engine(ctx) {
   const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
   const noise = () => { const s = ctx.createBufferSource(); s.buffer = nb; s.loop = true; s.loopStart = Math.random(); return s; };
   // the room: a long dark hall, generated
-  const ir = ctx.createBuffer(2, ctx.sampleRate * 4.2, ctx.sampleRate);
+  const ir = ctx.createBuffer(2, ctx.sampleRate * 3.2, ctx.sampleRate);
   for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); let lp = 0; for (let i = 0; i < d.length; i++) { const k = i / d.length; lp += ((Math.random() * 2 - 1) - lp) * (.5 - k * .42); d[i] = lp * Math.pow(1 - k, 2.6) * (i < 300 ? i / 300 : 1); } }
   const verb = ctx.createConvolver(); verb.buffer = ir;
   // the master: radio high-pass (for (Dead) Labor), the scroll's low-pass, tape saturation, glue
@@ -55,7 +72,8 @@ function Engine(ctx) {
   // buses
   const bus = (g, rev, echo) => { const b = ctx.createGain(); b.gain.value = 0; const v = ctx.createGain(); v.gain.value = g; b.connect(v); v.connect(mix);
     if (rev) { const s = ctx.createGain(); s.gain.value = rev; v.connect(s); s.connect(revSend); } if (echo) { const s = ctx.createGain(); s.gain.value = echo; v.connect(s); s.connect(dlSend); b.echo = s; } return b; };
-  const B = { pad: bus(.55, .7), ep: bus(.5, .45, .35), bass: bus(.8, .05), drum: bus(.75, .12), arp: bus(.32, .5, .8), lead: bus(.3, .7, .6), crackle: bus(.5), stat: bus(.28, .2), fx: bus(.5, .8, .3) };
+  const B = { pad: bus(.55, .7), ep: bus(.5, .45, .35), bass: bus(.8, .05), drum: bus(.75, .12), arp: bus(.32, .5, .8), lead: bus(.3, .7, .6), piano: bus(.75, .85, .18), crackle: bus(.5), stat: bus(.28, .2), fx: bus(.5, .8, .3) };
+  B.ocean = ctx.createGain(); B.ocean.gain.value = 0; { const v = ctx.createGain(); v.gain.value = .42; B.ocean.connect(v); v.connect(lp); const r = ctx.createGain(); r.gain.value = .25; v.connect(r); r.connect(revSend); }   // the sea stays out of the television
   const drumLP = ctx.createBiquadFilter(); drumLP.type = 'lowpass'; drumLP.frequency.value = 9000; drumLP.Q.value = .4;
   const drumIn = ctx.createGain(); drumIn.connect(drumLP); drumLP.connect(B.drum);
   // the electric piano's tremolo, slow and wide
@@ -70,22 +88,45 @@ function Engine(ctx) {
     const f = mtof(m), c = osc('sine', f, t), mo = osc('sine', f, t), mg = ctx.createGain(), bell = osc('sine', f * 4.01, t), bg = ctx.createGain(), g = ctx.createGain();
     mg.gain.setValueAtTime(f * 1.4 * vel, t); mg.gain.setTargetAtTime(f * .12, t, .25); mo.connect(mg); mg.connect(c.frequency);
     env(bg, t, .002, .09 * vel, .06); bell.connect(bg); bg.connect(g); c.connect(g); env(g, t, .004, .22 * vel, len * .55 + .5); g.connect(B.ep);
-    const end = t + len + 3; [c, mo, bell].forEach((o) => { o.start(t); o.stop(end); }); }
+    const end = t + len + 1.8; [c, mo, bell].forEach((o) => { o.start(t); o.stop(end); }); }
   function pad(ch, t, dur) {   // a 70s polysynth: detuned saws through a slow-opening filter
     const f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'lowpass'; f.Q.value = 2.2; f.frequency.setValueAtTime(300, t); f.frequency.setTargetAtTime(1300, t, .9); f.frequency.setTargetAtTime(500, t + dur * .6, 1.2);
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + 1.2); g.gain.setTargetAtTime(0, t + dur, .9); f.connect(g); g.connect(padIn);
-    ch.v.forEach((m, i) => [-9, 8].forEach((d) => { const o = osc('sawtooth', mtof(m), t); o.detune.setValueAtTime(d + i * 1.3, t); o.connect(f); o.start(t); o.stop(t + dur + 4); }));
-    const sub = osc('triangle', mtof(ch.v[0] - 12), t); sub.connect(f); sub.start(t); sub.stop(t + dur + 4); }
+    ch.v.forEach((m, i) => [-9, 8].forEach((d) => { const o = osc('sawtooth', mtof(m), t); o.detune.setValueAtTime(d + i * 1.3, t); o.connect(f); o.start(t); o.stop(t + dur + 2.2); }));
+    const sub = osc('triangle', mtof(ch.v[0] - 12), t); sub.connect(f); sub.start(t); sub.stop(t + dur + 2.2); }
   function bass(m, t, len) {
     const f = ctx.createBiquadFilter(), g = ctx.createGain(), a = osc('sine', mtof(m), t), b = osc('triangle', mtof(m), t);
     f.type = 'lowpass'; f.frequency.setValueAtTime(700, t); f.frequency.setTargetAtTime(260, t, .12); a.connect(g); b.connect(f); f.connect(g); env(g, t, .008, .5, len * .5); g.connect(B.bass);
     a.start(t); b.start(t); a.stop(t + len + 2); b.stop(t + len + 2); }
+  // the piano: a hammered string; a bright attack that dulls as it rings, two strings a hair apart
+  const pw = (() => { const n = 14, re = new Float32Array(n), im = new Float32Array(n); for (let k = 1; k < n; k++) im[k] = Math.pow(k, -1.45) * (k % 2 ? 1 : .72) * (k === 7 ? .4 : 1); return ctx.createPeriodicWave(re, im); })();
+  function piano(m, t, vel, len, two) {
+    const f = mtof(m), lp = ctx.createBiquadFilter(), g = ctx.createGain(), bright = Math.min(9000, f * (5 + vel * 9));
+    lp.type = 'lowpass'; lp.Q.value = .3; lp.frequency.setValueAtTime(bright, t); lp.frequency.setTargetAtTime(Math.max(f * 1.6, 500), t, .35 + 60 / f);
+    const dec = clamp(5.5 - (m - 40) * .07, 1.4, 5.5);   // low strings ring longer
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.26 * vel, t + .004); g.gain.setTargetAtTime(.1 * vel, t + .004, .12); g.gain.setTargetAtTime(.0001, t + .2, dec * .4);
+    g.gain.setTargetAtTime(.0001, t + len, .35);   // the damper
+    const a = osc('sine', f, t); a.setPeriodicWave(pw); a.connect(lp); a.start(t); a.stop(t + len + 1.4);
+    if (two) { const b = osc('sine', f, t); b.setPeriodicWave(pw); b.detune.setValueAtTime(2.5, t); b.connect(lp); b.start(t); b.stop(t + len + 1.4); }
+    const h = noise(), hf = ctx.createBiquadFilter(), hg = ctx.createGain(); hf.type = 'bandpass'; hf.frequency.value = Math.min(4000, f * 3); hf.Q.value = .6;   // the hammer
+    env(hg, t, .001, .05 * vel, .008); h.connect(hf); hf.connect(hg); hg.connect(g); h.start(t); h.stop(t + .06);
+    lp.connect(g); g.connect(B.piano); }
+  // the sea: low swells of brown noise that rise and break, foam hissing after each, never quite in time
+  const bb = ctx.createBuffer(1, ctx.sampleRate * 6, ctx.sampleRate), bd = bb.getChannelData(0); { let x = 0; for (let i = 0; i < bd.length; i++) { x = (x + .02 * (Math.random() * 2 - 1)) / 1.02; bd[i] = x * 3.2; } }
+  const brown = () => { const s = ctx.createBufferSource(); s.buffer = bb; s.loop = true; s.loopStart = Math.random() * 5; return s; };
+  const seaBed = brown(), seaBedF = ctx.createBiquadFilter(); seaBedF.type = 'lowpass'; seaBedF.frequency.value = 380; seaBed.connect(seaBedF); seaBedF.connect(B.ocean); seaBed.start();
+  function wave(t, size) {
+    const up = 1.8 + Math.random() * 1.6, down = 3 + Math.random() * 3, w = brown(), wf = ctx.createBiquadFilter(), wg = ctx.createGain();
+    wf.type = 'lowpass'; wf.Q.value = .5; wf.frequency.setValueAtTime(250, t); wf.frequency.exponentialRampToValueAtTime(900 + size * 1300, t + up); wf.frequency.exponentialRampToValueAtTime(260, t + up + down);
+    wg.gain.setValueAtTime(.0001, t); wg.gain.exponentialRampToValueAtTime(.5 * size, t + up); wg.gain.exponentialRampToValueAtTime(.0001, t + up + down); w.connect(wf); wf.connect(wg); wg.connect(B.ocean);
+    const fo = noise(), ff = ctx.createBiquadFilter(), fg = ctx.createGain(); ff.type = 'bandpass'; ff.frequency.value = 2600; ff.Q.value = .5;   // the foam, breaking just after the swell
+    fg.gain.setValueAtTime(.0001, t); fg.gain.setValueAtTime(.0001, t + up * .8);   // (silent until it breaks) fg.gain.exponentialRampToValueAtTime(.045 * size, t + up + .4); fg.gain.exponentialRampToValueAtTime(.0001, t + up + down * .8);
+    fo.connect(ff); ff.connect(fg); fg.connect(B.ocean); [w, fo].forEach((x) => { x.start(t); x.stop(t + up + down + .2); }); }
   let arpCut = 900;
   function arp(m, t) {   // a sequencer voice: one saw through a resonant filter that snaps shut
-    const o = osc('sawtooth', mtof(m), t), o2 = osc('square', mtof(m + 12), t), f = ctx.createBiquadFilter(), g = ctx.createGain(), g2 = ctx.createGain();
-    f.type = 'lowpass'; f.Q.value = 7; f.frequency.setValueAtTime(arpCut * 2.6, t); f.frequency.setTargetAtTime(arpCut, t, .05);
-    g2.gain.value = .25; o.connect(f); o2.connect(g2); g2.connect(f); f.connect(g); env(g, t, .003, .2, .09); g.connect(B.arp);
-    o.start(t); o2.start(t); o.stop(t + .9); o2.stop(t + .9); }
+    const o = osc('sawtooth', mtof(m), t), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    f.type = 'lowpass'; f.Q.value = 8; f.frequency.setValueAtTime(arpCut * 2.8, t); f.frequency.setTargetAtTime(arpCut, t, .05);
+    o.connect(f); f.connect(g); env(g, t, .003, .22, .09); g.connect(B.arp); o.start(t); o.stop(t + .7); }
   function lead(m, t, len) {   // a lonely mono lead, a little out of tune, with a late vibrato
     const o = osc('triangle', mtof(m), t), o2 = osc('square', mtof(m), t), f = ctx.createBiquadFilter(), g = ctx.createGain(), g2 = ctx.createGain(), vib = ctx.createOscillator(), vg = ctx.createGain();
     o2.detune.setValueAtTime(6, t); g2.gain.value = .22; f.type = 'lowpass'; f.frequency.value = 1900; f.Q.value = 1.4;
@@ -119,21 +160,33 @@ function Engine(ctx) {
   const wh = noise(), whF = ctx.createBiquadFilter(), whG = ctx.createGain(); whF.type = 'bandpass'; whF.Q.value = 1.6; whF.frequency.value = 900; whG.gain.value = 0; wh.connect(whF); whF.connect(whG); whG.connect(B.fx); wh.start();   // the scroll's wind
 
   // ── the sequencer ──
-  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0 }, roll = 0;
+  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0 }, roll = 0, surge = 0;
+  let inTheme = false, tb = 0, ch = CHORDS[0], nx = CHORDS[1], waveAt = 0;
   function schedule(s, t) {
-    const bar = Math.floor(s / 16) % 8, i = s % 16, ch = CHORDS[bar], nx = CHORDS[(bar + 1) % 8], sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
+    const bar = Math.floor(s / 16) % 8, i = s % 16, sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
+    if (i === 0) {   // each bar: the jazz loop, or the theme (which always starts from its top)
+      if (L.theme > .5 && !inTheme) { inTheme = true; tb = 0; } else if (L.theme <= .5 && inTheme) inTheme = false; else if (inTheme) tb++;
+      ch = inTheme ? THEME[tb % 8] : CHORDS[bar]; nx = inTheme ? THEME[(tb + 1) % 8] : CHORDS[(bar + 1) % 8]; }
+    if (inTheme && L.piano > .01) {   // the piano: the hook over a broken left hand; the second time round it swells, in octaves
+      const pass = Math.floor(tb / 8), full = pass % 2 === 1, b8 = tb % 8;
+      if (i % 2 === 0) { const e = i / 2, m = HOOK[b8][e];
+        piano(ch.lh[LH[e]], tt, .38 + (full ? .14 : 0) - e * .01, SIX * 2.4, false);
+        if (full && e === 0) piano(ch.lh[0] - 12, tt, .5, SIX * 14, false);
+        if (m) { let len = SIX * 2; for (let j = e + 1; j < 8 && !HOOK[b8][j]; j++) len += SIX * 2; const v = .7 + (e === 0 ? .12 : 0) + (full ? .15 : 0);
+          piano(m, tt + .006, v, len, true); if (full) piano(m - 12, tt + .012, v * .7, len, false); } } }
+    if (L.ocean > .01 && t >= waveAt) { wave(t, Math.min(1.6, .55 + Math.random() * .5 + surge * .8)); waveAt = t + (surge > .3 ? 1.8 : 4.5) + Math.random() * (surge > .3 ? 1.5 : 4.5); }
     if (i === 0 && L.pad > .01) pad(ch, t, SIX * 16);
-    if (L.ep > .01) [[0, .55], [6, .38], [11, .32]].forEach(([k, v]) => { if (k === i) ch.v.forEach((m, j) => ep(m + (bar === 3 && k === 11 ? 1 : 0), tt + j * .012, v * (.8 + Math.random() * .3), SIX * (k === 0 ? 5 : 3))); });
+    if (L.ep > .01 && !(inTheme && L.piano > .5)) [[0, .55], [6, .38], [11, .32]].forEach(([k, v]) => { if (k === i) ch.v.forEach((m, j) => ep(m + (bar === 3 && k === 11 ? 1 : 0), tt + j * .012, v * (.8 + Math.random() * .3), SIX * (k === 0 ? 5 : 3))); });
     if (L.bass > .01) BASSLINE.forEach(([k, iv, len]) => { if (k === i) bass(iv < 0 ? nx.bass - 1 : ch.bass + iv, tt, len * SIX * 4); });
     if (L.kick > .01 && KICK[i]) kick(tt, KICK[i]);
     if (L.snare > .01 && SNARE[i]) snare(tt, SNARE[i]);
     if (L.hat > .01) { if (HAT[i]) hat(tt, HAT[i] * (.85 + Math.random() * .3), i === 14 && bar % 2); if (roll > .5) hat(tt + SIX / 2, .45 * roll); }   // a fast scroll rolls the hats
     if (L.arp > .01) { const n = ch.tones.length, k = s % (n * 2), m = ch.tones[k % n] + (k >= n ? 12 : 0); arp(m, tt); }
-    if (L.lead > .01 && i % 2 === 0) { const m = MEL[bar][i / 2]; if (m) { let len = SIX * 2; for (let j = i / 2 + 1; j < 8 && !MEL[bar][j]; j++) len += SIX * 2; lead(m, tt, Math.min(len, SIX * 6)); } }
+    if (L.lead > .01 && !inTheme && i % 2 === 0) { const m = MEL[bar][i / 2]; if (m) { let len = SIX * 2; for (let j = i / 2 + 1; j < 8 && !MEL[bar][j]; j++) len += SIX * 2; lead(m, tt, Math.min(len, SIX * 6)); } }
   }
   return {
     ctx, out,
-    start(t) { next = t + .1; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(.85, t + 2.5); },
+    start(t) { next = t + .1; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(.75, t + 2.5); },
     fade(v, t) { T(out.gain, v, t, .4); },
     tick(t) { while (next < t + .2) { schedule(step, next); next += SIX; step++; } },
     // the page tells it where the story is and how the scroll is moving
@@ -141,7 +194,8 @@ function Engine(ctx) {
       const f = Math.max(0, s.v), b = Math.max(0, -s.v), k = .12;
       L = s.layers; roll = f;
       const gl = (name, v) => T(B[name].gain, v, t, .6);
-      gl('pad', L.pad); gl('ep', L.ep); gl('bass', L.bass); gl('arp', L.arp); gl('lead', L.lead); gl('crackle', .5 + s.dl * .3);
+      surge = s.surge || 0; gl('piano', L.piano); T(B.ocean.gain, L.ocean * (1 + surge * .8), t, 1.2);
+      gl('pad', L.pad); gl('ep', L.ep * (1 - L.theme * .55)); gl('bass', L.bass); gl('arp', L.arp); gl('lead', L.lead); gl('crackle', .5 + s.dl * .3);
       T(B.drum.gain, Math.max(L.kick, L.snare, L.hat), t, .4); T(B.stat.gain, s.dl * (.08 + s.tv * .9), t, .05);
       T(drumLP.frequency, s.cc > .3 ? 700 : 9000, t, .5);   // under water
       // the scroll: forward opens the filter, feeds the echo and blows wind; backward rewinds the tape, pitch sagging and the sound going dark
@@ -163,7 +217,7 @@ const paint = () => { if (!btn) return; btn.classList.toggle('on', on); btn.setA
 function start() {
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
   if (!E) { E = Engine(new AC({ latencyHint: 'playback' })); E.start(E.ctx.currentTime); timer = setInterval(() => E.tick(E.ctx.currentTime), 40); }
-  E.ctx.resume(); E.fade(.85, E.ctx.currentTime); on = true; paint(); }
+  E.ctx.resume(); E.fade(.75, E.ctx.currentTime); on = true; paint(); }
 function stop() { if (!E) return; E.fade(0, E.ctx.currentTime); on = false; paint(); setTimeout(() => { if (!on && E) E.ctx.suspend(); }, 1600); }
 if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); wanted = !on; try { localStorage.setItem('3w-sound', wanted ? 'on' : 'off'); } catch (x) {} wanted ? start() : stop(); });
 // browsers allow sound only after a gesture: the first click, tap or key anywhere starts it, unless it was turned off
