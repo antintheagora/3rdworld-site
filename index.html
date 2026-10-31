@@ -1155,9 +1155,10 @@ function frame(now) {
     const ccOn = sm(innerHeight, innerHeight * .3, ccR.top) * (1 - sm(innerHeight * .9, innerHeight * .2, ccR.bottom)), dlOn = sm(innerHeight, innerHeight * .3, dlR.top) * (1 - foot);
     const films = Math.max(ccOn, dlOn, foot, smooth(after / .6));
     const L = { pad: .8 + .2 * smooth(intro), ep: sm(.2, 1.4, tA) * (1 - dlOn * .4), bass: sm(1.4, 3, tA) * (1 - foot), kick: (sm(3.4, 5, tA) * .6 + red * .4) * (1 - foot),
-      snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films) + ccOn * .7 };
+      snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films) + ccOn * .7,
+      theme: sm(9.2, 9.9, tA) * (1 - films), piano: sm(9.2, 9.9, tA) * (1 - films), ocean: sm(9.4, 11, tA) };
     if (intro < 1) Object.keys(L).forEach((k) => { if (k !== 'pad') L[k] *= smooth(intro); });
-    Score3W.update({ layers: L, vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
+    Score3W.update({ layers: L, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
       base: lerp(lerp(lerp(1300, 2600, smooth(intro)), 3900, red), lerp(2300, 2700, dlOn), films) * (1 - foot * .4) }, dt); }
   composer.render(dt);
   if (!veilUp && ((ready.world && ready.globe) || clock > 9)) { veilUp = true;   // precompile what is already loaded, then lift the veil
