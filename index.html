@@ -1136,10 +1136,10 @@ function frame(now) {
   writeTo(V[2], REDUCED ? 1 : (tA - 16.9) / 2.5);   // with the scroll, after the hero shot
   verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
   if (globe && camera.aspect >= 1 && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
-    const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.75;
-    const w = Math.max(200, Math.min(620, edge - 48)) | 0;
+    const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.2;   // clear of the globe (the logotype sits below the passage)
+    const w = Math.max(260, Math.min(620, edge - 40)) | 0;
     if (w !== V[2]._w || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = '';   // and small enough to fit the height
-      for (let i = 0; i < 3; i++) { const h = V[2].scrollHeight, room = innerHeight * .8; if (h <= room) break; V[2].style.fontSize = (parseFloat(getComputedStyle(V[2]).fontSize) * room / h * .98) + 'px'; } } }
+      for (let i = 0; i < 3; i++) { const h = V[2].scrollHeight, room = innerHeight * .84; if (h <= room) break; V[2].style.fontSize = Math.max(14, parseFloat(getComputedStyle(V[2]).fontSize) * room / h * .98) + 'px'; } } }
   verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .05) / .25)));   // after the globe has come to rest and held
 
   composer.render(dt);
