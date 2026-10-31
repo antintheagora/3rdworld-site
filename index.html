@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>3RD WORLD REVOLUTION</title>
 <link rel="canonical" href="https://3rdworldrevolution.com/">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <meta name="description" content="3RD WORLD REVOLUTION Productions. Documentary films: Christians and Cannibals, (Dead) Labor.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,9 +114,10 @@ main { position: relative; z-index: 2 }
 .dl-status { margin: 0 0 1.8vh; font-size: clamp(.8rem, 1.15vw, 1.15rem); color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
 .dl-sub { margin: 0; white-space: nowrap; color: #ff6a50; font-size: clamp(.8rem, 1.35vw, 1.35rem); line-height: 1.35; letter-spacing: -.005em; text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .15em rgba(255,70,48,.8), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
-.dl-ask { position: absolute; left: 60%; bottom: 9vh; width: min(52vw, 900px); translate: -50% calc((1 - var(--t)) * 22px); margin: 0; text-align: center;
-  font-family: var(--poster); font-weight: 700; text-transform: uppercase; color: #ff6a50; font-size: clamp(1.5rem, 3.1vw, 3.4rem); line-height: 1.02; letter-spacing: calc((1 - var(--t)) * .25em);
-  text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .18em rgba(255,70,48,.75), 0 0 2px #000 }
+.dl-ask { position: absolute; left: 58%; bottom: 7vh; translate: -50% 0; margin: 0; text-align: center; font-family: var(--poster); font-weight: 700; text-transform: uppercase;
+  color: var(--hot); font-size: clamp(1.9rem, 3.9vw, 4.6rem); line-height: .92; letter-spacing: calc((1 - var(--t)) * .25em);
+  text-shadow: 0 0 10px rgba(255,30,30,.55), 0 0 34px rgba(255,0,0,.3), 0 0 2px #000 }
+.dl-ask span { display: block; white-space: nowrap }
 
 .foot { position: relative; z-index: 2; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 30vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
@@ -127,7 +131,7 @@ main { position: relative; z-index: 2 }
 .verse p { margin: 0 }
 .verse .ch { opacity: 0; filter: blur(4px); transition: opacity 1.1s ease, filter 1.3s ease }
 .verse .ch.on, .static .verse .ch { opacity: 1; filter: none }
-.verse .cue { top: 6em; transform: translateX(-50%); opacity: 0; transition: opacity 1.2s }
+.verse .cue { top: 8em; transform: translateX(-50%); opacity: 0; transition: opacity .3s }
 .static .verse .cue { display: none }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
 .verse .x { display: block; width: .62em; height: .62em; margin: 0 auto .9em; fill: var(--hot); filter: drop-shadow(0 0 8px rgba(255,30,30,.6)) }
@@ -154,7 +158,7 @@ main { position: relative; z-index: 2 }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 7svh; left: var(--gut); text-align: center; font-size: 2.1rem }
   .dl-text { right: var(--gutr); top: auto; bottom: 21svh; transform: none; max-width: none }
-  .dl-ask { left: var(--gut); right: var(--gutr); width: auto; translate: 0 calc((1 - var(--t)) * 22px); bottom: 6svh; text-align: left; font-size: 1.4rem }
+  .dl-ask { left: 50%; bottom: 6svh; font-size: min(1.3rem, 5.4vw) }
   .dl h2 { font-size: 3.4rem }
   .dl-sub { white-space: normal }
   .dl h2 { font-size: 2.7rem }
@@ -175,7 +179,7 @@ main { position: relative; z-index: 2 }
 <header class="top">
   <a class="mark" href="#top" aria-label="3RD WORLD REVOLUTION Productions"><svg viewBox="0 0 1703 417" aria-hidden="true"><use href="#logotype"/></svg></a>
   <nav class="small" aria-label="Films and gear">
-    <a href="https://shop.3rdworldrevolution.com/">Gear ↗</a>
+    <a href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear ↗</a>
     <a href="https://christiansandcannibals.com" target="_blank" rel="noopener"><span class="lg">Christians and Cannibals ↗</span><span class="sh" aria-hidden="true">C&amp;C</span></a>
     <a href="https://deadlabor.red" target="_blank" rel="noopener"><span class="lg">(Dead) Labor ↗</span><span class="sh" aria-hidden="true">(Dead) Labor</span></a>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener"><span class="lg">Instagram ↗</span><span class="sh" aria-hidden="true">IG</span></a>
@@ -217,7 +221,7 @@ main { position: relative; z-index: 2 }
         <p class="dl-status small in" style="--a:.02">In production</p>
         <h2 id="t2" class="in" style="--a:.04; --s:3"><span class="dead" data-t="(DEAD)">(Dead)</span><span data-t="LABOR">Labor</span></h2>
       </div>
-      <p class="dl-ask in" style="--a:.3; --s:2.5">At the end of history,<br>is a new world possible?</p>
+      <p class="dl-ask in" style="--a:.3; --s:2.5"><span>At the end of history,</span><span>is a new world possible?</span></p>
     </div>
   </section>
 </main>
@@ -228,7 +232,7 @@ main { position: relative; z-index: 2 }
     <span>3RD WORLD REVOLUTION Productions</span>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener">Instagram ↗</a>
     <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener">Letterboxd ↗</a>
-    <a href="https://shop.3rdworldrevolution.com/">Gear ↗</a>
+    <a href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear ↗</a>
     <span>© 2026</span>
   </div>
 </footer>
@@ -692,7 +696,7 @@ function heat(m) { m.onBeforeCompile = (sh) => {
       c *= .75 + .5 * gr;   // sensor grain
       gl_FragColor = vec4(c * figOn, 1.);`); };
   m.customProgramCacheKey = () => 'heat'; }
-let fig = null, figBurst = 0, figRk = 0, spI = 0;
+let fig = null, figBurst = 0, figRk = 0, figRise = 0, spI = 0;
 const figPos = new THREE.Vector3(), FIG_H = 34;
 let figLoading = false;
 // the man is the MakeHuman base body (CC0) with its young-male and muscle targets, arms lowered, 1.8 m tall
@@ -880,7 +884,7 @@ const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
 function cleanWindows(world) {
-  const V = .8, solid = new Set(), key = (x, y, z) => ((Math.floor(x / V) + 4096) * 8192 + (Math.floor(y / V) + 4096)) * 8192 + (Math.floor(z / V) + 4096);
+  const V = .5, solid = new Set(), key = (x, y, z) => ((Math.floor(x / V) + 4096) * 8192 + (Math.floor(y / V) + 4096)) * 8192 + (Math.floor(z / V) + 4096);
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), p = new THREE.Vector3(), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), n = new THREE.Vector3();
   const tris = (m, fn) => { const g = m.geometry, P = g.attributes.position, I = g.index, N = I ? I.count : P.count;
     for (let t = 0; t < N; t += 3) { const ia = I ? I.getX(t) : t, ib = I ? I.getX(t + 1) : t + 1, ic = I ? I.getX(t + 2) : t + 2;
@@ -895,7 +899,8 @@ function cleanWindows(world) {
   const near = (x, y, z) => { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) if (solid.has(key(x + i * V, y + j * V, z + k * V))) return true; return false; };
   openings.forEach((m) => { const keep = []; let cut = 0, I = m.geometry.index;
     tris(m, (t) => { p.copy(a).add(b).add(c).divideScalar(3); n.subVectors(b, a).cross(e2.subVectors(c, a)).normalize();
-      if (near(p.x, p.y, p.z) || near(p.x - n.x * V, p.y - n.y * V, p.z - n.z * V) || near(p.x + n.x * V, p.y + n.y * V, p.z + n.z * V)) keep.push(t); else cut++; });
+      const at = (d) => solid.has(key(p.x - n.x * d, p.y - n.y * d, p.z - n.z * d)) || solid.has(key(p.x + n.x * d, p.y + n.y * d, p.z + n.z * d));
+      if (at(0) || at(.35) || at(.7) || at(1.05)) keep.push(t); else cut++; });
     if (cut && I) { const src = I.array, out = new (src.constructor)(keep.length * 3); keep.forEach((t, i) => { out[i * 3] = src[t]; out[i * 3 + 1] = src[t + 1]; out[i * 3 + 2] = src[t + 2]; });
       m.geometry.setIndex(new THREE.BufferAttribute(out, 1)); }
     console.info('openings', m.name, 'kept', keep.length, 'dropped', cut); }); }
@@ -959,7 +964,7 @@ function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT 
   const next = frameAvg > 1 / 42 ? Math.max(.6, DPR * .85) : frameAvg < 1 / 57 ? Math.min(DPR_MAX, DPR * 1.08) : DPR;
   if (Math.abs(next - DPR) > .02) { DPR = next; resize(true); } perfT = 0; }
 
-let cueN = 0, cueT = 0, inSky = false;
+let cueN = 0, cueT = 0, inSky = false, cueOn = false;
 addEventListener('scroll', () => { const n = performance.now(); if (n - cueT > 450) cueN++; cueT = n; }, { passive: true });
 const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent; p.innerHTML = '';   // each word in a span, so the passage can come up softly
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = txt; p.appendChild(sr);
@@ -996,7 +1001,7 @@ function frame(now) {
     vA += ((goal - play) * 4.2 - vA * 2.9) * dt; play += vA * dt;
     if (play < P0 || play > DUR) { play = Math.max(P0, Math.min(DUR, play)); vA = 0; } }
   intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
-  $('#cue').style.opacity = intro < .3 && cueN < 2 && play < P0 + .4 && (REDUCED || clock > 2.6) ? 1 : 0;   // under the first lines once they are out; it retires once you scroll
+  $('#cue').style.opacity = cueOn ? 1 : 0;
   if ((intro < .45) !== inSky) { inSky = intro < .45; document.body.classList.toggle('insky', inSky); }   // the header waits until we leave the sky
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
@@ -1084,7 +1089,7 @@ function frame(now) {
   // the tilt draws on a charge: quick repeat scrolls tilt less, and it refills to full over a few seconds
   const want = Math.max(-.05, Math.min(.05, sVel * (TOUCH ? -0.000013 : -0.000025))), use = Math.abs(want) / .05;
   tiltCharge = clamp01(tiltCharge - use * dt * .9 + (1 - use) * dt / 3);
-  const roll = REDUCED ? 0 : want * smooth(tiltCharge);
+  const roll = REDUCED ? 0 : want * smooth(tiltCharge) * (1 - Math.max(V[0]._v || 0, V[2]._v || 0));   // steady while reading
   // the camera's heading through the films: out over the open sea to the man; when his section ends it pans slowly on,
   // past where he stands, to the television; after that it pans on again, past the set, for the footer
   const aOf = (y) => (y - (story.offsetHeight - innerHeight)) / innerHeight;
@@ -1118,9 +1123,9 @@ function frame(now) {
   let pool = 0;
   // the man rises from the sea as Christians and Cannibals plays, and sinks again as (Dead) Labor comes on
   if (fig) {
-    const rk = clamp01((ccK - .03) / .9), rise = rk, x1 = rk - 1;   // once the camera has settled on him, he comes up, slowly
-    const up = 1 + 2.7 * x1 * x1 * x1 + 1.7 * x1 * x1;   // he breaks the surface fast, overshoots a little, and settles; once risen he stays
-    figBurst = Math.max(figBurst * Math.exp(-dt * 1.3), Math.min(1, Math.abs(rk - figRk) / Math.max(dt, 1e-3) * 1.2), rk > 0 && rk < 1 ? .25 : 0); figRk = rk;
+    const rk = clamp01((ccK - .03) / .9);   // once the camera has settled on him he comes up, and never faster than a slow walk out of the water
+    figRise += Math.max(-dt * .35, Math.min(dt * .11, rk - figRise)); const rise = figRise, up = (1 - Math.cos(rise * Math.PI)) / 2 + Math.sin(rise * Math.PI) * .04;
+    figBurst = Math.max(figBurst * Math.exp(-dt * 1.3), Math.min(1, Math.abs(rise - figRk) / Math.max(dt, 1e-3) * 9), rise > 0 && rise < 1 ? .3 : 0); figRk = rise;
     fig.visible = (rise > .001 || ccR.top < innerHeight) && red > .9;
     if (fig.visible) {
       const a = anchor(CC, 36, camera.aspect >= 1 ? halfW(36) * .06 : 0);
@@ -1170,16 +1175,17 @@ function frame(now) {
     el.style.opacity = v; el.style.visibility = v > .001 ? 'visible' : 'hidden';
     if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
   verse(V[0], smooth((clock - .2) / 1.4) * (1 - smooth((intro - .3) / .35)));   // up at once, in the stars
-  { const L0 = linesOf(V[0]).length || 1, auto = Math.min(2, L0) * clamp01((clock - .6) / 3.2), read = clamp01((play - P0) / (READ1 * .85));
-    showLines(V[0], REDUCED ? 1 : Math.max(auto, read > 0 ? 2 + read * (L0 - 2) : 0) / L0);   // the first lines come by themselves, the rest only with the scroll
-    const l2 = linesOf(V[0])[Math.min(1, L0 - 1)]; if (l2 && l2[0]) { const y = l2[0].offsetTop + l2[0].offsetHeight + 18; if (y !== V[0]._cy) { V[0]._cy = y; $('#cue').style.top = y + 'px'; } } }
+  { const L0 = linesOf(V[0]).length || 1, A = Math.min(3, L0), auto = A * clamp01((clock - .6) / 4.2), read = clamp01((play - P0) / (READ1 * .85));
+    showLines(V[0], REDUCED ? 1 : Math.max(auto, A + clamp01((read - .1) / .9) * (L0 - A)) / L0);   // the first three lines come by themselves, the rest only with the scroll
+    cueOn = !REDUCED && clock > 3.8 && read < .035;   // the prompt goes before the fourth line can reach it, and returns at the top
+    const l2 = linesOf(V[0])[A - 1]; if (l2 && l2[0]) { const y = l2[0].offsetTop + l2[0].offsetHeight + 18; if (y !== V[0]._cy) { V[0]._cy = y; $('#cue').style.top = y + 'px'; } } }
   showLines(V[1], REDUCED ? 1 : (tA - 1.25) / 3.5);   // a line at a time, with the scroll, and back
   showLines(V[2], REDUCED ? 1 : (tA - 16.85) / 1.95);
   verse(V[1], smooth((tA - 1.2) / .5) * (1 - smooth((tA - 5.8) / .6)));   // held a while once it is all out
   if (globe && camera.aspect >= 1 && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
     const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.2;   // clear of the globe (the logotype sits below the passage)
-    const w = Math.max(260, Math.min(620, edge - 40)) | 0;
-    if (w !== V[2]._w || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = ''; V[2]._lines = null;   // and small enough to fit the height
+    const w = Math.max(260, Math.min(620, Math.round((edge - 40) / 60) * 60));   // in steps, so it is not re-laid-out as the camera drifts
+    if (Math.abs(w - (V[2]._w || 0)) > 60 || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = ''; V[2]._lines = null;   // and small enough to fit the height
       for (let i = 0; i < 3; i++) { const h = V[2].scrollHeight, room = innerHeight * .84; if (h <= room) break; V[2].style.fontSize = Math.max(14, parseFloat(getComputedStyle(V[2]).fontSize) * room / h * .98) + 'px'; } } }
   verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .3) / .3)));   // after the globe has come to rest and held; it stays a few scrolls before the page turns
 
@@ -1189,10 +1195,10 @@ function frame(now) {
     const films = Math.max(ccOn, dlOn, foot, smooth(after / .6));
     const L = { pad: .8 + .2 * smooth(intro), ep: sm(.2, 1.4, tA) * (1 - dlOn * .4), bass: sm(1.4, 3, tA) * (1 - foot), kick: (sm(3.4, 5, tA) * .6 + red * .4) * (1 - foot),
       snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films),
-      theme: sm(9.2, 9.9, tA) * (1 - foot), piano: sm(9.2, 9.9, tA) * (1 - foot * .85), ocean: sm(9.4, 11, tA), dread: dlOn };
+      theme: sm(9.2, 9.9, tA) * (1 - foot), piano: sm(9.2, 9.9, tA) * (1 - foot * .85), ocean: sm(9.15, 9.6, tA), dread: dlOn };
     if (intro < 1) Object.keys(L).forEach((k) => { if (k !== 'pad') L[k] *= smooth(intro); });
     mSp = lerp(mSp, Math.min(1, mDist / Math.max(dt, .008) / 2600), mDist ? .3 : .08); mDist = 0;
-    Score3W.update({ layers: L, mouse: REDUCED ? 0 : mSp, foot, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
+    Score3W.update({ layers: L, mouse: REDUCED ? 0 : mSp, mx: ptr.x, my: (ptr.y + 1) / 2, rise: fig ? figRise : 0, foot, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
       base: lerp(lerp(lerp(1300, 2600, smooth(intro)), 3900, red), lerp(2300, 2700, dlOn), films) * (1 - foot * .4) }, dt); }
   composer.render(dt);
   if (!veilUp && ((ready.world && ready.globe) || clock > 9)) { veilUp = true;   // precompile what is already loaded, then lift the veil
