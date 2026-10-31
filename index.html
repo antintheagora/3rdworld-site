@@ -363,7 +363,7 @@ const FLOOD = `uniform float floodW, floodA, foam, chop;
   float floodH(float s){ float x = s - floodW; return floodA * exp(-max(x, 0.) / 70.) * smoothstep(-4., 14., x); }`;
 const water = new THREE.Mesh(waterGeo, new THREE.ShaderMaterial({ uniforms: waterU, transparent: true, depthWrite: true,
   vertexShader: FLOOD + 'uniform float t;' + FIGD + 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); w.y += floodH(abs(w.x)) + slosh(w.xz, t);\n#ifdef PATCH\nw.y += figDisp(w.xz);\n#endif\nvW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
-  fragmentShader: NOISE + SKY + FLOOD + FIGD + `uniform vec3 fogC, figC; uniform float fogN, fogF, opacity, seaGlow; varying vec3 vW;
+  fragmentShader: NOISE + SKY + FLOOD + FIGD + `uniform vec3 fogC, figC; uniform float fogN, fogF, opacity, seaGlow, figPool; varying vec3 vW;
     vec2 wave(vec2 p, vec2 dir, float f, float a, float s){ float ph = dot(p, dir) * f + t * s; return dir * (a * f * cos(ph)); }
     void main(){
       vec2 p = vW.xz; vec2 g = vec2(0.);
