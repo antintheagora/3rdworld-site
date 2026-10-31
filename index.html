@@ -52,13 +52,13 @@ a { color: inherit }
 @media (max-width: 1180px) { .top nav { gap: 20px } .top nav .lg { display: none } .top nav .sh { display: inline } }
 
 main { position: relative; z-index: 2 }
-.story { height: 640vh; position: relative }
+.story { height: 760vh; position: relative }
 .cue { position: absolute; left: 50%; top: calc(100svh - 72px); transform: translateX(-50%); color: #ff4a42; text-shadow: 0 0 10px rgba(255,40,30,.6); display: grid; justify-items: center; gap: 10px; transition: opacity .6s }
 .cue i { display: block; width: 2px; height: 38px; background: linear-gradient(#ff4a42, transparent); box-shadow: 0 0 8px rgba(255,40,30,.6); animation: drip 2.4s ease-in-out infinite }
 @keyframes drip { 0% { transform: scaleY(0); transform-origin: top } 50% { transform: scaleY(1); transform-origin: top } 51% { transform-origin: bottom } 100% { transform: scaleY(0); transform-origin: bottom } }
 
 /* the films float over the world: each section pins for a screen while it plays, styled after its poster */
-.film { --k: 1; position: relative; z-index: 2; height: 230vh; margin-top: 30vh }
+.film { --k: 1; position: relative; z-index: 2; height: 310vh; margin-top: 30vh }
 .film.dl { margin-top: 110vh }
 .film .pin { position: sticky; top: 0; height: 100svh; overflow: hidden }
 .film .go { display: flex; flex-wrap: wrap; gap: 14px 30px; justify-content: center }
@@ -81,21 +81,20 @@ main { position: relative; z-index: 2 }
   letter-spacing: calc((1 - var(--t)) * .25em) }
 .cc-ask span { display: block }
 
-.dl-text { position: absolute; left: var(--gut); bottom: 9svh; max-width: min(48vw, 680px); font-family: var(--poster); font-weight: 700; text-transform: uppercase }
-.dl h2 { margin: 0; font-size: clamp(3rem, 7vw, 7.6rem); line-height: .84; letter-spacing: calc(-.02em + (1 - var(--t)) * .3em);
+.dl-text { position: absolute; left: var(--gut); top: 50%; transform: translateY(-50%); max-width: min(52vw, 760px); font-family: var(--poster); font-weight: 700; text-transform: uppercase }
+.dl h2 { margin: 0; font-size: clamp(3.6rem, 9.6vw, 10.5rem); line-height: .84; letter-spacing: calc(-.02em + (1 - var(--t)) * .3em);
   filter: drop-shadow(0 0 .05em rgba(255,120,96,.9)) drop-shadow(0 0 .22em rgba(255,40,28,.55)) }
 .dl h2 > span { display: table; position: relative; color: transparent; -webkit-text-fill-color: transparent;   /* white at the core, bleeding to red, through grain */
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
     radial-gradient(closest-side, #fffaf6 18%, #ffd6c8 42%, #ff6c54 74%, #ff2a18 100%);
   -webkit-background-clip: text; background-clip: text }
 .dl h2 > span::before { content: attr(data-t); position: absolute; left: .075em; top: .035em; z-index: -1; color: rgba(112,104,120,.5); -webkit-text-fill-color: rgba(112,104,120,.5); background: none }
-.dl-status { margin: 0 0 1.4vh; color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
+.dl-status { margin: 0 0 1.8vh; font-size: clamp(.8rem, 1.15vw, 1.15rem); color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
 .dl-sub { margin: 0; white-space: nowrap; color: #ff6a50; font-size: clamp(.8rem, 1.35vw, 1.35rem); line-height: 1.35; letter-spacing: -.005em; text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .15em rgba(255,70,48,.8), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
 .dl-sub.two { margin-top: 3vh; --a: .35 }
-.dl-by { margin: 2.6vh 0 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: none; color: var(--bone); text-shadow: 0 0 10px #000; font-size: clamp(1rem, 1.4vw, 1.25rem) }
 
-.foot { position: relative; z-index: 2; padding: 40vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
+.foot { position: relative; z-index: 2; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 30vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
 .foot .row { color: var(--ash); display: flex; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-top: 18px }
 .foot .row a { text-decoration: none; color: var(--ash) } .foot .row a:hover { color: var(--bone) }
@@ -105,8 +104,10 @@ main { position: relative; z-index: 2 }
   text-shadow: 0 0 1px #200, 0 0 6px rgba(255,80,66,.9), 0 0 16px rgba(255,36,24,.65), 0 0 38px rgba(255,10,0,.4), 0 0 60px rgba(7,5,16,.8);
   padding: 1.4em 1.8em; background: radial-gradient(closest-side, rgba(7,5,16,.62), rgba(7,5,16,.3) 70%, transparent) }
 .verse p { margin: 0 }
-.verse .ch { opacity: 0; transition: opacity .5s }
-.verse .ch.on, .static .verse .ch { opacity: 1 }
+.verse .ch { opacity: 0; filter: blur(5px); transition: opacity 2.2s ease, filter 2.6s ease }
+.verse .ch.on, .static .verse .ch { opacity: 1; filter: none }
+.verse .cue { position: static; transform: none; margin: 3.2em auto 0; opacity: 0; transition: opacity 1.6s }
+.static .verse .cue { display: none }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
 .verse .x { display: block; width: .62em; height: .62em; margin: 0 auto .9em; fill: var(--hot); filter: drop-shadow(0 0 8px rgba(255,30,30,.6)) }
 .verse cite { display: block; margin-top: 1.3em; color: var(--ash); font-style: normal; text-shadow: 0 0 14px rgba(7,5,16,.9) }
@@ -130,7 +131,8 @@ main { position: relative; z-index: 2 }
   .cc-kick { display: none }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 7svh; left: var(--gut); text-align: center; font-size: 2.1rem }
-  .dl-text { right: var(--gutr); bottom: 3.5svh; max-width: none }
+  .dl-text { right: var(--gutr); top: auto; bottom: 7svh; transform: none; max-width: none }
+  .dl h2 { font-size: 3.4rem }
   .dl-sub { white-space: normal }
   .dl h2 { font-size: 2.7rem }
 }
@@ -150,7 +152,7 @@ main { position: relative; z-index: 2 }
 <header class="top">
   <a class="mark" href="#top" aria-label="3RD WORLD REVOLUTION Productions"><svg viewBox="0 0 1703 417" aria-hidden="true"><use href="#logotype"/></svg></a>
   <nav class="small" aria-label="Films and gear">
-    <a href="https://shop.3rdworldrevolution.com/">Gear</a>
+    <a href="https://shop.3rdworldrevolution.com/">Gear ↗</a>
     <a href="https://christiansandcannibals.com" target="_blank" rel="noopener"><span class="lg">Christians and Cannibals ↗</span><span class="sh" aria-hidden="true">C&amp;C</span></a>
     <a href="https://deadlabor.red" target="_blank" rel="noopener"><span class="lg">(Dead) Labor ↗</span><span class="sh" aria-hidden="true">(Dead) Labor</span></a>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener"><span class="lg">Instagram ↗</span><span class="sh" aria-hidden="true">IG</span></a>
@@ -161,8 +163,7 @@ main { position: relative; z-index: 2 }
 <main id="top">
   <section class="story" aria-label="The 3RD WORLD REVOLUTION mark">
     <h1 class="sr">3RD WORLD REVOLUTION Productions, documentary films</h1>
-    <div class="cue small" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
-    <blockquote class="verse sky" id="v1"><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.6h8l-6.5 4.8 2.5 7.7L12 16.8l-6.6 4.8 2.5-7.7L1.4 9.1h8z"/></svg><p>The discovery of gold and silver in America, the extirpation, enslavement and entombment in mines of the aboriginal population, the beginning of the conquest and looting of the East Indies, the turning of Africa into a warren for the commercial hunting of black-skins, signalised the rosy dawn of the era of capitalist production. These idyllic proceedings are the chief momenta of primitive accumulation. On their heels treads the commercial war of the European nations, with the globe for a theatre.</p></blockquote>
+    <blockquote class="verse sky" id="v1"><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.6h8l-6.5 4.8 2.5 7.7L12 16.8l-6.6 4.8 2.5-7.7L1.4 9.1h8z"/></svg><p>The discovery of gold and silver in America, the extirpation, enslavement and entombment in mines of the aboriginal population, the beginning of the conquest and looting of the East Indies, the turning of Africa into a warren for the commercial hunting of black-skins, signalised the rosy dawn of the era of capitalist production. These idyllic proceedings are the chief momenta of primitive accumulation. On their heels treads the commercial war of the European nations, with the globe for a theatre.</p><div class="cue small" id="cue" aria-hidden="true"><span>Scroll</span><i></i></div></blockquote>
     <blockquote class="verse burst" id="v2"><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.6h8l-6.5 4.8 2.5 7.7L12 16.8l-6.6 4.8 2.5-7.7L1.4 9.1h8z"/></svg><p>If money, according to Augier, “comes into the world with a congenital blood-stain on one cheek,” capital comes dripping from head to foot, from every pore, with blood and dirt.</p></blockquote>
     <blockquote class="verse sea" id="v3"><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l2.6 7.6h8l-6.5 4.8 2.5 7.7L12 16.8l-6.6 4.8 2.5-7.7L1.4 9.1h8z"/></svg><p>Along with the constantly diminishing number of the magnates of capital … grows the mass of misery, oppression, slavery, degradation, exploitation; but with this too grows the revolt of the working class … This integument is burst asunder. The knell of capitalist private property sounds. The expropriators are expropriated.</p><cite class="small">— Karl Marx, Capital, Vol. I, 1867</cite></blockquote>
   </section>
@@ -190,8 +191,7 @@ main { position: relative; z-index: 2 }
       <div class="dl-text">
         <p class="dl-status small in" style="--a:.02">In production</p>
         <h2 id="t2" class="in" style="--a:.04; --s:3"><span class="dead" data-t="(DEAD)">(Dead)</span><span data-t="LABOR">Labor</span></h2>
-        <p class="dl-sub two">The year two thousand and twenty-six</p>
-        <p class="dl-by in" style="--a:.68">the Amazon Labor Union</p>
+        <p class="dl-sub two">At the end of history, is a new world possible?</p>
       </div>
     </div>
   </section>
@@ -203,7 +203,7 @@ main { position: relative; z-index: 2 }
     <span>3RD WORLD REVOLUTION Productions</span>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener">Instagram ↗</a>
     <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener">Letterboxd ↗</a>
-    <a href="https://shop.3rdworldrevolution.com/">Gear</a>
+    <a href="https://shop.3rdworldrevolution.com/">Gear ↗</a>
     <span>© 2026</span>
   </div>
 </footer>
@@ -245,9 +245,11 @@ const camera = new THREE.PerspectiveCamera(42, 1, 1, 16000);
 // ── shared GLSL: noise and the sky, so the water can reflect the very sky that is drawn ─────────────
 const NOISE = (LITE ? '\n#define LITE_NOISE\n' : '\n') + `
   #ifdef LITE_NOISE
+  #define STAR_L 2
   #define OCT3 3
   #define OCTF 4
   #else
+  #define STAR_L 3
   #define OCT3 4
   #define OCTF 6
   #endif
@@ -270,7 +272,7 @@ const SKY = `
     vec3 c = mix(hor, zen, smoothstep(-.02, .55, y));
     c += glow * (pow(sd, 10.) * 1.1 * (1. - smoothstep(0., .4, y)) + .16 * (1. - smoothstep(-.04, .12, y)) + pow(sd, 3.) * .08);
     c += vec3(1., .72, .45) * (smoothstep(.99935, .99962, sd) * 26. + pow(sd, 900.) * 6. + pow(sd, 90.) * .5) * (1. - red * .85) * (1. - ecl * .97);
-    if (clouds > 0.) {
+    if (clouds > 0. && y > -.04) {
       float sp = 1. + red * 5.;
       vec2 uv = d.xz / max(.05, y + .16);
       float w = fbm(uv * .55 + t * .006 * sp);
@@ -301,8 +303,9 @@ const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 64, 32), new THREE.Sha
       float az = atan(d.x, -d.z), el = asin(clamp(d.y, -1., 1.));
       // the stars: three layers, from a few bright ones to a dust of faint ones; most burn steady, a few scintillate
       // gently; warm and cool by temperature; a faint band of unresolved stars across the sky
+      if (d.y > .015) {
       vec3 st = vec3(0.);
-      for (int L = 0; L < 3; L++) { float fl = float(L), dens = fl < .5 ? 140. : fl < 1.5 ? 260. : 520.;
+      for (int L = 0; L < STAR_L; L++) { float fl = float(L), dens = fl < .5 ? 140. : fl < 1.5 ? 260. : 520.;
         vec2 sp = vec2(az, el) * dens, cell = floor(sp); float r = h21(cell + fl * 17.);
         if (r > (fl < .5 ? .984 : fl < 1.5 ? .972 : .95)) {
           vec2 o = vec2(h21(cell + 3.1), h21(cell + 7.7)) - .5; float dd = length(fract(sp) - .5 - o * .6);
@@ -311,7 +314,7 @@ const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 64, 32), new THREE.Sha
           vec3 tint = mix(vec3(.72, .82, 1.), vec3(1., .84, .62), h21(cell + 5.));
           st += tint * b * tw * smoothstep(fl < .5 ? .13 : fl < 1.5 ? .14 : .17, 0., dd); } }
       float band = exp(-pow((el - .42 - .16 * sin(az * 1.2 + .6)) * 4., 2.));
-      st += vec3(.11, .095, .12) * band * smoothstep(.35, .8, fbm(vec2(az * 3.2, el * 9.))) * .5;
+      st += vec3(.11, .095, .12) * band * smoothstep(.3, .75, n2(vec2(az * 3.2, el * 9.)) * .6 + n2(vec2(az * 9., el * 26.)) * .4) * .5;
       c += st * smoothstep(.02, .32, d.y) * (1. - red * .45);
       // meteors: now and then one crosses, a hot blue-white head and a long train that widens, cools to amber and lingers
       for (int i = 0; i < 2; i++) { float fi = float(i), P = 9. + fi * 5.3, tt = t + fi * 3.7, k = floor(tt / P), ph = fract(tt / P), dur = .2 + .1 * h21(vec2(k, 11. + fi));
@@ -323,6 +326,7 @@ const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 64, 32), new THREE.Sha
           float core = smoothstep(w, 0., across) * tail * tail, haze = smoothstep(w * 7., 0., across) * tail * .22, hd = smoothstep(.011, 0., length(q));
           vec3 mc = mix(vec3(.78, .9, 1.), vec3(1., .66, .4), smoothstep(0., Lt, along));
           c += (mc * (core * 2.4 + haze) + vec3(1., .96, .9) * hd * 3.) * sin(u * 3.14159) * smoothstep(.02, .3, d.y); } }
+      }
       gl_FragColor = vec4(c, 1.); }` }));
 sky.renderOrder = -10; scene.add(sky);
 scene.fog = new THREE.Fog(DUSK.fog.clone(), 380, 7800);
@@ -547,6 +551,7 @@ const toGLB = (j) => {
 const load = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); })
   .then((j) => new Promise((res, rej) => loader.parse(toGLB(j), 'assets/', res, rej)));
 
+const sunk = []; let drowned = false;
 let moon = null, moonBase = new THREE.Vector3(), moonEcl = new THREE.Vector3(3500, 728, -8820);   // where the moon meets the sun, right of the globe (beyond the farthest range)
 let globe = null, actions = [], mixer = null, Rg = 1, globeAnchor = new THREE.Vector3(0, 58, -22), logo = null;
 const mats = { wood: [], iron: [] };
@@ -563,7 +568,7 @@ load('assets/jerusalem.gltf.json').then((g) => {
     const name = o.name || '', src = o.material;
     if (/moon/i.test(name)) {
       moon = o; moon.material = moonMat; o.position.set(-3640, 640, -8960); o.scale.multiplyScalar(10.36); moonBase.copy(o.position); moon.renderOrder = -5;   // low on the left, beyond the farthest range, its foot behind the ridge
-      halo.scale.setScalar(o.scale.x * 3.2);   // (the moon's mesh is a unit sphere: its scale is its radius) halo.position.copy(o.position); scene.add(halo);
+      halo.scale.setScalar(o.scale.x * 3.2); halo.position.copy(o.position); scene.add(halo);   // (the moon's mesh is a unit sphere: its scale is its radius)
       o.geometry.computeBoundingSphere(); moonR = o.geometry.boundingSphere.radius * o.scale.x;
       corona.scale.setScalar(moonR * 2 * CORONA); scene.add(corona); return; }
     const kind = /^(Golgotha|Native|Range|Reflective|Dry)/.test(name) ? 'ground' : /windows/i.test(name) ? 'window' : /lamplight/i.test(name) ? 'lamp'
@@ -578,6 +583,9 @@ load('assets/jerusalem.gltf.json').then((g) => {
     // the far ranges stand taller and nearer: the fantastical horizon
   });
   scatterStones(world);
+  world.updateMatrixWorld(true); const bb = new THREE.Box3();
+  world.traverse((o) => { if (o.isMesh && o !== moon && bb.setFromObject(o).max.y < 49) sunk.push(o); });   // all of this goes under the red sea
+  cleanWindows(world);
   scene.add(world); ready.world = true;
 }).catch((e) => console.warn('world', e));
 
@@ -590,7 +598,7 @@ Promise.all([load('assets/globe.gltf.json'), load('assets/logotype.gltf.json')])
     if (n.includes('Wood')) { o.material = new THREE.MeshStandardMaterial({ color: C.wood.clone(), emissive: new THREE.Color().setRGB(.16, .045, .01), roughness: .82, envMapIntensity: .2 }); mats.wood.push(o.material); }
     else if (n.includes('Nail')) { o.material = new THREE.MeshStandardMaterial({ color: C.iron.clone(), roughness: .55, metalness: .8 }); mats.iron.push(o.material); }
     else if (n.includes('Rib')) { o.material = new THREE.MeshStandardMaterial({ color: '#b0000f', emissive: new THREE.Color().setRGB(.12, 0, .01), roughness: .22, metalness: .55, clippingPlanes: [sweep] }); }
-    else if (n.includes('Title')) { o.material = new THREE.MeshStandardMaterial({ color: n.includes('Bevel') ? '#cc0a20' : '#b0000f', emissive: new THREE.Color().setRGB(.12, 0, .01), roughness: n.includes('Bevel') ? .18 : .3, metalness: .55, clippingPlanes: [sweep] }); farCull(o.material); }
+    else if (n.includes('Title')) { o.userData.title = true; o.material = new THREE.MeshStandardMaterial({ color: n.includes('Bevel') ? '#cc0a20' : '#b0000f', emissive: new THREE.Color().setRGB(.12, 0, .01), roughness: n.includes('Bevel') ? .18 : .3, metalness: .55, clippingPlanes: [sweep] }); farCull(o.material); }
     o.frustumCulled = false;
   });
   mixer = new THREE.AnimationMixer(root);
@@ -608,9 +616,7 @@ Promise.all([load('assets/globe.gltf.json'), load('assets/logotype.gltf.json')])
   Rg = gb.getSize(new THREE.Vector3()).y * s / 2;
   scene.add(globe); globe.updateMatrixWorld(true);
   globe.userData.hand = []; root.traverse((o) => { if (o.isMesh && o.userData.hand) globe.userData.hand.push(o); });
-  { const tc = new THREE.Vector3(), b = new THREE.Box3(), c = new THREE.Vector3(); let n = 0;   // which way the lettering faces, in the globe's own frame
-    root.traverse((o) => { if (o.isMesh && /Title/.test((o.material && o.material.name) || o.name)) { b.setFromObject(o).getCenter(c); tc.add(c); n++; } });
-    globe.userData.textDir = n ? tc.divideScalar(n).sub(globe.position).setY(0).normalize() : null; }
+  globe.userData.titles = []; root.traverse((o) => { if (o.isMesh && o.userData.title) { o.geometry.computeBoundingSphere(); globe.userData.titles.push([o, o.geometry.boundingSphere.center.clone()]); } });
   logo = l.scene; const lb = new THREE.Box3().setFromObject(logo), ls = lb.getSize(new THREE.Vector3()), lc = lb.getCenter(new THREE.Vector3());
   const k = (Rg * 2.9) / ls.x; logo.scale.setScalar(k);
   logo.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ color: '#b0000f', emissive: new THREE.Color().setRGB(.14, 0, .012), roughness: .3, metalness: .5 }); });
@@ -752,7 +758,7 @@ function buildTV() {   // units: the cabinet is 2.2 wide, 1.75 tall; the tube fa
   for (let i = 0; i < 6; i++) { const v = new THREE.Mesh(new THREE.BoxGeometry(.7, .02, .012), dark); v.position.set(0, .1 + i * .07, -1.73); g.add(v); }
   [[-.6, -.45], [.6, -.45], [-.6, .5], [.6, .5]].forEach(([x, y]) => { const sc = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .015, 12), steel); sc.rotation.x = Math.PI / 2; sc.position.set(x, y, -1.73); g.add(sc); });
   const foot = ex(rr(2.0, .06, .03), 1.4, 0, inset); foot.position.set(0, -.9, -1.55); g.add(foot);   // the base lip it once stood on
-  const cord = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V3(.4, -.5, -1.74), V3(.55, -.9, -2.05), V3(.3, -1.9, -2.6), V3(-.2, -3.4, -3.1)]), 40, .022, 6), dark); g.add(cord);
+  const cord = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V3(.42, -.5, -1.74), V3(.6, -.75, -1.95), V3(.72, -1.25, -2.0)]), 16, .022, 6), dark); g.add(cord);
   g.visible = false; return g; }
 const mistTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
   r.addColorStop(0, 'rgba(255,255,255,.75)'); r.addColorStop(.5, 'rgba(255,255,255,.22)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
@@ -760,6 +766,13 @@ function buildSet() {   // a low mist on the water around it
   const s = new THREE.Group();
   s.userData.mist = Array.from({ length: LITE ? 4 : 7 }, (_, i) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: mistTex, color: new THREE.Color().setRGB(.3, .06, .06), transparent: true, opacity: 0, depthWrite: false }));
     m.userData = { x: (i - 3) * 2.6, z: ((i * 37) % 7) - 3.5, w: 7 + (i % 3) * 2.5, ph: i * 2.3 }; s.add(m); return m; });
+  // the rest of the cord floats: it surfaces behind the set and snakes away to the right on the swell, to its plug
+  const dark = new THREE.MeshStandardMaterial({ color: '#070606', roughness: .35, envMapIntensity: .6 }), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const path = new THREE.CatmullRomCurve3([V3(.95, -.08, -1.5), V3(1.5, .005, -1.95), V3(2.2, .005, -1.35), V3(2.9, .005, -1.9), V3(3.6, .005, -1.2), V3(4.35, .005, -1.7), V3(4.9, .005, -1.35)]);
+  const cord = new THREE.Mesh(new THREE.TubeGeometry(path, 120, .022, 6), dark); s.add(cord); s.userData.cord = cord;
+  const plug = new THREE.Group(), body = new THREE.Mesh(new THREE.BoxGeometry(.13, .07, .15), dark); plug.add(body);
+  [-.025, .025].forEach((x) => { const pr = new THREE.Mesh(new THREE.BoxGeometry(.012, .028, .07), new THREE.MeshStandardMaterial({ color: '#8d8478', roughness: .3, metalness: .9 })); pr.position.set(x, 0, .1); plug.add(pr); });
+  const end = path.getPoint(1), tg = path.getTangent(1); plug.position.copy(end).addScaledVector(tg, .07); plug.rotation.y = Math.atan2(tg.x, tg.z); plug.rotation.z = .5; s.add(plug); s.userData.plug = plug;
   s.visible = false; return s; }
 
 // what the tube shows: static, and through it, now and then, one line of the film's title card
@@ -768,9 +781,9 @@ function snow(a, v) { const d = snowImg.data; for (let i = 0; i < d.length; i +=
   snowG.putImageData(snowImg, 0, 0); tvG.globalAlpha = a; tvG.imageSmoothingEnabled = false; tvG.drawImage(snowCan, 0, 0, TVW, TVH); tvG.globalAlpha = 1; }
 function band(p) { const g = tvG, h = Math.max(1.5, TVH / 2 * p * p * p); g.fillStyle = '#000'; g.fillRect(0, 0, TVW, TVH / 2 - h); g.fillRect(0, TVH / 2 + h, TVW, TVH / 2 - h + 1);
   if (p < .4) { g.fillStyle = `rgba(232,240,255,${(1 - p / .4) * .9})`; g.fillRect(0, TVH / 2 - h, TVW, h * 2); } }
-function subCard(a) { const g = tvG; g.save(); g.translate(TVW / 2, TVH / 2); g.scale(.8, 1); g.textAlign = 'center'; g.textBaseline = 'middle';
+function subCard(a, lines) { const g = tvG; g.save(); g.translate(TVW / 2, TVH / 2); g.scale(.8, 1); g.textAlign = 'center'; g.textBaseline = 'middle';
   g.font = 'bold 36px "Helvetica Neue", Helvetica, Arimo, Arial, sans-serif';
-  [['A STORY ON FILM OF THE', -26], ['FIGHT FOR A NEW FUTURE', 26]].forEach(([l, y]) => {
+  lines.forEach(([l, y]) => {
     g.fillStyle = `rgba(118,108,124,${.4 * a})`; g.fillText(l, 9, y + 4);   // its ghost, offset as on the card
     g.shadowColor = `rgba(255,70,48,${.95 * a})`; g.shadowBlur = 18; g.fillStyle = `rgba(255,104,80,${a})`; g.fillText(l, 0, y); g.shadowBlur = 0; });
   g.restore(); }
@@ -781,7 +794,8 @@ function drawTV(k, t) { const g = tvG; let lum = .3;
     if (ph < .09 || (ph > .32 && ph < .37)) { snow(1, .8); lum = .5; } }
   else { snow(1, .45);
     const per = 3.6, ph = t % per, on = ph < 1.7 && !(ph > .16 && ph < .21) && !(ph > 1.2 && ph < 1.24);   // the line comes through, stutters, and goes
-    if (on) { g.fillStyle = 'rgba(10,5,9,.62)'; g.fillRect(0, 0, TVW, TVH); subCard(ph < .08 ? ph / .08 : 1); snow(.14, 1); lum = .26; }
+    if (on) { g.fillStyle = 'rgba(10,5,9,.62)'; g.fillRect(0, 0, TVW, TVH);   // first the line, then the year
+      subCard(ph < .08 ? ph / .08 : 1, Math.floor(t / per) % 2 ? [['THE YEAR TWO THOUSAND', -26], ['AND TWENTY-SIX', 26]] : [['A STORY ON FILM OF THE', -26], ['FIGHT FOR A NEW FUTURE', 26]]); snow(.14, 1); lum = .26; }
     const rb = ((t * .11) % 1.3 - .15) * TVH; g.fillStyle = 'rgba(255,255,255,.045)'; g.fillRect(0, rb, TVW, 46);   // a slow roll bar
     if (Math.random() < .03) { const y = Math.random() * TVH; g.drawImage(bufCan, 0, y, TVW, 40, 16, y, TVW, 40); } }   // now and then the picture tears
   if (k >= TS[0] && k < TS[1]) band(clamp01((k - TS[0]) / (TS[1] - TS[0])));   // switched on: a line opens into the picture
@@ -836,6 +850,26 @@ let intro = 0, tA = 0, play = -INTRO_S, vA = 0, globeSpin = 0, globeVel = 0, las
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
+function cleanWindows(world) {
+  const V = .8, solid = new Set(), key = (x, y, z) => ((Math.floor(x / V) + 4096) * 8192 + (Math.floor(y / V) + 4096)) * 8192 + (Math.floor(z / V) + 4096);
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), p = new THREE.Vector3(), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), n = new THREE.Vector3();
+  const tris = (m, fn) => { const g = m.geometry, P = g.attributes.position, I = g.index, N = I ? I.count : P.count;
+    for (let t = 0; t < N; t += 3) { const ia = I ? I.getX(t) : t, ib = I ? I.getX(t + 1) : t + 1, ic = I ? I.getX(t + 2) : t + 2;
+      a.fromBufferAttribute(P, ia).applyMatrix4(m.matrixWorld); b.fromBufferAttribute(P, ib).applyMatrix4(m.matrixWorld); c.fromBufferAttribute(P, ic).applyMatrix4(m.matrixWorld); fn(t); } };
+  const holders = [], openings = [];
+  world.traverse((o) => { if (!o.isMesh) return; const nm = o.name || '';
+    if (/windows|lamplight/i.test(nm)) openings.push(o); else if (/^(Jerusalem|Temple|Hovel|Golgotha|Native)/.test(nm)) holders.push(o); });
+  if (!openings.length) return;
+  const inCity = (q) => q.x > -400 && q.x < -60 && q.z > -400 && q.z < -80;   // only the city's footprint matters
+  holders.forEach((m) => tris(m, () => { if (!inCity(a) && !inCity(b) && !inCity(c)) return; e1.subVectors(b, a); e2.subVectors(c, a); const ar = e1.clone().cross(e2).length() / 2, k = Math.min(400, Math.ceil(ar / (V * V * .5)));
+    for (let i = 0; i < k; i++) { let u = Math.random(), v = Math.random(); if (u + v > 1) { u = 1 - u; v = 1 - v; } p.copy(a).addScaledVector(e1, u).addScaledVector(e2, v); solid.add(key(p.x, p.y, p.z)); } }));
+  const near = (x, y, z) => { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) if (solid.has(key(x + i * V, y + j * V, z + k * V))) return true; return false; };
+  openings.forEach((m) => { const keep = []; let cut = 0, I = m.geometry.index;
+    tris(m, (t) => { p.copy(a).add(b).add(c).divideScalar(3); n.subVectors(b, a).cross(e2.subVectors(c, a)).normalize();
+      if (near(p.x, p.y, p.z) || near(p.x - n.x * V, p.y - n.y * V, p.z - n.z * V) || near(p.x + n.x * V, p.y + n.y * V, p.z + n.z * V)) keep.push(t); else cut++; });
+    if (cut && I) { const src = I.array, out = new (src.constructor)(keep.length * 3); keep.forEach((t, i) => { out[i * 3] = src[t]; out[i * 3 + 1] = src[t + 1]; out[i * 3 + 2] = src[t + 2]; });
+      m.geometry.setIndex(new THREE.BufferAttribute(out, 1)); }
+    console.info('openings', m.name, 'kept', keep.length, 'dropped', cut); }); }
 function scatterStones(world) {
   const meshes = []; world.traverse((o) => { if (o.isMesh && /^Golgotha/.test(o.name) && !/boulder|pebble/i.test(o.name)) meshes.push(o); });
   if (!meshes.length) return;
@@ -857,7 +891,7 @@ function scatterStones(world) {
     pts.forEach((pt, i) => { const s = smin + (smax - smin) * Math.pow(R(), 2.2); sc.set(s * (.7 + R() * .6), s * (.45 + R() * .35), s * (.7 + R() * .6));
       q.setFromEuler(new THREE.Euler(R() * 6.28, R() * 6.28, R() * 6.28)); pt.y -= sc.y * .35; M.compose(pt, q, sc); im.setMatrixAt(i, M);
       cc.copy(col).multiplyScalar(.55 + R() * .6); im.setColorAt(i, cc); });
-    im.instanceMatrix.needsUpdate = true; scene.add(im); };
+    im.instanceMatrix.needsUpdate = true; scene.add(im); sunk.push(im); };
   make(rocks, .22, 1.3, new THREE.Color('#3b3129'));
   make(pebbles, .05, .22, new THREE.Color('#4a3d31'));
 }
@@ -897,14 +931,14 @@ function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT 
 
 let cueN = 0, cueT = 0, inSky = false;
 addEventListener('scroll', () => { const n = performance.now(); if (n - cueT > 450) cueN++; cueT = n; }, { passive: true });
-const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent; p.innerHTML = '';   // each letter in a span, so the passage can be written out
+const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent; p.innerHTML = '';   // each word in a span, so the passage can come up softly
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = txt; p.appendChild(sr);
   const w = document.createElement('span'); w.setAttribute('aria-hidden', 'true'); p.appendChild(w);
-  el._ch = [...txt].map((c) => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = c; w.appendChild(s); return s; }); el._n = 0; };
+  el._ch = txt.split(/(\s+)/).filter(Boolean).map((c) => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = c; w.appendChild(s); return s; }); el._n = 0; };
 const writeTo = (el, f) => { const n = Math.round(clamp01(f) * el._ch.length); if (n === el._n) return;
   for (let i = Math.min(n, el._n); i < Math.max(n, el._n); i++) el._ch[i].classList.toggle('on', i < n); el._n = n; };
 const V = ['#v1', '#v2', '#v3'].map($), CC = $('#christians-and-cannibals'), DL = $('#dead-labor');
-writeOut($('#v1')); writeOut($('#v3'));
+writeOut($('#v1')); writeOut($('#v2')); writeOut($('#v3'));
 const ray = new THREE.Raycaster(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 let tPrev = performance.now(), clock = 0, envRed = -1, envEcl = -1;
 function frame(now) {
@@ -923,7 +957,7 @@ function frame(now) {
     vA += ((goal - play) * 4.2 - vA * 2.9) * dt; play += vA * dt;
     if (play < -INTRO_S || play > DUR) { play = Math.max(-INTRO_S, Math.min(DUR, play)); vA = 0; } }
   intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
-  $('#cue').style.opacity = intro < .3 && cueN < 2 ? 1 : 0;   // the prompt shows in the sky, and retires after a couple of scrolls
+  $('#cue').style.opacity = intro < .3 && cueN < 2 && (REDUCED || clock > 3.6) ? 1 : 0;   // once the first line is out, the prompt shows under it; it retires after a couple of scrolls
   if ((intro < .45) !== inSky) { inSky = intro < .45; document.body.classList.toggle('insky', inSky); }   // the header waits until we leave the sky
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
@@ -946,9 +980,12 @@ function frame(now) {
     else { const home = Math.round(globeSpin / (Math.PI * 2)) * Math.PI * 2; globeVel = 0;   // scrolling back, it unwinds to whole turns, so the hand comes round to face us again
       globeSpin = tA < 11.6 ? home : lerp(globeSpin, home, 1 - Math.exp(-dt * 3)); }
     globe.rotation.y = (1 - Math.pow(1 - clamp01((tA - 11.6) / 4.4), 3)) * Math.PI * 2 + globeSpin;   // one turn, easing to rest
-    { let hv = 1;   // the hand faces us when it is made (+z); as the globe turns it away, the hand fades out, and back as it comes round
-      if (tA > 9.5) { const ry = globe.rotation.y, cx = camera.position.x - globe.position.x, cz = camera.position.z - globe.position.z, cl = Math.hypot(cx, cz) || 1;
-        hv = 1 - (1 - smooth(((Math.sin(ry) * cx + Math.cos(ry) * cz) / cl - .05) / .45)) * smooth((tA - 9.5) / 1.5); }
+    { let hv = 1;   // the hand stays until the lettered side has come round to face us, then fades; it returns as the lettering turns away
+      // the lettering moves with the animation, so find where it is now: the middle of all the letters, seen from the globe's centre
+      const T = globe.userData.titles;
+      if (T.length && tA > 8) { globe.updateMatrixWorld(true); tmp2.set(0, 0, 0); T.forEach(([o, c]) => tmp2.add(tmp.copy(c).applyMatrix4(o.matrixWorld))); tmp2.divideScalar(T.length).sub(globe.position);
+        const tl = Math.hypot(tmp2.x, tmp2.z), cx = camera.position.x - globe.position.x, cz = camera.position.z - globe.position.z, cl = Math.hypot(cx, cz) || 1;
+        if (tl > Rg * .05) hv = 1 - smooth(((tmp2.x * cx + tmp2.z * cz) / (tl * cl) - .25) / .4) * smooth((tA - 8) / 1.2); }
       [...mats.wood, ...mats.iron].forEach((m) => { m.transparent = hv < .999; m.opacity = hv; m.depthWrite = hv > .5; });
       if (globe.userData.hand) globe.userData.hand.forEach((o) => { o.visible = hv > .02; }); }
     if (logo) { const rise = smooth((tA - 6.6) / 2.8);   // it rises out of the ground; the sea comes up around it later
@@ -973,6 +1010,8 @@ function frame(now) {
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);   // (darkened below for (Dead) Labor)
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
   const flood = clamp01((tA - 9.2) / 3.4);
+  const dr = waterU.opacity.value > .999 && waterU.level.value > 46.9 && (REDUCED || flood >= 1);
+  if (dr !== drowned) { drowned = dr; sunk.forEach((o) => { o.visible = !dr; }); lanterns.forEach((l) => { l.visible = !dr; }); }
   if (tA > 12.3 && !chopOn) { chopOn = true; chopT = clock; } if (tA < 11.6) chopOn = false;   // the moment the walls meet starts a swell that takes a while to die
   waterU.chop.value = REDUCED ? 0 : Math.max(chopOn ? Math.exp(-(clock - chopT) / 7) : 0, smooth((tA - 11.8) / .6) * (1 - smooth((tA - 12.8) / 3)) * .7);   // the walls run in from far off and crash together over the globe
   const fW = 460 * Math.pow(1 - smooth(flood), 1.35) - 10;   // they start at the edges of the view and close on the middle
@@ -1011,7 +1050,7 @@ function frame(now) {
   // past where he stands, to the television; after that it pans on again, past the set, for the footer
   const aOf = (y) => (y - (story.offsetHeight - innerHeight)) / innerHeight;
   const ccEnd = aOf(CC.offsetTop + CC.offsetHeight - innerHeight), dlStart = aOf(DL.offsetTop), dlEnd = aOf(DL.offsetTop + DL.offsetHeight - innerHeight);
-  const panAt = (a) => smooth(a / 1.1) * 1.25 + Math.max(0, a - 1.1) * .02 + .95 * smooth((a - ccEnd + .15) / (dlStart - ccEnd + .3)) + 1.1 * smooth((a - dlEnd + .1) / .9);
+  const panAt = (a) => smooth(a / 1.1) * 1.25 + Math.max(0, a - 1.1) * .02 + .95 * smooth((a - ccEnd - .05) / (dlStart - ccEnd + .15)) + 1.1 * smooth((a - dlEnd - .05) / .9);
   const turn = panAt(afterS);
   // handheld: once scrolling stops the camera breathes and drifts a little, and settles again when scrolling resumes
   handK = lerp(handK, REDUCED ? 0 : smooth((idleT - .5) / 1.5), 1 - Math.exp(-dt * (idleT > 0 ? 1.5 : 6)));
@@ -1040,7 +1079,7 @@ function frame(now) {
   let pool = 0;
   // the man rises from the sea as Christians and Cannibals plays, and sinks again as (Dead) Labor comes on
   if (fig) {
-    const rk = clamp01((ccK - .03) / .6), rise = rk, x1 = rk - 1;   // once the camera has settled on him, he comes up, slowly
+    const rk = clamp01((ccK - .03) / .72), rise = rk, x1 = rk - 1;   // once the camera has settled on him, he comes up, slowly
     const up = 1 + 2.7 * x1 * x1 * x1 + 1.7 * x1 * x1;   // he breaks the surface fast, overshoots a little, and settles; once risen he stays
     figBurst = Math.max(figBurst * Math.exp(-dt * 1.3), Math.min(1, Math.abs(rk - figRk) / Math.max(dt, 1e-3) * 1.2), rk > 0 && rk < 1 ? .25 : 0); figRk = rk;
     fig.visible = (rise > .001 || ccR.top < innerHeight) && red > .9;
@@ -1075,6 +1114,7 @@ function frame(now) {
     tv.position.set(a.x, lv + sc * (.1 + bob), a.z);   // it floats with a little over half of it clear of the water
     tv.rotation.set(-.11 + Math.sin(clock * .51 + 1) * .045, yaw - .55 + Math.sin(clock * .23) * .06, .2 + Math.sin(clock * .43) * .055, 'YXZ');   // listing, turned away
     tvSet.position.set(a.x, lv, a.z); tvSet.rotation.y = yaw;
+    tvSet.userData.cord.position.y = tvSet.userData.plug.position.y * 0 + Math.sin(clock * .7) * .02; tvSet.userData.plug.rotation.x = Math.sin(clock * .9) * .25;
     tvSet.userData.mist.forEach((m) => { const u = m.userData; m.position.set(u.x + Math.sin(clock * .05 + u.ph) * 1.5, .35, u.z); m.scale.set(u.w, u.w * .22, 1); m.material.opacity = .16; });
     if (!LITE || (Math.floor(clock * 60) & 1)) drawTV(clamp01(dlK * 1.06 - .02), clock);
     tvU.glow.value = 2.4; tvU.t.value = clock; tvLed.material.color.setRGB(3 * (.6 + .4 * Math.sin(clock * 2.1)), .08, .04);
@@ -1091,10 +1131,16 @@ function frame(now) {
     el.style.opacity = v; el.style.visibility = v > .001 ? 'visible' : 'hidden';
     if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
   verse(V[0], smooth((clock - .2) / 1.4) * (1 - smooth((intro - .3) / .35)));   // up at once, in the stars
-  writeTo(V[0], REDUCED ? 1 : (clock - .6) / 16);   // written out slowly
-  writeTo(V[2], REDUCED ? 1 : (tA - 15.5) / 3.6);   // written out as you scroll down
+  writeTo(V[0], REDUCED ? 1 : (clock - .6) / 18);   // comes up slowly
+  writeTo(V[1], REDUCED ? 1 : (tA - 1.2) / 2.4);   // with the scroll
+  writeTo(V[2], REDUCED ? 1 : (tA - 16.9) / 2.5);   // with the scroll, after the hero shot
   verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
-  verse(V[2], smooth((tA - 15.3) / .5) * (1 - smooth((after - .05) / .25)));   // after the globe has turned
+  if (globe && camera.aspect >= 1 && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
+    const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.2;   // clear of the globe (the logotype sits below the passage)
+    const w = Math.max(260, Math.min(620, edge - 40)) | 0;
+    if (w !== V[2]._w || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = '';   // and small enough to fit the height
+      for (let i = 0; i < 3; i++) { const h = V[2].scrollHeight, room = innerHeight * .84; if (h <= room) break; V[2].style.fontSize = Math.max(14, parseFloat(getComputedStyle(V[2]).fontSize) * room / h * .98) + 'px'; } } }
+  verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .05) / .25)));   // after the globe has come to rest and held
 
   composer.render(dt);
   if (!veilUp && ((ready.world && ready.globe) || clock > 9)) { veilUp = true;   // precompile what is already loaded, then lift the veil
