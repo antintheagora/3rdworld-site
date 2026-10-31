@@ -56,7 +56,9 @@ function Engine(ctx) {
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; lp.Q.value = .6;
   const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 25; hp.Q.value = .7;
   const mix = ctx.createGain();
-  mix.connect(hp); hp.connect(lp); lp.connect(shaper); shaper.connect(comp); comp.connect(out); out.connect(ctx.destination);
+  const drive = ctx.createWaveShaper(); { const n = 2048, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1, y = Math.tanh(x * 9); c[i] = Math.round(y * 9) / 9 * .7 + y * .3; } drive.curve = c; }   // hard, a little crushed
+  const dry = ctx.createGain(), wet = ctx.createGain(); wet.gain.value = 0;
+  mix.connect(hp); hp.connect(lp); lp.connect(dry); lp.connect(drive); drive.connect(wet); dry.connect(shaper); wet.connect(shaper); shaper.connect(comp); comp.connect(out); out.connect(ctx.destination);
   const revRet = ctx.createGain(); revRet.gain.value = .55; verb.connect(revRet); revRet.connect(hp);
   const revSend = ctx.createGain(); revSend.connect(verb);
   // a dotted-eighth echo, darkening as it repeats; the scroll feeds it
@@ -74,6 +76,10 @@ function Engine(ctx) {
     if (rev) { const s = ctx.createGain(); s.gain.value = rev; v.connect(s); s.connect(revSend); } if (echo) { const s = ctx.createGain(); s.gain.value = echo; v.connect(s); s.connect(dlSend); b.echo = s; } return b; };
   const B = { pad: bus(.55, .7), ep: bus(.5, .45, .35), bass: bus(.8, .05), drum: bus(.75, .12), arp: bus(.32, .5, .8), lead: bus(.3, .7, .6), piano: bus(.75, .85, .18), crackle: bus(.5), stat: bus(.28, .2), fx: bus(.5, .8, .3) };
   B.ocean = ctx.createGain(); B.ocean.gain.value = 0; { const v = ctx.createGain(); v.gain.value = .42; B.ocean.connect(v); v.connect(lp); const r = ctx.createGain(); r.gain.value = .25; v.connect(r); r.connect(revSend); }   // the sea stays out of the television
+  const pIn = ctx.createGain(), pLP = ctx.createBiquadFilter(), pDry = ctx.createGain(), pCr = ctx.createWaveShaper(), pWet = ctx.createGain();
+  pLP.type = 'lowpass'; pLP.frequency.value = 14000; pLP.Q.value = .7; pWet.gain.value = 0;
+  { const n = 1024, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.round(x * 6) / 6; } pCr.curve = c; }   // six levels: a cheap sampler
+  pIn.connect(pLP); pLP.connect(pDry); pDry.connect(B.piano); pLP.connect(pCr); pCr.connect(pWet); pWet.connect(B.piano);
   const drumLP = ctx.createBiquadFilter(); drumLP.type = 'lowpass'; drumLP.frequency.value = 9000; drumLP.Q.value = .4;
   const drumIn = ctx.createGain(); drumIn.connect(drumLP); drumLP.connect(B.drum);
   // the electric piano's tremolo, slow and wide
@@ -110,7 +116,7 @@ function Engine(ctx) {
     if (two) { const b = osc('sine', f, t); b.setPeriodicWave(pw); b.detune.setValueAtTime(2.5, t); b.connect(lp); b.start(t); b.stop(t + len + 1.4); }
     const h = noise(), hf = ctx.createBiquadFilter(), hg = ctx.createGain(); hf.type = 'bandpass'; hf.frequency.value = Math.min(4000, f * 3); hf.Q.value = .6;   // the hammer
     env(hg, t, .001, .05 * vel, .008); h.connect(hf); hf.connect(hg); hg.connect(g); h.start(t); h.stop(t + .06);
-    lp.connect(g); g.connect(B.piano); }
+    lp.connect(g); g.connect(pIn); }
   // the sea: low swells of brown noise that rise and break, foam hissing after each, never quite in time
   const bb = ctx.createBuffer(1, ctx.sampleRate * 6, ctx.sampleRate), bd = bb.getChannelData(0); { let x = 0; for (let i = 0; i < bd.length; i++) { x = (x + .02 * (Math.random() * 2 - 1)) / 1.02; bd[i] = x * 3.2; } }
   const brown = () => { const s = ctx.createBufferSource(); s.buffer = bb; s.loop = true; s.loopStart = Math.random() * 5; return s; };
@@ -139,6 +145,29 @@ function Engine(ctx) {
     const o = osc('triangle', 190, t), og = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(150, t + .08); env(og, t, .002, .3 * v, .04); o.connect(og); og.connect(drumIn); o.start(t); o.stop(t + .3); }
   function hat(t, v, open) { const n = noise(), f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'highpass'; f.frequency.value = 7200; env(g, t, .001, .16 * v, open ? .12 : .022); n.connect(f); f.connect(g); g.connect(drumIn); n.start(t); n.stop(t + (open ? .8 : .2)); }
   // one-shots the page fires
+  function dread(t, dur) {   // (Dead) Labor: a low cluster, D against E flat, grinding under the static
+    const f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'lowpass'; f.frequency.value = 240; f.Q.value = 3;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.16, t + 1.5); g.gain.setTargetAtTime(0, t + dur, .8); f.connect(g); g.connect(B.fx);
+    [26, 27, 38].forEach((m, i) => { const o = osc('sawtooth', mtof(m), t); o.detune.setValueAtTime(i * 7 - 7, t); o.connect(f); o.start(t); o.stop(t + dur + 3); }); }
+  function explode(t) {   // the crosses burst: a crack of timber, splinters raining, a low blow in D
+    const c = noise(), cf = ctx.createBiquadFilter(), cg = ctx.createGain(); cf.type = 'bandpass'; cf.frequency.value = 2200; cf.Q.value = .9; env(cg, t, .001, .9, .05); c.connect(cf); cf.connect(cg); cg.connect(B.fx); c.start(t); c.stop(t + .4);
+    for (let i = 0; i < 26; i++) { const tt = t + .02 + Math.pow(Math.random(), 1.6) * 1.4, n = noise(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      f.type = 'bandpass'; f.frequency.value = 1200 + Math.random() * 4500; f.Q.value = 2 + Math.random() * 4; env(g, tt, .001, .25 * Math.random() * (1.2 - (tt - t) / 1.6), .012 + Math.random() * .02);
+      n.connect(f); f.connect(g); g.connect(B.fx); n.start(tt); n.stop(tt + .15); }
+    const o = osc('sine', 92, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(36.7, t + .5); env(g, t, .004, .95, .45); o.connect(g); g.connect(B.fx); o.start(t); o.stop(t + 3);
+    [50, 57, 62].forEach((m) => { const p = osc('sawtooth', mtof(m), t), f = ctx.createBiquadFilter(), pg = ctx.createGain(); f.type = 'lowpass'; f.frequency.setValueAtTime(2400, t); f.frequency.setTargetAtTime(220, t, .25);
+      env(pg, t, .01, .07, 1.1); p.connect(f); f.connect(pg); pg.connect(B.fx); p.start(t); p.stop(t + 4.5); }); }
+  function form(t, up) {   // the hand and the globe gather: a chord rising out of the dark (or sinking back, scrolling up)
+    const dur = 2.6, f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'lowpass'; f.Q.value = 5;
+    f.frequency.setValueAtTime(up ? 300 : 3200, t); f.frequency.exponentialRampToValueAtTime(up ? 3600 : 260, t + dur);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.16, t + dur * .9); g.gain.exponentialRampToValueAtTime(.0001, t + dur + .3); f.connect(g); g.connect(B.fx);
+    [50, 57, 62, 65, 69].forEach((m, i) => { const o = osc('sawtooth', mtof(m - (up ? 12 : 0)), t); o.frequency.exponentialRampToValueAtTime(mtof(m - (up ? 0 : 12)), t + dur); o.detune.setValueAtTime(i * 3 - 6, t);
+      o.connect(f); o.start(t); o.stop(t + dur + .5); });
+    swell(t + dur - 1.6, up); }
+  function lock(t) {   // ...and it closes: a struck chord and a bell
+    [38, 50, 57, 62, 65, 69, 74].forEach((m, i) => piano(m, t + i * .008, .75 - i * .04, 3.5, i > 2));
+    const b = osc('sine', mtof(86), t), bg = ctx.createGain(); env(bg, t, .002, .18, 1.4); b.connect(bg); bg.connect(B.fx); b.start(t); b.stop(t + 6);
+    const o = osc('sine', 55, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(36.7, t + .6); env(g, t, .004, .7, .6); o.connect(g); g.connect(B.fx); o.start(t); o.stop(t + 3); }
   function impact(t) {   // the walls of the sea crash together
     const o = osc('sine', 70, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(28, t + 1.8); env(g, t, .01, 1.1, .9); o.connect(g); g.connect(B.fx); o.start(t); o.stop(t + 6);
     const n = noise(), f = ctx.createBiquadFilter(), ng = ctx.createGain(); f.type = 'lowpass'; f.frequency.setValueAtTime(5000, t); f.frequency.exponentialRampToValueAtTime(300, t + 3); env(ng, t, .02, .55, 1.1); n.connect(f); f.connect(ng); ng.connect(B.fx); n.start(t); n.stop(t + 7); }
@@ -160,7 +189,7 @@ function Engine(ctx) {
   const wh = noise(), whF = ctx.createBiquadFilter(), whG = ctx.createGain(); whF.type = 'bandpass'; whF.Q.value = 1.6; whF.frequency.value = 900; whG.gain.value = 0; wh.connect(whF); whF.connect(whG); whG.connect(B.fx); wh.start();   // the scroll's wind
 
   // ── the sequencer ──
-  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0 }, roll = 0, surge = 0;
+  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0 }, roll = 0, surge = 0;
   let inTheme = false, tb = 0, ch = CHORDS[0], nx = CHORDS[1], waveAt = 0;
   function schedule(s, t) {
     const bar = Math.floor(s / 16) % 8, i = s % 16, sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
@@ -182,6 +211,7 @@ function Engine(ctx) {
     if (L.snare > .01 && SNARE[i]) snare(tt, SNARE[i]);
     if (L.hat > .01) { if (HAT[i]) hat(tt, HAT[i] * (.85 + Math.random() * .3), i === 14 && bar % 2); if (roll > .5) hat(tt + SIX / 2, .45 * roll); }   // a fast scroll rolls the hats
     if (L.arp > .01) { const n = ch.tones.length, k = s % (n * 2), m = ch.tones[k % n] + (k >= n ? 12 : 0); arp(m, tt); }
+    if (L.dread > .01 && i === 0) dread(t, SIX * 16);
     if (L.lead > .01 && !inTheme && i % 2 === 0) { const m = MEL[bar][i / 2]; if (m) { let len = SIX * 2; for (let j = i / 2 + 1; j < 8 && !MEL[bar][j]; j++) len += SIX * 2; lead(m, tt, Math.min(len, SIX * 6)); } }
   }
   return {
@@ -194,9 +224,13 @@ function Engine(ctx) {
       const f = Math.max(0, s.v), b = Math.max(0, -s.v), k = .12;
       L = s.layers; roll = f;
       const gl = (name, v) => T(B[name].gain, v, t, .6);
-      surge = s.surge || 0; gl('piano', L.piano); T(B.ocean.gain, L.ocean * (1 + surge * .8), t, 1.2);
+      surge = s.surge || 0; gl('piano', L.piano);
+      T(pLP.frequency, s.dl > .2 ? 1700 : s.cc > .2 ? 1000 : 14000, t, .6); T(pLP.Q, s.dl > .2 ? 4 : .7, t, .6);
+      T(pWet.gain, s.cc * .3 + s.dl * .75, t, .6); T(pDry.gain, 1 - s.dl * .5, t, .6);
+      T(wowG.gain, 7 + s.cc * 26 + s.dl * 48, t, .8);   // the tape wavers more as it goes
+      const m = clamp(s.mouse || 0, 0, 1); T(wet.gain, m * .42, t, .05); T(dry.gain, 1 - m * .55, t, .05); T(B.ocean.gain, L.ocean * (1 + surge * .8), t, 1.2);
       gl('pad', L.pad); gl('ep', L.ep * (1 - L.theme * .55)); gl('bass', L.bass); gl('arp', L.arp); gl('lead', L.lead); gl('crackle', .5 + s.dl * .3);
-      T(B.drum.gain, Math.max(L.kick, L.snare, L.hat), t, .4); T(B.stat.gain, s.dl * (.08 + s.tv * .9), t, .05);
+      T(B.drum.gain, Math.max(L.kick, L.snare, L.hat), t, .4); T(B.stat.gain, s.dl * (.22 + s.tv * .9), t, .05);
       T(drumLP.frequency, s.cc > .3 ? 700 : 9000, t, .5);   // under water
       // the scroll: forward opens the filter, feeds the echo and blows wind; backward rewinds the tape, pitch sagging and the sound going dark
       T(lp.frequency, clamp(s.base * (1 + f * 1.8) * (1 - b * .65), 180, 16000), t, k);
@@ -206,38 +240,50 @@ function Engine(ctx) {
       T(whG.gain, Math.min(.5, Math.abs(s.v) * .38), t, .08); T(whF.frequency, f > b ? 600 + f * 3200 : Math.max(220, 2600 - b * 1900), t, .12);
       arpCut = clamp(700 + f * 3800 - b * 400 + s.ecl * 500, 300, 6000);
     },
-    impact, swell, scratch,
+    impact, swell, scratch, explode, form, lock,
   };
 }
 
 // ── the live score on the page ──
-let E = null, timer = 0, on = false, last = { v: 0, t: 0, dir: 0, tA: 0 }, wanted = (() => { try { return localStorage.getItem('3w-sound') !== 'off'; } catch (e) { return true; } })();
-const btn = document.getElementById('snd');
-const paint = () => { if (!btn) return; btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', on); btn.setAttribute('aria-label', on ? 'Sound on: turn off' : 'Sound off: turn on'); };
-function start() {
-  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-  if (!E) { E = Engine(new AC({ latencyHint: 'playback' })); E.start(E.ctx.currentTime); timer = setInterval(() => E.tick(E.ctx.currentTime), 40); }
-  E.ctx.resume(); E.fade(.75, E.ctx.currentTime); on = true; paint(); }
-function stop() { if (!E) return; E.fade(0, E.ctx.currentTime); on = false; paint(); setTimeout(() => { if (!on && E) E.ctx.suspend(); }, 1600); }
-if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); wanted = !on; try { localStorage.setItem('3w-sound', wanted ? 'on' : 'off'); } catch (x) {} wanted ? start() : stop(); });
-// browsers allow sound only after a gesture: the first click, tap or key anywhere starts it, unless it was turned off
-const first = () => { removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); if (wanted && !on) start(); };
-addEventListener('pointerdown', first, true); addEventListener('keydown', first, true);
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+let E = null, on = store('3w-sound') !== 'off', vol = parseFloat(store('3w-vol') || '.75'), last = { v: 0, t: 0, dir: 0, tA: -1 };
+const $ = (id) => document.getElementById(id), btn = $('snd'), mute = $('mute'), slider = $('vol'), wrap = $('sndw');
+const level = () => (on ? vol : 0);
+const paint = () => { const audible = on && E && E.ctx.state === 'running';
+  [btn, mute].forEach((b) => { if (!b) return; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  if (btn) btn.classList.toggle('live', !!audible); if (mute) mute.setAttribute('aria-label', on ? 'Mute' : 'Unmute');
+  if (slider) { slider.value = Math.round(vol * 100); slider.style.setProperty('--v', Math.round(vol * 100) + '%'); } };
+function boot() {   // build it straight away; the browser lets it sound once the visitor has touched the page
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC || E) return;
+  E = Engine(new AC({ latencyHint: 'playback' })); E.start(E.ctx.currentTime); setInterval(() => E.tick(E.ctx.currentTime), 40);
+  E.ctx.onstatechange = paint; E.fade(level(), E.ctx.currentTime); if (on) E.ctx.resume().catch(() => {}); paint(); }
+const set = (o) => { on = o; store('3w-sound', on ? 'on' : 'off'); if (!E) boot(); E.fade(level(), E.ctx.currentTime); if (on) E.ctx.resume(); paint(); };
+const unlock = () => { if (!E) boot(); if (on && E.ctx.state !== 'running') E.ctx.resume().then(paint, () => {}); };
+['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
+const touch = matchMedia('(hover: none)').matches;
+if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); if (touch && wrap && !wrap.classList.contains('open')) { wrap.classList.add('open'); return; } set(!on); });
+if (mute) mute.addEventListener('click', (e) => { e.stopPropagation(); set(!on); });
+if (slider) slider.addEventListener('input', () => { vol = slider.value / 100; store('3w-vol', vol); paint(); if (vol > 0 && !on) set(true); else if (E) E.fade(level(), E.ctx.currentTime); });
+if (wrap) addEventListener('pointerdown', (e) => { if (!wrap.contains(e.target)) wrap.classList.remove('open'); }, true);
 document.addEventListener('visibilitychange', () => { if (!E) return; if (document.hidden) E.ctx.suspend(); else if (on) E.ctx.resume(); });
-paint();
+boot(); paint();
 
 // the page calls this every frame with where the story is (see index.html)
 let acc = 0;
 window.Score3W = {
   Engine,
   update(s, dt) {
-    if (!E || !on) return;
+    if (!E || !on || E.ctx.state !== 'running') { last.tA = s.tA; return; }
     const t = E.ctx.currentTime, v = clamp(s.vel / 1800, -1.6, 1.6);
     // a hard change of direction catches the record
     const dir = Math.abs(v) > .35 ? Math.sign(v) : 0; if (dir && last.dir && dir !== last.dir && t - last.t > .25) { E.scratch(t + .01, dir); last.t = t; } if (dir) last.dir = dir;
     // the sea's walls meeting: forward, the crash; back through it, the crash in reverse
-    if (last.tA < 12.3 && s.tA >= 12.3) { E.swell(t - 1.4 > 0 ? t : t, true); E.impact(t + .05); }
-    if (last.tA >= 12.3 && s.tA < 12.3) E.swell(t, false);
+    const cross = (x) => (last.tA < x && s.tA >= x ? 1 : last.tA >= x && s.tA < x ? -1 : 0);
+    if (last.tA >= 0) {
+      if (cross(1.15) > 0) E.explode(t + .01); else if (cross(1.15) < 0) E.swell(t, false);   // the crosses burst
+      if (cross(5.5) !== 0) E.form(t + .01, cross(5.5) > 0);                                 // the hand and globe gather
+      if (cross(8.1) > 0) E.lock(t + .01);                                                    // ...and close
+      if (cross(12.3) > 0) { E.swell(t, true); E.impact(t + .05); } else if (cross(12.3) < 0) E.swell(t, false); }   // the walls of the sea meet
     last.tA = s.tA;
     acc += dt; if (acc < .05) return; acc = 0;
     E.set(Object.assign({}, s, { v }), t); },

@@ -38,26 +38,40 @@ a { color: inherit }
 #world { position: fixed; left: 0; top: 0; width: 100%; height: 100%; height: 100lvh; display: block; z-index: 0; touch-action: pan-y }
 .still { position: fixed; inset: 0; z-index: 0; background: center / cover no-repeat }
 
-.insky .top { opacity: 0; visibility: hidden }
-.top { transition: opacity .9s, visibility .9s; position: fixed; z-index: 5; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center;
+.insky .top .mark, .insky .top nav > a { opacity: 0; visibility: hidden }
+.top .mark, .top nav > a { transition: opacity .9s, visibility .9s, color .3s }
+.top { position: fixed; z-index: 5; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center;
   padding: max(28px, calc(env(safe-area-inset-top, 0px) + 18px)) var(--gutr) 0 var(--gut); pointer-events: none }
 .top > * { pointer-events: auto }
 .mark { color: var(--blood); display: block; line-height: 0 }
 .mark svg { height: 24px; width: auto }
 .top nav { display: flex; gap: 26px }
-.top nav a { text-decoration: none; color: var(--ash); transition: color .3s }
-.top nav a:hover { color: var(--bone) }
+.top nav a { text-decoration: none; color: #e2453d; text-shadow: 0 0 10px rgba(255,40,30,.35) }
+.top nav a:hover { color: #ff8a7a }
 .top nav a { white-space: nowrap }
 .top nav .sh { display: none }
-.snd { all: unset; cursor: pointer; display: inline-flex; align-items: flex-end; gap: 2px; color: var(--ash); font: inherit; letter-spacing: inherit; text-transform: inherit; transition: color .3s }
+.snd { all: unset; cursor: pointer; display: inline-flex; align-items: flex-end; gap: 2px; color: #e2453d; font: inherit; letter-spacing: inherit; text-transform: inherit; transition: color .3s }
 .snd:hover, .snd.on { color: #ff4a42 } .snd:focus-visible { outline: 1px solid var(--bone); outline-offset: 6px }
 .snd i { display: block; width: 2px; height: 3px; background: currentColor; transition: height .3s }
 .snd.on i { animation: eq 1.1s ease-in-out infinite } .snd.on i:nth-child(2) { animation-delay: -.3s } .snd.on i:nth-child(3) { animation-delay: -.65s } .snd.on i:nth-child(4) { animation-delay: -.9s }
-.snd span { margin-left: 7px } @keyframes eq { 0%, 100% { height: 3px } 50% { height: 11px } }
+.sndw { display: inline-flex; align-items: center; position: relative }
+.snd .lab { display: inline-block; margin-left: 7px; max-width: 5em; overflow: hidden; transition: max-width .45s cubic-bezier(.2, .8, .2, 1), opacity .3s, margin .45s }
+.sndw .vol { display: inline-flex; align-items: center; gap: 10px; max-width: 0; opacity: 0; overflow: hidden; transform: translateX(6px);
+  transition: max-width .5s cubic-bezier(.2, .8, .2, 1), opacity .35s .05s, transform .5s cubic-bezier(.2, .8, .2, 1), margin .5s }
+.sndw:hover .vol, .sndw:focus-within .vol, .sndw.open .vol { max-width: 170px; opacity: 1; transform: none; margin-left: 12px }
+.sndw:hover .lab, .sndw:focus-within .lab, .sndw.open .lab { max-width: 0; opacity: 0; margin-left: 0 }
+.mute { all: unset; cursor: pointer; color: #e2453d; display: grid; place-items: center; width: 18px; height: 18px } .mute:hover { color: #ff8a7a } .mute:focus-visible { outline: 1px solid var(--bone); outline-offset: 3px }
+.mute svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round } .mute .x { display: none } .mute:not(.on) .x { display: inline } .mute:not(.on) .w { display: none }
+#vol { -webkit-appearance: none; appearance: none; width: 110px; height: 16px; background: transparent; cursor: pointer; margin: 0 }
+#vol::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, #ff4a42 var(--v, 75%), rgba(255, 74, 66, .22) var(--v, 75%)) }
+#vol::-moz-range-track { height: 2px; background: rgba(255, 74, 66, .22) } #vol::-moz-range-progress { height: 2px; background: #ff4a42 }
+#vol::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #ff4a42; margin-top: -4px; box-shadow: 0 0 8px rgba(255, 40, 30, .7); transition: transform .2s }
+#vol::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: #ff4a42; box-shadow: 0 0 8px rgba(255, 40, 30, .7) }
+#vol:hover::-webkit-slider-thumb { transform: scale(1.3) } @keyframes eq { 0%, 100% { height: 3px } 50% { height: 11px } }
 @media (max-width: 1180px) { .top nav { gap: 20px } .top nav .lg { display: none } .top nav .sh { display: inline } }
 
 main { position: relative; z-index: 2 }
-.story { height: 760vh; position: relative }
+.story { height: 1600vh; position: relative }
 .cue { position: absolute; left: 50%; top: calc(100svh - 72px); transform: translateX(-50%); color: #ff4a42; text-shadow: 0 0 10px rgba(255,40,30,.6); display: grid; justify-items: center; gap: 10px; transition: opacity .6s }
 .cue i { display: block; width: 2px; height: 38px; background: linear-gradient(#ff4a42, transparent); box-shadow: 0 0 8px rgba(255,40,30,.6); animation: drip 2.4s ease-in-out infinite }
 @keyframes drip { 0% { transform: scaleY(0); transform-origin: top } 50% { transform: scaleY(1); transform-origin: top } 51% { transform-origin: bottom } 100% { transform: scaleY(0); transform-origin: bottom } }
@@ -97,7 +111,9 @@ main { position: relative; z-index: 2 }
 .dl-status { margin: 0 0 1.8vh; font-size: clamp(.8rem, 1.15vw, 1.15rem); color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
 .dl-sub { margin: 0; white-space: nowrap; color: #ff6a50; font-size: clamp(.8rem, 1.35vw, 1.35rem); line-height: 1.35; letter-spacing: -.005em; text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .15em rgba(255,70,48,.8), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
-.dl-sub.two { margin-top: 3vh; --a: .35 }
+.dl-ask { position: absolute; left: 60%; bottom: 9vh; width: min(52vw, 900px); translate: -50% calc((1 - var(--t)) * 22px); margin: 0; text-align: center;
+  font-family: var(--poster); font-weight: 700; text-transform: uppercase; color: #ff6a50; font-size: clamp(1.5rem, 3.1vw, 3.4rem); line-height: 1.02; letter-spacing: calc((1 - var(--t)) * .25em);
+  text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .18em rgba(255,70,48,.75), 0 0 2px #000 }
 
 .foot { position: relative; z-index: 2; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 30vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
 .foot svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 30px rgba(200,5,28,.25)) }
@@ -109,9 +125,9 @@ main { position: relative; z-index: 2 }
   text-shadow: 0 0 1px #200, 0 0 6px rgba(255,80,66,.9), 0 0 16px rgba(255,36,24,.65), 0 0 38px rgba(255,10,0,.4), 0 0 60px rgba(7,5,16,.8);
   padding: 1.4em 1.8em; background: radial-gradient(closest-side, rgba(7,5,16,.62), rgba(7,5,16,.3) 70%, transparent) }
 .verse p { margin: 0 }
-.verse .ch { opacity: 0; filter: blur(5px); transition: opacity 2.2s ease, filter 2.6s ease }
+.verse .ch { opacity: 0; filter: blur(4px); transition: opacity 1.1s ease, filter 1.3s ease }
 .verse .ch.on, .static .verse .ch { opacity: 1; filter: none }
-.verse .cue { position: static; transform: none; margin: 3.2em auto 0; opacity: 0; transition: opacity 1.6s }
+.verse .cue { top: 6em; transform: translateX(-50%); opacity: 0; transition: opacity 1.2s }
 .static .verse .cue { display: none }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
 .verse .x { display: block; width: .62em; height: .62em; margin: 0 auto .9em; fill: var(--hot); filter: drop-shadow(0 0 8px rgba(255,30,30,.6)) }
@@ -128,6 +144,7 @@ main { position: relative; z-index: 2 }
   .top nav { gap: 12px; letter-spacing: .1em }
   .top nav a { padding: 12px 0; margin: -12px 0 }
   .top nav .lg { display: none } .top nav .sh { display: inline }
+  .snd .lab { display: none } #vol { width: 80px }
   .mark svg { height: 20px }
   .film .go a { padding-block: 12px 6px }
   .cc-head { top: 92px; transform: none; width: auto; right: var(--gutr); gap: 14px }
@@ -136,7 +153,8 @@ main { position: relative; z-index: 2 }
   .cc-kick { display: none }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 7svh; left: var(--gut); text-align: center; font-size: 2.1rem }
-  .dl-text { right: var(--gutr); top: auto; bottom: 7svh; transform: none; max-width: none }
+  .dl-text { right: var(--gutr); top: auto; bottom: 21svh; transform: none; max-width: none }
+  .dl-ask { left: var(--gut); right: var(--gutr); width: auto; translate: 0 calc((1 - var(--t)) * 22px); bottom: 6svh; text-align: left; font-size: 1.4rem }
   .dl h2 { font-size: 3.4rem }
   .dl-sub { white-space: normal }
   .dl h2 { font-size: 2.7rem }
@@ -162,7 +180,8 @@ main { position: relative; z-index: 2 }
     <a href="https://deadlabor.red" target="_blank" rel="noopener"><span class="lg">(Dead) Labor ↗</span><span class="sh" aria-hidden="true">(Dead) Labor</span></a>
     <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener"><span class="lg">Instagram ↗</span><span class="sh" aria-hidden="true">IG</span></a>
     <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener"><span class="lg">Letterboxd ↗</span><span class="sh" aria-hidden="true">LB</span></a>
-    <button type="button" id="snd" class="snd" aria-pressed="false" aria-label="Sound off: turn on"><i></i><i></i><i></i><i></i><span class="lg">Sound</span></button>
+    <div class="sndw" id="sndw"><button type="button" id="snd" class="snd" aria-pressed="false" aria-label="Sound: show controls"><i></i><i></i><i></i><i></i><span class="lab">Sound</span></button>
+      <span class="vol"><button type="button" id="mute" class="mute" aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9c1.4 1.6 1.4 4.4 0 6M18.5 6.5c2.8 3 2.8 8 0 11"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button><input type="range" id="vol" min="0" max="100" value="75" aria-label="Volume"></span></div>
   </nav>
 </header>
 
@@ -197,8 +216,8 @@ main { position: relative; z-index: 2 }
       <div class="dl-text">
         <p class="dl-status small in" style="--a:.02">In production</p>
         <h2 id="t2" class="in" style="--a:.04; --s:3"><span class="dead" data-t="(DEAD)">(Dead)</span><span data-t="LABOR">Labor</span></h2>
-        <p class="dl-sub two">At the end of history, is a new world possible?</p>
       </div>
+      <p class="dl-ask in" style="--a:.3; --s:2.5">At the end of history,<br>is a new world possible?</p>
     </div>
   </section>
 </main>
@@ -775,7 +794,7 @@ function buildSet() {   // a low mist on the water around it
     m.userData = { x: (i - 3) * 2.6, z: ((i * 37) % 7) - 3.5, w: 7 + (i % 3) * 2.5, ph: i * 2.3 }; s.add(m); return m; });
   // the rest of the cord floats: it surfaces behind the set and snakes away to the right on the swell, to its plug
   const dark = new THREE.MeshStandardMaterial({ color: '#070606', roughness: .35, envMapIntensity: .6 }), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-  const path = new THREE.CatmullRomCurve3([V3(.95, -.08, -1.5), V3(1.5, .005, -1.95), V3(2.2, .005, -1.35), V3(2.9, .005, -1.9), V3(3.6, .005, -1.2), V3(4.35, .005, -1.7), V3(4.9, .005, -1.35)]);
+  const path = new THREE.CatmullRomCurve3([V3(.95, -.08, -1.5), V3(1.35, .005, -2.05), V3(1.9, .005, -1.75), V3(1.7, .005, -1.15), V3(2.15, .005, -.8), V3(2.6, .005, -1.25), V3(2.3, .005, -1.85), V3(2.75, .005, -2.25), V3(3.15, .005, -1.8)]);
   const cord = new THREE.Mesh(new THREE.TubeGeometry(path, 120, .022, 6), dark); s.add(cord); s.userData.cord = cord;
   const plug = new THREE.Group(), body = new THREE.Mesh(new THREE.BoxGeometry(.13, .07, .15), dark); plug.add(body);
   [-.025, .025].forEach((x) => { const pr = new THREE.Mesh(new THREE.BoxGeometry(.012, .028, .07), new THREE.MeshStandardMaterial({ color: '#8d8478', roughness: .3, metalness: .9 })); pr.position.set(x, 0, .1); plug.add(pr); });
@@ -851,9 +870,12 @@ const KEYS = [ // [seconds into the sequence, camera position, camera target]
   [8.0, [0, 58, 38], [0, 56, -22]],
   [10.5, [0, 56, 40], [0, 50, -22]],
   [19.5, [0, 55, 44], [0, 49, -22]] ];
-const INTRO_S = 3.5;   // playhead seconds spent coming down from the stars
+const INTRO_S = 3.5, READ1 = 6, P0 = -INTRO_S - READ1;   // playhead seconds: reading in the stars, then coming down from them
+// scroll is not spent evenly: where there is a passage to read, each playhead second takes more of it
+const SEGS = [[P0, -INTRO_S, 2.2], [-INTRO_S, 1.2, 1], [1.2, 6.4, 2.6], [6.4, 16.6, 1], [16.6, 19.5, 3.6]], SEGW = SEGS.reduce((a, [p, q, w]) => a + (q - p) * w, 0);
+const playAt = (f) => { let r = clamp01(f) * SEGW; for (const [p, q, w] of SEGS) { const c = (q - p) * w; if (r <= c) return p + r / w; r -= c; } return 19.5; };
 let chopOn = false, chopT = 0;
-let intro = 0, tA = 0, play = -INTRO_S, vA = 0, globeSpin = 0, globeVel = 0, lastPx = 0, afterS = 0, aVel = 0;
+let intro = 0, tA = 0, play = P0, vA = 0, globeSpin = 0, globeVel = 0, lastPx = 0, afterS = 0, aVel = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 // stones and pebbles scattered over Golgotha, placed on the terrain's own triangles
@@ -909,7 +931,8 @@ const camAt = (p) => { let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1][
 const ptr = { x: 0, y: 0, sx: 0, sy: 0, inside: false };
 const drag = { x: 0, y: 0, on: false };
 addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') { drag.x = e.clientX; drag.y = e.clientY; drag.on = true; } }, { passive: true });
-addEventListener('pointermove', (e) => {
+let mDist = 0, mSp = 0;
+addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') mDist += Math.hypot(e.movementX || 0, e.movementY || 0);
   if (e.pointerType === 'touch') { if (!drag.on) return;   // a finger drags the view from wherever it landed
     ptr.x = Math.max(-1, Math.min(1, (e.clientX - drag.x) / (innerWidth * .45))); ptr.y = Math.max(-1, Math.min(1, -(e.clientY - drag.y) / (innerHeight * .45))); }
   else { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = -(e.clientY / innerHeight * 2 - 1); }
@@ -942,6 +965,14 @@ const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent;
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = txt; p.appendChild(sr);
   const w = document.createElement('span'); w.setAttribute('aria-hidden', 'true'); p.appendChild(w);
   el._ch = txt.split(/(\s+)/).filter(Boolean).map((c) => { const s = document.createElement('span'); s.className = 'ch'; s.textContent = c; w.appendChild(s); return s; }); el._n = 0; };
+const linesOf = (el) => {   // the words grouped by the line they sit on (rebuilt when the passage reflows)
+  if (el._lines && el._lw === el.clientWidth && el._lf === el.style.fontSize) return el._lines; el._lw = el.clientWidth; el._lf = el.style.fontSize;
+  const out = []; let top = null; el._ch.forEach((w) => { const word = /\S/.test(w.textContent);
+    if (word && (top === null || Math.abs(w.offsetTop - top) > 4)) { top = w.offsetTop; out.push([]); } if (out.length) out[out.length - 1].push(w); });
+  out.forEach((l) => l.forEach((w, i) => { w.style.transitionDelay = (i * .03).toFixed(2) + 's'; }));
+  el._shown = -1; return (el._lines = out); };
+const showLines = (el, f) => { const L = linesOf(el), n = Math.round(clamp01(f) * L.length); if (n === el._shown) return;
+  L.forEach((l, i) => { const on = i < n; if (!!l._on !== on) { l._on = on; l.forEach((w) => w.classList.toggle('on', on)); } }); el._shown = n; };
 const writeTo = (el, f) => { const n = Math.round(clamp01(f) * el._ch.length); if (n === el._n) return;
   for (let i = Math.min(n, el._n); i < Math.max(n, el._n); i++) el._ch[i].classList.toggle('on', i < n); el._n = n; };
 const FOOT = $('.foot');
@@ -957,15 +988,15 @@ function frame(now) {
 
   // one playhead, scrubbed by scroll: first the descent from the stars, then the story. It is a spring with momentum,
   // and a flick throws it further ahead, so big scrolls keep moving and glide into place; scrolling up goes back to the stars
-  const sP = storyP(), past = scrollY > story.offsetHeight - innerHeight * .9, span = DUR + INTRO_S;
-  let goal = past ? DUR : -INTRO_S + span * clamp01(sP / .96);
+  const sP = storyP(), past = scrollY > story.offsetHeight - innerHeight * .9;
+  const lead = REDUCED ? 0 : Math.max(-.02, Math.min(.02, sVel / (.96 * Math.max(1, story.offsetHeight - innerHeight)) * (TOUCH ? .18 : .45)));
+  let goal = past ? DUR : playAt(sP / .96 + lead);
   if (REDUCED) play = goal;
   else {
-    goal += Math.max(-3, Math.min(3, sVel * span / (.96 * Math.max(1, story.offsetHeight - innerHeight)) * (TOUCH ? .18 : .45)));
     vA += ((goal - play) * 4.2 - vA * 2.9) * dt; play += vA * dt;
-    if (play < -INTRO_S || play > DUR) { play = Math.max(-INTRO_S, Math.min(DUR, play)); vA = 0; } }
+    if (play < P0 || play > DUR) { play = Math.max(P0, Math.min(DUR, play)); vA = 0; } }
   intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
-  $('#cue').style.opacity = intro < .3 && cueN < 2 && (REDUCED || clock > 3.6) ? 1 : 0;   // once the first line is out, the prompt shows under it; it retires after a couple of scrolls
+  $('#cue').style.opacity = intro < .3 && cueN < 2 && play < P0 + .4 && (REDUCED || clock > 2.6) ? 1 : 0;   // under the first lines once they are out; it retires once you scroll
   if ((intro < .45) !== inSky) { inSky = intro < .45; document.body.classList.toggle('insky', inSky); }   // the header waits until we leave the sky
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
@@ -1087,7 +1118,7 @@ function frame(now) {
   let pool = 0;
   // the man rises from the sea as Christians and Cannibals plays, and sinks again as (Dead) Labor comes on
   if (fig) {
-    const rk = clamp01((ccK - .03) / .72), rise = rk, x1 = rk - 1;   // once the camera has settled on him, he comes up, slowly
+    const rk = clamp01((ccK - .03) / .9), rise = rk, x1 = rk - 1;   // once the camera has settled on him, he comes up, slowly
     const up = 1 + 2.7 * x1 * x1 * x1 + 1.7 * x1 * x1;   // he breaks the surface fast, overshoots a little, and settles; once risen he stays
     figBurst = Math.max(figBurst * Math.exp(-dt * 1.3), Math.min(1, Math.abs(rk - figRk) / Math.max(dt, 1e-3) * 1.2), rk > 0 && rk < 1 ? .25 : 0); figRk = rk;
     fig.visible = (rise > .001 || ccR.top < innerHeight) && red > .9;
@@ -1139,26 +1170,29 @@ function frame(now) {
     el.style.opacity = v; el.style.visibility = v > .001 ? 'visible' : 'hidden';
     if (!REDUCED) { el.style.transform = `translateY(${(1 - v) * 14}px)`; el.style.filter = v < .999 ? `blur(${(1 - v) * 6}px)` : 'none'; } };
   verse(V[0], smooth((clock - .2) / 1.4) * (1 - smooth((intro - .3) / .35)));   // up at once, in the stars
-  writeTo(V[0], REDUCED ? 1 : (clock - .6) / 18);   // comes up slowly
-  writeTo(V[1], REDUCED ? 1 : (tA - 1.2) / 2.4);   // with the scroll
-  writeTo(V[2], REDUCED ? 1 : (tA - 16.9) / 2.5);   // with the scroll, after the hero shot
-  verse(V[1], smooth((tA - 1.3) / .9) * (1 - smooth((tA - 5.4) / .9)));
+  { const L0 = linesOf(V[0]).length || 1, auto = Math.min(2, L0) * clamp01((clock - .6) / 3.2), read = clamp01((play - P0) / (READ1 * .85));
+    showLines(V[0], REDUCED ? 1 : Math.max(auto, read > 0 ? 2 + read * (L0 - 2) : 0) / L0);   // the first lines come by themselves, the rest only with the scroll
+    const l2 = linesOf(V[0])[Math.min(1, L0 - 1)]; if (l2 && l2[0]) { const y = l2[0].offsetTop + l2[0].offsetHeight + 18; if (y !== V[0]._cy) { V[0]._cy = y; $('#cue').style.top = y + 'px'; } } }
+  showLines(V[1], REDUCED ? 1 : (tA - 1.25) / 3.5);   // a line at a time, with the scroll, and back
+  showLines(V[2], REDUCED ? 1 : (tA - 16.85) / 1.95);
+  verse(V[1], smooth((tA - 1.2) / .5) * (1 - smooth((tA - 5.8) / .6)));   // held a while once it is all out
   if (globe && camera.aspect >= 1 && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
     const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.2;   // clear of the globe (the logotype sits below the passage)
     const w = Math.max(260, Math.min(620, edge - 40)) | 0;
-    if (w !== V[2]._w || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = '';   // and small enough to fit the height
+    if (w !== V[2]._w || innerHeight !== V[2]._h) { V[2]._w = w; V[2]._h = innerHeight; V[2].style.width = w + 'px'; V[2].style.fontSize = ''; V[2]._lines = null;   // and small enough to fit the height
       for (let i = 0; i < 3; i++) { const h = V[2].scrollHeight, room = innerHeight * .84; if (h <= room) break; V[2].style.fontSize = Math.max(14, parseFloat(getComputedStyle(V[2]).fontSize) * room / h * .98) + 'px'; } } }
-  verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .05) / .25)));   // after the globe has come to rest and held
+  verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .3) / .3)));   // after the globe has come to rest and held; it stays a few scrolls before the page turns
 
   // the score follows the story (layers come in as it goes), and the scroll plays it
   if (window.Score3W) { const sm = (a, b, x) => smooth((x - a) / (b - a)), ftR = FOOT.getBoundingClientRect(), foot = sm(innerHeight, innerHeight * .3, ftR.top);
     const ccOn = sm(innerHeight, innerHeight * .3, ccR.top) * (1 - sm(innerHeight * .9, innerHeight * .2, ccR.bottom)), dlOn = sm(innerHeight, innerHeight * .3, dlR.top) * (1 - foot);
     const films = Math.max(ccOn, dlOn, foot, smooth(after / .6));
     const L = { pad: .8 + .2 * smooth(intro), ep: sm(.2, 1.4, tA) * (1 - dlOn * .4), bass: sm(1.4, 3, tA) * (1 - foot), kick: (sm(3.4, 5, tA) * .6 + red * .4) * (1 - foot),
-      snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films) + ccOn * .7,
-      theme: sm(9.2, 9.9, tA) * (1 - films), piano: sm(9.2, 9.9, tA) * (1 - films), ocean: sm(9.4, 11, tA) };
+      snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films),
+      theme: sm(9.2, 9.9, tA) * (1 - foot), piano: sm(9.2, 9.9, tA) * (1 - foot * .85), ocean: sm(9.4, 11, tA), dread: dlOn };
     if (intro < 1) Object.keys(L).forEach((k) => { if (k !== 'pad') L[k] *= smooth(intro); });
-    Score3W.update({ layers: L, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
+    mSp = lerp(mSp, Math.min(1, mDist / Math.max(dt, .008) / 2600), mDist ? .3 : .08); mDist = 0;
+    Score3W.update({ layers: L, mouse: REDUCED ? 0 : mSp, foot, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
       base: lerp(lerp(lerp(1300, 2600, smooth(intro)), 3900, red), lerp(2300, 2700, dlOn), films) * (1 - foot * .4) }, dt); }
   composer.render(dt);
   if (!veilUp && ((ready.world && ready.globe) || clock > 9)) { veilUp = true;   // precompile what is already loaded, then lift the veil
