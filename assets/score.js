@@ -218,7 +218,12 @@ function Engine(ctx, level = () => .5) {
   // ── the sequencer ──
   let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0 }, roll = 0, surge = 0;
   let setT = 0, whC = 1; const echo = {};
-  const ECHO = { left: [0, 0, .6, 0, 0, 0, .8, 0, 0, 0, .6, 0, 0, 0, .9, .5], right: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, .5, 1, 0, 0, 0], grab: [1, 0, 0, 0, 0, 0, 0, .6, 0, 0, 1, 0, 0, 0, 0, 0] };
+  // each gesture's figures, one picked per pass: straight, syncopated, and something in between
+  const ECHO = {
+    left: [[.7, 0, 0, 0, .7, 0, 0, 0, .7, 0, 0, 0, .7, 0, 0, 0], [0, 0, .6, 0, 0, 0, .8, 0, 0, 0, .6, 0, 0, 0, .9, .5], [0, 0, .7, 0, 0, .7, 0, 0, .7, 0, 0, 0, .6, 0, .6, 0]],
+    right: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, .5, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, .5, 0, 0, 0, 0, 0, 1, 0, 0, .6]],
+    grab: [[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, .6, 0, 0, 1, 0, 0, 0, 0, 0], [1, 0, 0, .5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]] };
+  const PASSES = 3, PLAY = 32, REST = 16;   // two bars of it, a bar of nothing, three times over
   let inTheme = false, tb = 0, ch = CHORDS[0], nx = CHORDS[1], waveAt = 0;
   function schedule(s, t) {
     const bar = Math.floor(s / 16) % 8, i = s % 16, sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
@@ -241,8 +246,9 @@ function Engine(ctx, level = () => .5) {
     if (L.hat > .01) { if (HAT[i]) hat(tt, HAT[i] * (.85 + Math.random() * .3), i === 14 && bar % 2); if (roll > .5) hat(tt + SIX / 2, .45 * roll); }   // a fast scroll rolls the hats
     if (L.arp > .01) { const n = ch.tones.length, k = s % (n * 2), m = ch.tones[k % n] + (k >= n ? 12 : 0); arp(m, tt); }
     if (L.dread > .01 && i === 0) dread(t, SIX * 16);
-    for (const kk in echo) { const e = echo[kk]; if (tt > e.until) { delete echo[kk]; continue; }   // a gesture's sound carries on in the groove, on the beat, dying away
-      const fade = Math.max(0, (e.until - tt) / e.len), hit = ECHO[kk] && ECHO[kk][i]; if (hit && tt > e.from) ui(kk, tt, hit * fade * .75); }
+    for (const kk in echo) { const e = echo[kk], rel = s - e.s0; if (rel < 0) continue;   // a gesture's sound carries on in the groove: it fades away, rests, and comes back in, on the beat
+      const cyc = Math.floor(rel / (PLAY + REST)), pos = rel % (PLAY + REST); if (cyc >= PASSES) { delete echo[kk]; continue; } if (pos >= PLAY) continue;
+      const x = pos / PLAY, amp = cyc === 0 ? 1 - x * .9 : Math.sin(x * Math.PI) * (1 - cyc * .2), hit = e.pats[cyc][i]; if (hit) ui(kk, tt, hit * amp * .75); }
     if (L.lead > .01 && !inTheme && i % 2 === 0) { const m = MEL[bar][i / 2]; if (m) { let len = SIX * 2; for (let j = i / 2 + 1; j < 8 && !MEL[bar][j]; j++) len += SIX * 2; lead(m, tt, Math.min(len, SIX * 6)); } }
   }
   return {
@@ -278,7 +284,8 @@ function Engine(ctx, level = () => .5) {
       arpCut = clamp(700 + f * 3800 - b * 400 + s.ecl * 500, 300, 6000);
     },
     impact, swell, scratch, explode, form, lock, rush, emerge, ui,
-    echoFrom(k, t) { if (!ECHO[k]) return; const len = SIX * 16 * 1.25; echo[k] = { from: t + SIX * .5, until: t + len, len }; },   // about four seconds
+    echoFrom(k) { if (!ECHO[k] || echo[k]) return;   // a repeat click while it is still going adds nothing
+      echo[k] = { s0: step + 1, pats: Array.from({ length: PASSES }, () => ECHO[k][(Math.random() * ECHO[k].length) | 0]) }; },
   };
 }
 
@@ -310,7 +317,7 @@ boot(); paint();
 let acc = 0;
 window.Score3W = {
   Engine,
-  fx(k) { if (E && on && E.ctx.state === 'running') { const t = E.ctx.currentTime; E.ui(k, t + .005); E.echoFrom(k, t); } },
+  fx(k) { if (E && on && E.ctx.state === 'running') { const t = E.ctx.currentTime; E.ui(k, t + .005); E.echoFrom(k); } },
   update(s, dt) {
     if (!E || !on || E.ctx.state !== 'running') { last.tA = s.tA; if (s.rise !== undefined) last.rise = s.rise; return; }
     const t = E.ctx.currentTime, v = clamp(s.vel / 1800, -1.6, 1.6);

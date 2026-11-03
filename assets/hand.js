@@ -41,9 +41,9 @@ halo.scale.setScalar(.34); scene.add(halo);
 
 // poses: [curl per joint for thumb, index, middle, ring, pinky], spread of the fingers
 const POSE = {
-  rest:  { c: [.25, .06, .16, .2, .24], s: .05 },    // God's hand: the index reaching, the others falling away
-  point: { c: [.3, 0, .14, .18, .22], s: .02 },
-  tap:   { c: [.3, 0, .14, .18, .22], s: .02 },          // the index alone does the work (see the tap below)
+  rest:  { c: [0, .06, 0, 0, 0], s: 0 },    // God's hand: the index reaching, the others falling away
+  point: { c: [0, 0, 0, 0, 0], s: 0 },
+  tap:   { c: [0, 0, 0, 0, 0], s: 0 },          // the index alone does the work (see the tap below)
   grab:  { c: [-.25, -.42, -.46, -.46, -.44], s: .26 },   // fingers bent back, splayed: pressed flat to the page, holding it
 };
 const FING = ['thumb', 'index-finger', 'middle-finger', 'ring-finger', 'pinky-finger'];
@@ -117,7 +117,7 @@ function loop(now) {
     FING.forEach((f, i) => ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'].forEach((j, n) => { const b = bones[f + '-' + j]; if (!b) return;
       b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), (cur.c[i] + (i === 1 ? strike * (n === 0 ? .9 : .55) : 0)) * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
       if (n === 0 && i > 0) b.quaternion.multiply(q.setFromAxisAngle(ax.set(0, 0, 1), cur.s * (i - 2.3))); }));   // spread
-    const tm = bones['thumb-metacarpal']; if (tm) tm.quaternion.copy(rest[tm.name]).multiply(q.setFromAxisAngle(ax.set(0, -1, 0), .35 + cur.c[0] * .45));   // the thumb tucks in toward the fingers
+    const tm = bones['thumb-metacarpal']; if (tm) tm.quaternion.copy(rest[tm.name]).multiply(q.setFromAxisAngle(ax.set(0, -1, 0), cur.c[0] * .45));   // the thumb stays as modelled unless the hand grips
     // sway: the hand tips into its motion, and breathes when still
     const sp = Math.hypot(S.vx, S.vy), poke = tp * .6, rear = 0, gr = grabbing ? 1 : 0;
     gripV = lerp(gripV, gr ? (S.mid ? -S.fling / 40 : S.wdir * .6) : 0, 1 - Math.exp(-dt * 8));   // while it holds the page it leans with the pull
