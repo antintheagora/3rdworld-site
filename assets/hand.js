@@ -21,16 +21,18 @@ const key = new THREE.DirectionalLight('#ffe2c8', 1.6); key.position.set(-.6, .9
 const rim = new THREE.DirectionalLight('#ff2a1e', 2.4); rim.position.set(.8, -.3, -.9); scene.add(rim);   // red from behind
 
 // skin like a fresco's: pale, warm, a red rim that burns brighter over anything that can be pressed
-const glow = { value: 0 }, hT = { value: 0 };
+const glow = { value: 0 }, hT = { value: 0 }, tapG = { value: 0 };
 const skin = new THREE.MeshStandardMaterial({ color: '#2a0306', roughness: .35, metalness: .6, transparent: true });   // a dark red shell; the light comes from within
-skin.onBeforeCompile = (sh) => { sh.uniforms.glow = glow; sh.uniforms.hT = hT;
-  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float glow, hT;')
+skin.onBeforeCompile = (sh) => { sh.uniforms.glow = glow; sh.uniforms.hT = hT; sh.uniforms.tapG = tapG;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vIx;')   // how much of this point the index finger moves (joints 6-9)
+    .replace('#include <skinning_vertex>', '#include <skinning_vertex>\nvIx = dot(skinWeight, vec4(greaterThan(skinIndex, vec4(5.5))) * vec4(lessThan(skinIndex, vec4(9.5))));');
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float glow, hT, tapG; varying float vIx;')
     .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
       float fr = pow(1. - clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0., 1.), 2.);
       float scan = pow(.5 + .5 * sin(gl_FragCoord.y * .55 - hT * 9.), 6.) * .35;                       // scanlines rolling up through it
       float sweep = smoothstep(.06, 0., abs(fract(gl_FragCoord.y / 260. - hT * .35) - .5)) * .9;       // a bright band of light passing over
       float flick = .9 + .1 * step(.93, fract(sin(floor(hT * 18.) * 91.7) * 4371.));                   // a digital stutter now and then
-      totalEmissiveRadiance += vec3(1., .07, .04) * (fr * (1.3 + glow * 2.) + scan + sweep * (.4 + glow) + .12) * flick;`); };
+      totalEmissiveRadiance += vec3(1., .07, .04) * (fr * (1.3 + glow * 2.) + scan + sweep * (.4 + glow) + .12) * flick + vec3(1., .3, .2) * vIx * tapG * (1.2 + fr * 3.);   // the striking finger burns`); };
 const wire = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, .16, .1), wireframe: true, transparent: true, opacity: .22, blending: THREE.AdditiveBlending, depthWrite: false });
 const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
   r.addColorStop(0, 'rgba(255,60,40,.55)'); r.addColorStop(.45, 'rgba(255,30,20,.18)'); r.addColorStop(1, 'rgba(255,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })(),
@@ -39,9 +41,9 @@ halo.scale.setScalar(.34); scene.add(halo);
 
 // poses: [curl per joint for thumb, index, middle, ring, pinky], spread of the fingers
 const POSE = {
-  rest:  { c: [.25, .06, .32, .5, .62], s: .05 },    // God's hand: the index reaching, the others falling away
-  point: { c: [.7, 0, 1.25, 1.35, 1.4], s: 0 },
-  tap:   { c: [.7, 0, 1.25, 1.35, 1.4], s: 0 },          // the index alone does the work (see the tap below)
+  rest:  { c: [.25, .06, .16, .2, .24], s: .05 },    // God's hand: the index reaching, the others falling away
+  point: { c: [.3, 0, .14, .18, .22], s: .02 },
+  tap:   { c: [.3, 0, .14, .18, .22], s: .02 },          // the index alone does the work (see the tap below)
   grab:  { c: [-.25, -.42, -.46, -.46, -.44], s: .26 },   // fingers bent back, splayed: pressed flat to the page, holding it
 };
 const FING = ['thumb', 'index-finger', 'middle-finger', 'ring-finger', 'pinky-finger'];
@@ -109,7 +111,7 @@ function loop(now) {
   if (S.wheel > 0) S.wheel -= dt; const grabbing = S.mid || S.wheel > 0 || S.pose === 'grab';
   const pose = POSE[S.act > 0 ? S.actPose : grabbing ? 'grab' : S.over ? 'point' : S.pose] || POSE.rest;
   const k = 1 - Math.exp(-dt * (S.act > 0 ? 22 : 11));
-  for (let i = 0; i < 5; i++) cur.c[i] = lerp(cur.c[i], pose.c[i] + (i ? Math.sin(t * 1.3 + i) * .025 : 0), k); cur.s = lerp(cur.s, pose.s, k);
+  for (let i = 0; i < 5; i++) cur.c[i] = lerp(cur.c[i], pose.c[i], k); cur.s = lerp(cur.s, pose.s, k);
   S.tap = Math.max(0, S.tap - dt / .34); const tp = S.tap > 0 ? Math.sin((1 - S.tap) * Math.PI) : 0, strike = tp * (1 - S.tap < .35 ? 1 : 1);   // 0 -> 1 -> 0
   if (hand) {
     FING.forEach((f, i) => ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'].forEach((j, n) => { const b = bones[f + '-' + j]; if (!b) return;
@@ -121,7 +123,7 @@ function loop(now) {
     gripV = lerp(gripV, gr ? (S.mid ? -S.fling / 40 : S.wdir * .6) : 0, 1 - Math.exp(-dt * 8));   // while it holds the page it leans with the pull
     root.rotation.set(clamp01(Math.abs(S.vy) / 3000) * Math.sign(S.vy) * .5 + Math.sin(t * .9) * .03 + gripV * .35 - grabK * .25, -S.vx / 3000 * .6 + Math.sin(t * .7) * .04, -S.vx / 2600 * .5);
     grabK = lerp(grabK, gr, 1 - Math.exp(-dt * 10)); root.position.set(0, Math.sin(t * 1.1) * .004 + gripV * .02, -poke * .05 - grabK * .04);
-    glow.value = lerp(glow.value, Math.max(S.over || grabbing ? 1 : 0, tp * 1.4), 1 - Math.exp(-dt * 12)); halo.material.opacity = .25 + glow.value * .75; hT.value = t; wire.opacity = .16 + glow.value * .3 + Math.sin(t * 3) * .04;
+    glow.value = lerp(glow.value, S.over || grabbing ? 1 : 0, 1 - Math.exp(-dt * 12)); tapG.value = Math.max(tp, tapG.value * Math.exp(-dt * 5)); halo.material.opacity = .25 + glow.value * .75; hT.value = t; wire.opacity = .16 + glow.value * .3 + Math.sin(t * 3) * .04;
     scene.updateMatrixWorld(true); tip.getWorldPosition(tipV); halo.position.copy(tipV).add(V3(.02, -.02, -.05));
     tipV.project(cam);
     // the fingertip sits exactly on the pointer (the weight is all in the swing)

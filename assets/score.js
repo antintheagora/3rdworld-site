@@ -186,14 +186,15 @@ function Engine(ctx, level = () => .5) {
     [74, 77, 81, 84].forEach((m, i) => { const tt = t + 3.2 + i * .45, o = osc('sine', mtof(m), tt), og = ctx.createGain(); env(og, tt, .01, .07, 1.2); o.connect(og); og.connect(B.fx); og.connect(dlSend); o.start(tt); o.stop(tt + 5); });   // and a glint of bells above
     vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(.2, t + 3); vg.gain.setTargetAtTime(0, t + 5, 1.5); vf.connect(vg); vg.connect(B.fx);
     [38, 45, 50].forEach((m, i) => { const o = osc('sawtooth', mtof(m), t); o.detune.setValueAtTime(i * 5 - 5, t); o.connect(vf); o.start(t); o.stop(t + 11); }); }
-  function ui(k, t) {   // the hand: a tap, a deeper tap, taking hold of the page and letting go (all in the key)
+  function ui(k, t, v = 1) {   // the hand: a tap, a deeper tap, taking hold of the page and letting go (all in the key); v < 1 for its echoes in the beat
+    const uo = ctx.createGain(); uo.gain.value = v; uo.connect(B.fx); if (v > .99) uo.connect(dlSend);
     if (k === 'left' || k === 'right') { const lo = k === 'right', m = lo ? [62, 69] : [81, 86];
-      m.forEach((n, i) => { const o = osc('sine', mtof(n), t + i * .03), o2 = osc('sine', mtof(n) * 2.76, t + i * .03), g = ctx.createGain(); env(g, t + i * .03, .001, lo ? .16 : .11, lo ? .5 : .28); o.connect(g); o2.connect(g); g.connect(B.fx); g.connect(dlSend); o.start(t); o2.start(t); o.stop(t + 2); o2.stop(t + 2); });
-      const n = noise(), f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'bandpass'; f.frequency.value = lo ? 1400 : 3600; f.Q.value = 2; env(g, t, .001, .14, .012); n.connect(f); f.connect(g); g.connect(B.fx); n.start(t); n.stop(t + .08);
-      if (lo) { const o = osc('sine', 110, t), g2 = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(55, t + .2); env(g2, t, .002, .3, .12); o.connect(g2); g2.connect(B.fx); o.start(t); o.stop(t + .6); } }
-    else { const grab = k === 'grab', o = osc('sine', grab ? 73.4 : 98, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(grab ? 49 : 147, t + .25); env(g, t, .004, .38, .16); o.connect(g); g.connect(B.fx); o.start(t); o.stop(t + .8);
+      m.forEach((n, i) => { const o = osc('sine', mtof(n), t + i * .03), o2 = osc('sine', mtof(n) * 2.76, t + i * .03), g = ctx.createGain(); env(g, t + i * .03, .001, lo ? .16 : .11, lo ? .5 : .28); o.connect(g); o2.connect(g); g.connect(uo); o.start(t); o2.start(t); o.stop(t + 2); o2.stop(t + 2); });
+      const n = noise(), f = ctx.createBiquadFilter(), g = ctx.createGain(); f.type = 'bandpass'; f.frequency.value = lo ? 1400 : 3600; f.Q.value = 2; env(g, t, .001, .14, .012); n.connect(f); f.connect(g); g.connect(uo); n.start(t); n.stop(t + .08);
+      if (lo) { const o = osc('sine', 110, t), g2 = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(55, t + .2); env(g2, t, .002, .3, .12); o.connect(g2); g2.connect(uo); o.start(t); o.stop(t + .6); } }
+    else { const grab = k === 'grab', o = osc('sine', grab ? 73.4 : 98, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(grab ? 49 : 147, t + .25); env(g, t, .004, .38, .16); o.connect(g); g.connect(uo); o.start(t); o.stop(t + .8);
       const n = noise(), f = ctx.createBiquadFilter(), g2 = ctx.createGain(); f.type = 'lowpass'; f.frequency.setValueAtTime(grab ? 2400 : 500, t); f.frequency.exponentialRampToValueAtTime(grab ? 400 : 2600, t + .3);
-      env(g2, t, .01, .12, .12); n.connect(f); f.connect(g2); g2.connect(B.fx); n.start(t); n.stop(t + .6); } }
+      env(g2, t, .01, .12, .12); n.connect(f); f.connect(g2); g2.connect(uo); n.start(t); n.stop(t + .6); } }
   function impact(t) {   // the walls of the sea crash together
     const o = osc('sine', 70, t), g = ctx.createGain(); o.frequency.exponentialRampToValueAtTime(28, t + 1.8); env(g, t, .02, .6, .8); o.connect(g); g.connect(B.fx); o.start(t); o.stop(t + 6);
     const n = noise(), f = ctx.createBiquadFilter(), ng = ctx.createGain(); f.type = 'lowpass'; f.frequency.setValueAtTime(5000, t); f.frequency.exponentialRampToValueAtTime(300, t + 3); env(ng, t, .03, .26, 1); n.connect(f); f.connect(ng); ng.connect(B.fx); n.start(t); n.stop(t + 7); }
@@ -216,7 +217,8 @@ function Engine(ctx, level = () => .5) {
 
   // ── the sequencer ──
   let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0 }, roll = 0, surge = 0;
-  let setT = 0, whC = 1;
+  let setT = 0, whC = 1; const echo = {};
+  const ECHO = { left: [0, 0, .6, 0, 0, 0, .8, 0, 0, 0, .6, 0, 0, 0, .9, .5], right: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, .5, 1, 0, 0, 0], grab: [1, 0, 0, 0, 0, 0, 0, .6, 0, 0, 1, 0, 0, 0, 0, 0] };
   let inTheme = false, tb = 0, ch = CHORDS[0], nx = CHORDS[1], waveAt = 0;
   function schedule(s, t) {
     const bar = Math.floor(s / 16) % 8, i = s % 16, sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
@@ -239,6 +241,8 @@ function Engine(ctx, level = () => .5) {
     if (L.hat > .01) { if (HAT[i]) hat(tt, HAT[i] * (.85 + Math.random() * .3), i === 14 && bar % 2); if (roll > .5) hat(tt + SIX / 2, .45 * roll); }   // a fast scroll rolls the hats
     if (L.arp > .01) { const n = ch.tones.length, k = s % (n * 2), m = ch.tones[k % n] + (k >= n ? 12 : 0); arp(m, tt); }
     if (L.dread > .01 && i === 0) dread(t, SIX * 16);
+    for (const kk in echo) { const e = echo[kk]; if (tt > e.until) { delete echo[kk]; continue; }   // a gesture's sound carries on in the groove, on the beat, dying away
+      const fade = Math.max(0, (e.until - tt) / e.len), hit = ECHO[kk] && ECHO[kk][i]; if (hit && tt > e.from) ui(kk, tt, hit * fade * .75); }
     if (L.lead > .01 && !inTheme && i % 2 === 0) { const m = MEL[bar][i / 2]; if (m) { let len = SIX * 2; for (let j = i / 2 + 1; j < 8 && !MEL[bar][j]; j++) len += SIX * 2; lead(m, tt, Math.min(len, SIX * 6)); } }
   }
   return {
@@ -274,6 +278,7 @@ function Engine(ctx, level = () => .5) {
       arpCut = clamp(700 + f * 3800 - b * 400 + s.ecl * 500, 300, 6000);
     },
     impact, swell, scratch, explode, form, lock, rush, emerge, ui,
+    echoFrom(k, t) { if (!ECHO[k]) return; const len = SIX * 16 * 1.25; echo[k] = { from: t + SIX * .5, until: t + len, len }; },   // about four seconds
   };
 }
 
@@ -305,7 +310,7 @@ boot(); paint();
 let acc = 0;
 window.Score3W = {
   Engine,
-  fx(k) { if (E && on && E.ctx.state === 'running') E.ui(k, E.ctx.currentTime + .005); },
+  fx(k) { if (E && on && E.ctx.state === 'running') { const t = E.ctx.currentTime; E.ui(k, t + .005); E.echoFrom(k, t); } },
   update(s, dt) {
     if (!E || !on || E.ctx.state !== 'running') { last.tA = s.tA; if (s.rise !== undefined) last.rise = s.rise; return; }
     const t = E.ctx.currentTime, v = clamp(s.vel / 1800, -1.6, 1.6);
