@@ -110,7 +110,19 @@ main { position: relative; z-index: 2 }
 .cc h2 span { display: block }
 .cc h2, .cc-ask { text-shadow: none; filter: drop-shadow(0 0 .045em rgba(255,70,50,.95)) drop-shadow(0 0 .28em rgba(255,10,0,.45)) }   /* bloom */
 .cc h2 span, .cc-ask span, .dl-ask span { color: transparent; -webkit-text-fill-color: transparent; background: var(--grain), linear-gradient(#ff3b30, #ff2a2a); -webkit-background-clip: text; background-clip: text }   /* grain */
-.dl-ask span { animation: grain .5s steps(1) infinite }
+.dl-ask span, .cc h2 span, .cc-ask span { animation: grain .5s steps(1) infinite }
+/* the hand of God: the pointer is hidden while it stands in; red marks where it touches */
+html.godhand, html.godhand * { cursor: none !important }
+.hand-fx { position: fixed; z-index: 59; pointer-events: none; width: 0; height: 0 }
+.hand-fx.ring::before, .hand-fx.ring::after, .hand-fx.grip::before { content: ""; position: absolute; left: 0; top: 0; translate: -50% -50%; border: 1.5px solid #ff3b30; border-radius: 50%;
+  box-shadow: 0 0 12px rgba(255, 40, 30, .7), inset 0 0 8px rgba(255, 40, 30, .5); animation: hfx-ring .75s cubic-bezier(.2, .8, .2, 1) forwards }
+.hand-fx.ring::after { animation-delay: .1s; border-width: 1px; opacity: 0 }
+.hand-fx.grip::before { border-width: 3px; animation: hfx-grip .8s cubic-bezier(.2, .8, .2, 1) forwards }
+.hand-fx.burst i { position: absolute; left: 0; top: 0; width: 2px; height: 26px; margin: -13px 0 0 -1px; background: linear-gradient(#ff6a50, transparent); border-radius: 2px;
+  box-shadow: 0 0 8px rgba(255, 40, 30, .8); transform: rotate(var(--a)) translateY(-10px); animation: hfx-ray .6s cubic-bezier(.2, .8, .2, 1) forwards }
+@keyframes hfx-ring { 0% { width: 4px; height: 4px; opacity: 1 } 100% { width: 92px; height: 92px; opacity: 0 } }
+@keyframes hfx-grip { 0% { width: 70px; height: 70px; opacity: 0 } 40% { opacity: 1 } 100% { width: 18px; height: 18px; opacity: 0 } }
+@keyframes hfx-ray { 0% { transform: rotate(var(--a)) translateY(-6px) scaleY(.3); opacity: 1 } 100% { transform: rotate(var(--a)) translateY(-52px) scaleY(1); opacity: 0 } }
 @keyframes grain { 0% { background-position: 0 0, 0 0 } 20% { background-position: -37px 21px, 0 0 } 40% { background-position: 23px -44px, 0 0 } 60% { background-position: -11px 52px, 0 0 } 80% { background-position: 48px 9px, 0 0 } }
 .cc-by { margin: 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .04em; font-size: clamp(1.1rem, 1.6vw, 1.5rem); color: #ff7a6a }
 .cc-laurel { display: block; width: min(230px, 56%); height: auto; filter: drop-shadow(0 0 7px rgba(255, 30, 30, .5)) }
@@ -161,7 +173,7 @@ main { position: relative; z-index: 2 }
   .verse.sky { top: 12svh }
   .verse.burst { top: auto; bottom: 12svh }
   .verse.sea { bottom: auto; top: 11svh }
-  .top nav { letter-spacing: .01em; font-size: .54rem } .top nav > * { margin-left: 8px } .mark svg { height: 15px } .top { padding-left: 16px; padding-right: 16px }
+  .top nav { letter-spacing: .01em; font-size: .54rem } .top nav > * { margin-left: clamp(8px, calc((100vw - 345px) / 5 + 8px), 22px) } .mark svg { height: 15px } .top { padding-left: 16px; padding-right: 16px }
   .top nav .sh.m1 { display: none } .top nav .m2 { display: inline-block; line-height: 1.15; text-align: center }
   .top nav .ar { display: none } .insky .top nav .ar { display: inline }
   .top nav a { padding: 12px 0; margin-top: -12px; margin-bottom: -12px }
@@ -180,7 +192,7 @@ main { position: relative; z-index: 2 }
   .dl h2 { font-size: min(4.6rem, 20vw) } .dl h2 > span { margin-inline: auto }
   .dl-ask { left: 50%; top: calc(max(86px, 11svh) + min(4.6rem, 20vw) * 1.8 + 3.2rem); bottom: auto; font-size: min(1.45rem, 6vw) }
 }
-@media (prefers-reduced-motion: reduce) { .dl h2 > span, .dl-ask span, .snd.on i, .early .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
+@media (prefers-reduced-motion: reduce) { .dl h2 > span, .dl-ask span, .cc h2 span, .cc-ask span, .snd.on i, .early .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
 </style>
 
 </head>
@@ -265,6 +277,7 @@ main { position: relative; z-index: 2 }
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/MaskPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="assets/hand.js" defer></script>
 <script>
 (() => {
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -899,7 +912,7 @@ const INTRO_S = 3.5, READ1 = 6, P0 = -INTRO_S - READ1;   // playhead seconds: re
 // scroll is not spent evenly: where there is a passage to read, each playhead second takes more of it
 const SEGS = [[P0, -INTRO_S, 2.2], [-INTRO_S, 1.2, 1], [1.2, 6.4, 2.6], [6.4, 16.6, 1], [16.6, 19.5, 3.6]], SEGW = SEGS.reduce((a, [p, q, w]) => a + (q - p) * w, 0);
 const playAt = (f) => { let r = clamp01(f) * SEGW; for (const [p, q, w] of SEGS) { const c = (q - p) * w; if (r <= c) return p + r / w; r -= c; } return 19.5; };
-let chopOn = false, chopT = 0, handV = 1;
+let chopOn = false, chopT = 0;
 let intro = 0, tA = 0, play = P0, vA = 0, globeSpin = 0, globeVel = 0, lastPx = 0, afterS = 0, aVel = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
@@ -1051,8 +1064,8 @@ function frame(now) {
       const T = globe.userData.titles;
       if (T.length && tA > 8) { globe.updateMatrixWorld(true); tmp2.set(0, 0, 0); T.forEach(([o, c]) => tmp2.add(tmp.copy(c).applyMatrix4(o.matrixWorld))); tmp2.divideScalar(T.length).sub(globe.position);
         const tl = Math.hypot(tmp2.x, tmp2.z), cx = camera.position.x - globe.position.x, cz = camera.position.z - globe.position.z, cl = Math.hypot(cx, cz) || 1;
-        if (tl > Rg * .05) hv = 1 - smooth(((tmp2.x * cx + tmp2.z * cz) / (tl * cl) - .05) / .8) * smooth((tA - 8) / 1.2); }
-      handV += (hv - handV) * (1 - Math.exp(-dt * 2.6)); const h = handV < .002 ? 0 : handV > .998 ? 1 : handV;   // eased, never popped
+        if (tl > Rg * .05) hv = 1 - smooth(((tmp2.x * cx + tmp2.z * cz) / (tl * cl) - .12) / .3) * smooth((tA - 8) / 1.2); }
+      const h = hv < .002 ? 0 : hv > .998 ? 1 : hv;   // set by the angle of the turn alone, as the lettering is
       [...mats.wood, ...mats.iron].forEach((m) => { m.transparent = tA > 8 || h < 1; m.opacity = h * h * (3 - 2 * h); m.depthWrite = h > .35; });
       if (globe.userData.hand) globe.userData.hand.forEach((o) => { o.visible = h > 0; }); }
     if (logo) { const rise = smooth((tA - 6.6) / 2.8);   // it rises out of the ground; the sea comes up around it later
