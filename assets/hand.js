@@ -10,7 +10,7 @@ const SIZE = FINE ? 260 : 240, DPR = Math.min(devicePixelRatio, 2);
 const lerp = (a, b, k) => a + (b - a) * k, clamp01 = (x) => Math.max(0, Math.min(1, x)), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
 const cv = document.createElement('canvas'); cv.id = 'hand'; cv.setAttribute('aria-hidden', 'true');
-cv.style.cssText = `position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:60;pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform`;
+cv.style.cssText = `position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:60;pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform;filter:drop-shadow(0 0 5px rgba(255,40,30,.85)) drop-shadow(0 0 16px rgba(255,0,0,.45))`;   // its bloom
 document.body.appendChild(cv);
 let renderer; try { renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, powerPreference: 'low-power' }); } catch (e) { cv.remove(); return; }
 renderer.setPixelRatio(DPR); renderer.setSize(SIZE, SIZE, false); renderer.outputEncoding = THREE.sRGBEncoding;
@@ -20,17 +20,21 @@ const key = new THREE.DirectionalLight('#ffe2c8', 1.6); key.position.set(-.6, .9
 const rim = new THREE.DirectionalLight('#ff2a1e', 2.4); rim.position.set(.8, -.3, -.9); scene.add(rim);   // red from behind
 
 // skin like a fresco's: pale, warm, a red rim that burns brighter over anything that can be pressed
-const glow = { value: 0 };
-const skin = new THREE.MeshStandardMaterial({ color: '#c88f74', roughness: .7, metalness: 0, transparent: true });
-skin.onBeforeCompile = (sh) => { sh.uniforms.glow = glow;
+const glow = { value: 0 }, hT = { value: 0 };
+const skin = new THREE.MeshStandardMaterial({ color: '#2a0306', roughness: .35, metalness: .6, transparent: true });   // a dark red shell; the light comes from within
+skin.onBeforeCompile = (sh) => { sh.uniforms.glow = glow; sh.uniforms.hT = hT;
   // the wrist (bound to the wrist joint, index 0) dissolves into red light, so the hand has no cut end
   sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vWr;')
     .replace('#include <skinning_vertex>', '#include <skinning_vertex>\nvWr = dot(skinWeight, vec4(equal(skinIndex, vec4(0.))));');
-  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float glow; varying float vWr;')
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float glow, hT; varying float vWr;')
     .replace('#include <output_fragment>', '#include <output_fragment>\nfloat wf = smoothstep(.55, .98, vWr); gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1., .18, .1) * 1.4, wf * .8); gl_FragColor.a *= 1. - wf;')
     .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-      float fr = pow(1. - clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0., 1.), 2.4);
-      totalEmissiveRadiance += vec3(1., .1, .06) * fr * (.6 + glow * 1.8) + vec3(.04, .012, .01);`); };
+      float fr = pow(1. - clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0., 1.), 2.);
+      float scan = pow(.5 + .5 * sin(gl_FragCoord.y * .55 - hT * 9.), 6.) * .35;                       // scanlines rolling up through it
+      float sweep = smoothstep(.06, 0., abs(fract(gl_FragCoord.y / 260. - hT * .35) - .5)) * .9;       // a bright band of light passing over
+      float flick = .9 + .1 * step(.93, fract(sin(floor(hT * 18.) * 91.7) * 4371.));                   // a digital stutter now and then
+      totalEmissiveRadiance += vec3(1., .07, .04) * (fr * (1.3 + glow * 2.) + scan + sweep * (.4 + glow) + .12) * flick;`); };
+const wire = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, .16, .1), wireframe: true, transparent: true, opacity: .22, blending: THREE.AdditiveBlending, depthWrite: false });
 const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
   r.addColorStop(0, 'rgba(255,60,40,.55)'); r.addColorStop(.45, 'rgba(255,30,20,.18)'); r.addColorStop(1, 'rgba(255,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })(),
   transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
@@ -55,6 +59,8 @@ const toGLB = (j) => { const uri = j.buffers[0].uri, bin = Uint8Array.from(atob(
 fetch('assets/hand.gltf.json').then((r) => r.json()).then((j) => new THREE.GLTFLoader().parse(toGLB(j), 'assets/', (g) => {
   hand = g.scene; hand.traverse((o) => { if (o.isMesh) { o.material = skin; o.frustumCulled = false; } if (/wrist|finger|thumb/.test(o.name)) { bones[o.name] = o; rest[o.name] = o.quaternion.clone(); } });
   tip = bones['index-finger-tip'];
+  hand.traverse((o) => { if (!o.isSkinnedMesh || o.userData.wire) return;   // the mesh's own lines, glowing over it
+    const w = new THREE.SkinnedMesh(o.geometry, wire); w.userData.wire = true; w.bind(o.skeleton, o.bindMatrix); w.frustumCulled = false; w.renderOrder = 2; o.parent.add(w); });
   // the model's fingers point down (-y) with the palm to -x: turn it so it reaches up and to the left, palm down and away from us
   const F = V3(-.62, .74, -.26).normalize(), P0 = V3(.05, -.55, -.83), P = P0.sub(F.clone().multiplyScalar(P0.dot(F))).normalize();
   const X = P.clone().negate(), Y = F.clone().negate(), m = new THREE.Matrix4().makeBasis(X, Y, X.clone().cross(Y));
@@ -113,7 +119,7 @@ function loop(now) {
     const sp = Math.hypot(S.vx, S.vy), poke = S.act > 0 && S.actPose === 'poke' ? Math.sin((1 - S.act / .32) * Math.PI) : 0, rear = S.act > 0 && S.actPose === 'flick' ? Math.sin((1 - S.act / .5) * Math.PI) : 0;
     root.rotation.set(clamp01(Math.abs(S.vy) / 3000) * Math.sign(S.vy) * .5 + Math.sin(t * .9) * .03 - rear * .5, -S.vx / 3000 * .6 + Math.sin(t * .7) * .04, -S.vx / 2600 * .5);
     root.position.set(0, Math.sin(t * 1.1) * .004, -poke * .05 + rear * .06);
-    glow.value = lerp(glow.value, S.over || S.mid ? 1 : rear, 1 - Math.exp(-dt * 8)); halo.material.opacity = glow.value * .9;
+    glow.value = lerp(glow.value, S.over || S.mid ? 1 : rear, 1 - Math.exp(-dt * 8)); halo.material.opacity = .25 + glow.value * .75; hT.value = t; wire.opacity = .16 + glow.value * .3 + Math.sin(t * 3) * .04;
     scene.updateMatrixWorld(true); tip.getWorldPosition(tipV); halo.position.copy(tipV).add(V3(.02, -.02, -.05));
     tipV.project(cam);
     // the fingertip sits exactly on the pointer (the weight is all in the swing)
