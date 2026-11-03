@@ -1,4 +1,43 @@
 <!doctype html>
+<!--
+
+                         .  *        .            *         .
+            .                  _.-~~~~~~~~-._                         .
+                   *       .-~~  |  |   |  | ~~-.        *
+       .                 .' |    |  |   |  |    | `.
+                        /---+----+--+---+--+----+---\           .
+              *        |  3 R D   W O R L D          |
+                       |---+----+--+---+--+----+-----|    *
+          .            |  P R O D U C T I O N S      |
+                       |---+----+--+---+--+----+-----|              .
+                        \ R E V O L U T I O N       /
+               .         `.  |  |   |  |   |    | .'       .
+                           `-..|_  |   |  _|..-'
+                     ~~~~~~~~~~~~`~~-------~~'~~~~~~~~~~~~~~~~~~
+                  ~~~~~~~  t h e   r e d   s e a  ~~~~~~~~~~~~~~~~~~~~
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        ____  ____  ____    _       ______  ____  __    ____
+       |__ / | __ \|  _ \  | |     / / __ \/ __ \/ /   / __ \
+        |_ \ |    /| |_| | | | /| / / /_/ / /_/ / /   / / / /
+       |___/ |_|\_\|____/  | |/ |/ /\____/_/ \_\/____/_____/
+
+                      R  E  V  O  L  U  T  I  O  N
+
+   You opened the source. Good. Everything that moves out there is in this
+   one file: the sky, the crosses, the hand, the globe, the sea. No framework,
+   no tracker, no cookie. The score is written in code too (assets/score.js):
+   nothing you hear was recorded. The hand that points for you is assets/hand.js.
+
+   Three things for those who read this far:
+     * the console has something to say (open it)
+     * the old code still works:  up up down down left right left right b a
+     * so does a single word, typed anywhere on the page:  unite
+
+   "The philosophers have only interpreted the world, in various ways;
+    the point is to change it."                         -- Theses on Feuerbach
+
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -111,6 +150,10 @@ main { position: relative; z-index: 2 }
 .cc h2, .cc-ask { text-shadow: none; filter: drop-shadow(0 0 .045em rgba(255,70,50,.95)) drop-shadow(0 0 .28em rgba(255,10,0,.45)) }   /* bloom */
 .cc h2 span, .cc-ask span, .dl-ask span { color: transparent; -webkit-text-fill-color: transparent; background: var(--grain), linear-gradient(#ff3b30, #ff2a2a); -webkit-background-clip: text; background-clip: text }   /* grain */
 .dl-ask span, .cc h2 span, .cc-ask span { animation: grain .5s steps(1) infinite }
+.egg-shout { position: fixed; z-index: 70; left: 50%; top: 50%; translate: -50% -50%; pointer-events: none; white-space: nowrap; font-family: var(--poster); font-weight: 700;
+  font-size: clamp(1.4rem, 5vw, 4.4rem); color: #ff2a2a; filter: drop-shadow(0 0 .06em #ff6a50) drop-shadow(0 0 .35em rgba(255, 0, 0, .6)); animation: egg 4.2s cubic-bezier(.2, .8, .2, 1) forwards }
+@keyframes egg { 0% { opacity: 0; letter-spacing: .6em; filter: blur(8px) } 15% { opacity: 1; letter-spacing: .02em; filter: blur(0) drop-shadow(0 0 .35em rgba(255, 0, 0, .6)) } 75% { opacity: 1 } 100% { opacity: 0; letter-spacing: .1em } }
+.rapture #world { animation: rapture 2.6s ease-out } @keyframes rapture { 0% { filter: none } 8% { filter: saturate(3) hue-rotate(-12deg) brightness(1.5) contrast(1.3) } 100% { filter: none } }
 ::selection { background: rgba(255, 42, 42, .38); color: #fff2ee }
 html { -webkit-tap-highlight-color: rgba(255, 42, 42, .25) }
 :focus-visible { outline-color: #ff4a42 }
@@ -258,6 +301,7 @@ html.godhand, html.godhand * { cursor: none !important }
   </section>
 </main>
 
+<!-- the knell of capitalist private property sounds. the expropriators are expropriated. -->
 <footer class="foot">
   <svg viewBox="0 0 1703 417" role="img" aria-label="3RD WORLD REVOLUTION"><use href="#logotype"/></svg>
   <div class="row small">
@@ -1258,6 +1302,22 @@ function frame(now) {
 }
 // build and compile the later set pieces while nothing is happening, so they do not stutter in when they arrive
 let veilUp = false;
+// ── for the curious ──
+console.log('%c\n   ★  3RD WORLD REVOLUTION  ★\n%c\n   workers of the world, unite!\n   you have nothing to lose but your chains.\n\n%c   (↑ ↑ ↓ ↓ ← → ← → b a)   ·   type "unite"\n',
+  'color:#ff2a2a;font:700 20px/1.6 Georgia,serif;text-shadow:0 0 8px #f00', 'color:#ff6a5a;font:italic 13px/1.5 Georgia,serif', 'color:#888;font:11px monospace');
+let eggBuf = '', eggT = 0;
+const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+let eggK = 0;
+const shout = (txt) => { const d = document.createElement('div'); d.className = 'egg-shout'; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 4200); };
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  eggK = e.key === KONAMI[eggK] || e.key.toLowerCase() === KONAMI[eggK] ? eggK + 1 : (e.key === KONAMI[0] ? 1 : 0);
+  if (eggK === KONAMI.length) { eggK = 0;   // the old code: the globe is flung round, the world flashes red, the score strikes
+    globeVel += 9; document.body.classList.add('rapture'); setTimeout(() => document.body.classList.remove('rapture'), 2600);
+    if (window.Score3W && Score3W.fx) { Score3W.fx('right'); setTimeout(() => Score3W.fx('grab'), 220); }
+    shout('THE EXPROPRIATORS ARE EXPROPRIATED'); }
+  if (e.key.length === 1) { eggBuf = (eggBuf + e.key.toLowerCase()).slice(-5);
+    if (eggBuf === 'unite') { shout('WORKERS OF THE WORLD, UNITE!'); if (window.Score3W && Score3W.fx) Score3W.fx('left'); } } });
 function warm() { try { if (!tv) { tv = buildTV(); tvSet = buildSet(); scene.add(tv, tvSet); }
   const hid = [tv, tvSet, waterPatch, spray, fig].filter(Boolean); hid.forEach((o) => { o.userData.wasVis = o.visible; o.visible = true; });
   renderer.compile(scene, camera); hid.forEach((o) => { o.visible = o.userData.wasVis; }); } catch (e) {} }
@@ -1267,5 +1327,9 @@ requestAnimationFrame(frame);
 
 </script>
 
+<!--
+   made in the red sea by 3RD WORLD REVOLUTION Productions. if you are here to take it apart:
+   take it apart. the means of production are on view.  .:  ✠  ☭  ★  :.
+-->
 </body>
 </html>
