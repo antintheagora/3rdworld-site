@@ -33,7 +33,7 @@
 html { background: var(--night) }
 body { touch-action: pan-y pinch-zoom; margin: 0; background: var(--night); color: var(--bone); font-family: var(--serif); overflow-x: hidden; -webkit-font-smoothing: antialiased }
 a { color: inherit }
-:focus-visible { outline: 1px solid var(--bone); outline-offset: 6px }
+:focus-visible { outline: 1px solid #ff4a42; outline-offset: 6px }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 .small { font-family: var(--mono); font-stretch: 87.5%; font-weight: 400; font-size: .68rem; letter-spacing: .22em; text-transform: uppercase }
 
@@ -111,6 +111,9 @@ main { position: relative; z-index: 2 }
 .cc h2, .cc-ask { text-shadow: none; filter: drop-shadow(0 0 .045em rgba(255,70,50,.95)) drop-shadow(0 0 .28em rgba(255,10,0,.45)) }   /* bloom */
 .cc h2 span, .cc-ask span, .dl-ask span { color: transparent; -webkit-text-fill-color: transparent; background: var(--grain), linear-gradient(#ff3b30, #ff2a2a); -webkit-background-clip: text; background-clip: text }   /* grain */
 .dl-ask span, .cc h2 span, .cc-ask span { animation: grain .5s steps(1) infinite }
+::selection { background: rgba(255, 42, 42, .38); color: #fff2ee }
+html { -webkit-tap-highlight-color: rgba(255, 42, 42, .25) }
+:focus-visible { outline-color: #ff4a42 }
 /* the hand of God: the pointer is hidden while it stands in; red marks where it touches */
 html.godhand, html.godhand * { cursor: none !important }
 .hand-fx { position: fixed; z-index: 59; pointer-events: none; width: 0; height: 0 }
