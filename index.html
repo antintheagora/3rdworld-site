@@ -16,6 +16,7 @@
 /* Layout: one live 3D world fixed behind a long, nearly empty page. Scroll is the only timeline:
    crosses over Jerusalem -> the Westside hand -> the globe -> the red sea. Words are few and far apart. */
 :root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --night: #070510;
   --blood: #c8051c;
   --bone: #efe7df;
@@ -43,7 +44,7 @@ a { color: inherit }
 
 .insky .top .mark { opacity: 0; visibility: hidden }
 .top .mark { transition: opacity .9s, visibility .9s }
-.top nav > a.mid { display: inline-block; max-width: 22em; overflow: hidden; white-space: nowrap; vertical-align: middle;
+.top nav > a.mid { display: inline-block; max-width: 40em; overflow: hidden; white-space: nowrap; vertical-align: middle;
   transition: max-width 1s cubic-bezier(.2, .8, .2, 1), margin 1s cubic-bezier(.2, .8, .2, 1), opacity .7s .2s, visibility 1s, color .3s }
 .top nav > a.mid:nth-of-type(3) { transition-delay: .07s } .top nav > a.mid:nth-of-type(4) { transition-delay: .14s } .top nav > a.mid:nth-of-type(5) { transition-delay: .21s }
 .insky .top nav > a.mid { max-width: 0; margin-left: 0; opacity: 0; visibility: hidden; transition-delay: 0s }
@@ -107,8 +108,12 @@ main { position: relative; z-index: 2 }
 .cc-kick { margin: 0; font-size: clamp(.8rem, 1.05vw, 1rem); letter-spacing: .04em }
 .cc h2 { margin: 0; font-size: clamp(2.4rem, 4.4vw, 6rem); line-height: .9; letter-spacing: -.01em }
 .cc h2 span { display: block }
+.cc h2, .cc-ask { text-shadow: none; filter: drop-shadow(0 0 .045em rgba(255,70,50,.95)) drop-shadow(0 0 .28em rgba(255,10,0,.45)) }   /* bloom */
+.cc h2 span, .cc-ask span, .dl-ask span { color: transparent; -webkit-text-fill-color: transparent; background: var(--grain), linear-gradient(#ff3b30, #ff2a2a); -webkit-background-clip: text; background-clip: text }   /* grain */
+.dl-ask span { animation: grain .5s steps(1) infinite }
+@keyframes grain { 0% { background-position: 0 0, 0 0 } 20% { background-position: -37px 21px, 0 0 } 40% { background-position: 23px -44px, 0 0 } 60% { background-position: -11px 52px, 0 0 } 80% { background-position: 48px 9px, 0 0 } }
 .cc-by { margin: 0; font-family: var(--serif); font-weight: 400; font-style: italic; text-transform: uppercase; letter-spacing: .04em; font-size: clamp(1.1rem, 1.6vw, 1.5rem); color: #ff7a6a }
-.cc-laurel { display: block; width: min(250px, 62%); height: auto; filter: drop-shadow(0 0 8px rgba(255, 30, 30, .55)) }
+.cc-laurel { display: block; width: min(230px, 56%); height: auto; filter: drop-shadow(0 0 7px rgba(255, 30, 30, .5)) }
 .cc .go { font-size: .8rem; letter-spacing: .14em; color: #ffb3a8; text-shadow: 0 0 8px #000 }
 .cc-ask { position: absolute; right: var(--gutr); top: max(92px, 13vh); margin: 0; text-align: right; font-size: clamp(2.2rem, 5.2vw, 6.2rem); line-height: .9;
   letter-spacing: calc((1 - var(--t)) * .25em) }
@@ -118,16 +123,15 @@ main { position: relative; z-index: 2 }
 .dl h2 { margin: 0; font-size: clamp(3.6rem, 9.6vw, 10.5rem); line-height: .84; letter-spacing: calc(-.02em + (1 - var(--t)) * .3em);
   filter: drop-shadow(0 0 .05em rgba(255,120,96,.9)) drop-shadow(0 0 .22em rgba(255,40,28,.55)) }
 .dl h2 > span { display: table; position: relative; color: transparent; -webkit-text-fill-color: transparent;   /* white at the core, bleeding to red, through grain */
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(closest-side, #fffaf6 18%, #ffd6c8 42%, #ff6c54 74%, #ff2a18 100%);
-  -webkit-background-clip: text; background-clip: text }
+  background: var(--grain), radial-gradient(closest-side, #fffaf6 18%, #ffd6c8 42%, #ff6c54 74%, #ff2a18 100%);
+  -webkit-background-clip: text; background-clip: text; animation: grain .42s steps(1) infinite }
 .dl h2 > span::before { content: attr(data-t); position: absolute; left: .075em; top: .035em; z-index: -1; color: rgba(112,104,120,.5); -webkit-text-fill-color: rgba(112,104,120,.5); background: none }
 .dl-status { margin: 0 0 1.8vh; font-size: clamp(.8rem, 1.15vw, 1.15rem); color: #ff6a50; letter-spacing: .3em; text-shadow: 0 0 8px rgba(255,50,30,.6) }
 .dl-sub { margin: 0; white-space: nowrap; color: #ff6a50; font-size: clamp(.8rem, 1.35vw, 1.35rem); line-height: 1.35; letter-spacing: -.005em; text-shadow: .07em .03em 0 rgba(112,104,120,.45), 0 0 .15em rgba(255,70,48,.8), 0 0 2px #000;
   clip-path: inset(0 calc(100% - clamp(0%, (var(--k) - var(--a)) * 300%, 100%)) 0 0) }
 .dl-ask { position: absolute; left: 58%; bottom: 7vh; translate: -50% 0; margin: 0; text-align: center; font-family: var(--poster); font-weight: 700; text-transform: uppercase;
   color: var(--hot); font-size: clamp(1.9rem, 3.9vw, 4.6rem); line-height: .92; letter-spacing: calc((1 - var(--t)) * .25em);
-  text-shadow: 0 0 10px rgba(255,30,30,.55), 0 0 34px rgba(255,0,0,.3), 0 0 2px #000 }
+  filter: drop-shadow(0 0 .05em rgba(255,70,50,.95)) drop-shadow(0 0 .3em rgba(255,10,0,.5)) }
 .dl-ask span { display: block; white-space: nowrap }
 
 .foot { position: relative; z-index: 2; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding: 30vh var(--gutr) max(64px, calc(env(safe-area-inset-bottom, 0px) + 40px)) var(--gut); color: var(--blood) }
@@ -142,7 +146,7 @@ main { position: relative; z-index: 2 }
 .verse p { margin: 0 }
 .verse .ch { opacity: 0; filter: blur(4px); transition: opacity 1.1s ease, filter 1.3s ease }
 .verse .ch.on, .static .verse .ch { opacity: 1; filter: none }
-.verse .cue { top: 8em; transform: translateX(-50%); opacity: 0; transition: opacity .6s, top .9s cubic-bezier(.2, .8, .2, 1) }
+.verse .cue { top: 0; transform: translate(-50%, 8em); opacity: 0; transition: opacity .6s; will-change: transform }
 .static .verse .cue { display: none }
 .static .verse.verse { left: 0; right: 0; width: auto; translate: none }
 .static .verse { position: relative; inset: auto; translate: none; opacity: 1; visibility: visible; margin: 0 auto 40vh; padding: 0 var(--gutr) 0 var(--gut); top: 30vh; text-align: center }
@@ -169,14 +173,14 @@ main { position: relative; z-index: 2 }
   .cc h2 { font-size: 2.5rem }
   .cc .pin { text-shadow: 0 0 10px rgba(255,30,30,.5), 0 0 3px #000, 0 0 16px rgba(7,5,16,.9) }
   .cc-kick { font-size: .72rem }
-  .cc-laurel { width: 150px }
+  .cc-laurel { width: 140px }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 7svh; left: var(--gut); text-align: center; font-size: 2.1rem }
   .dl-text { left: var(--gut); right: var(--gutr); top: max(86px, 11svh); bottom: auto; transform: none; max-width: none; text-align: center }
   .dl h2 { font-size: min(4.6rem, 20vw) } .dl h2 > span { margin-inline: auto }
   .dl-ask { left: 50%; top: calc(max(86px, 11svh) + min(4.6rem, 20vw) * 1.8 + 3.2rem); bottom: auto; font-size: min(1.45rem, 6vw) }
 }
-@media (prefers-reduced-motion: reduce) { .cue i, .snd.on i, .early .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
+@media (prefers-reduced-motion: reduce) { .dl h2 > span, .dl-ask span, .snd.on i, .early .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
 </style>
 
 </head>
@@ -216,7 +220,7 @@ main { position: relative; z-index: 2 }
         <p class="cc-kick in" style="--a:.02">The independent motion picture</p>
         <h2 id="t1"><span class="in" style="--a:.06">Christians</span><span class="in" style="--a:.1">and</span><span class="in" style="--a:.14">Cannibals</span></h2>
         <p class="cc-year in" style="--a:.18">Two thousand and twenty-fi’ years<br>after the birth of Jesus</p>
-        <img class="cc-laurel in" style="--a:.26" src="assets/laurel-sq.svg" alt="Official selection, San Quentin Film Festival 2025" width="300" height="210">
+        <img class="cc-laurel in" style="--a:.26" src="assets/laurel-sq.webp" alt="Official selection, San Quentin Film Festival 2025" width="640" height="482">
         <div class="go in" style="--a:.3">
           <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗&#xFE0E;</a>
           <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗&#xFE0E;</a>
@@ -459,10 +463,14 @@ waterPatch.rotation.x = -Math.PI / 2; waterPatch.renderOrder = 1; waterPatch.vis
 // embers drift; once the world turns red they fall the wrong way
 const NE = REDUCED ? 0 : LITE ? 220 : 600, eg = new THREE.BufferGeometry(), ep = new Float32Array(NE * 3), es = new Float32Array(NE);
 for (let i = 0; i < NE; i++) { ep[i * 3] = (Math.random() - .5) * 160; ep[i * 3 + 1] = 30 + Math.random() * 65; ep[i * 3 + 2] = (Math.random() - .5) * 160 - 20; es[i] = Math.random(); }
-eg.setAttribute('position', new THREE.BufferAttribute(ep, 3));
+eg.setAttribute('position', new THREE.BufferAttribute(ep, 3)); eg.setAttribute('seed', new THREE.BufferAttribute(es, 1));
+const emberU = { off: { value: 0 } };
 const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'); const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#fff'); r.addColorStop(.35, 'rgba(255,170,90,.8)'); r.addColorStop(1, 'rgba(255,80,20,0)'); g.fillStyle = r; g.fillRect(0, 0, 32, 32); return new THREE.CanvasTexture(c); })();
 const embers = new THREE.Points(eg, new THREE.PointsMaterial({ size: .55, map: dotTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .2, color: new THREE.Color().setRGB(3, 1.4, .6) }));
-scene.add(embers);
+embers.material.onBeforeCompile = (sh) => { sh.uniforms.eOff = emberU.off;   // each rises (or falls) at its own pace and wraps round, all in the shader
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float seed; uniform float eOff;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed.y = 30. + mod(transformed.y - 30. + eOff * (1.5 + seed * 3.), 65.);'); };
+embers.frustumCulled = false; scene.add(embers);
 // spray thrown up as he breaks the surface
 const NSP = REDUCED ? 0 : LITE ? 90 : 200, spG = new THREE.BufferGeometry(), spP = new Float32Array(NSP * 3), spV = new Float32Array(NSP * 3);
 for (let i = 0; i < NSP; i++) spP[i * 3 + 1] = -1e4;
@@ -891,7 +899,7 @@ const INTRO_S = 3.5, READ1 = 6, P0 = -INTRO_S - READ1;   // playhead seconds: re
 // scroll is not spent evenly: where there is a passage to read, each playhead second takes more of it
 const SEGS = [[P0, -INTRO_S, 2.2], [-INTRO_S, 1.2, 1], [1.2, 6.4, 2.6], [6.4, 16.6, 1], [16.6, 19.5, 3.6]], SEGW = SEGS.reduce((a, [p, q, w]) => a + (q - p) * w, 0);
 const playAt = (f) => { let r = clamp01(f) * SEGW; for (const [p, q, w] of SEGS) { const c = (q - p) * w; if (r <= c) return p + r / w; r -= c; } return 19.5; };
-let chopOn = false, chopT = 0;
+let chopOn = false, chopT = 0, handV = 1;
 let intro = 0, tA = 0, play = P0, vA = 0, globeSpin = 0, globeVel = 0, lastPx = 0, afterS = 0, aVel = 0;
 const easeIO = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
@@ -1043,9 +1051,10 @@ function frame(now) {
       const T = globe.userData.titles;
       if (T.length && tA > 8) { globe.updateMatrixWorld(true); tmp2.set(0, 0, 0); T.forEach(([o, c]) => tmp2.add(tmp.copy(c).applyMatrix4(o.matrixWorld))); tmp2.divideScalar(T.length).sub(globe.position);
         const tl = Math.hypot(tmp2.x, tmp2.z), cx = camera.position.x - globe.position.x, cz = camera.position.z - globe.position.z, cl = Math.hypot(cx, cz) || 1;
-        if (tl > Rg * .05) hv = 1 - smooth(((tmp2.x * cx + tmp2.z * cz) / (tl * cl) - .25) / .4) * smooth((tA - 8) / 1.2); }
-      [...mats.wood, ...mats.iron].forEach((m) => { m.transparent = hv < .999; m.opacity = hv; m.depthWrite = hv > .5; });
-      if (globe.userData.hand) globe.userData.hand.forEach((o) => { o.visible = hv > .02; }); }
+        if (tl > Rg * .05) hv = 1 - smooth(((tmp2.x * cx + tmp2.z * cz) / (tl * cl) - .05) / .8) * smooth((tA - 8) / 1.2); }
+      handV += (hv - handV) * (1 - Math.exp(-dt * 2.6)); const h = handV < .002 ? 0 : handV > .998 ? 1 : handV;   // eased, never popped
+      [...mats.wood, ...mats.iron].forEach((m) => { m.transparent = tA > 8 || h < 1; m.opacity = h * h * (3 - 2 * h); m.depthWrite = h > .35; });
+      if (globe.userData.hand) globe.userData.hand.forEach((o) => { o.visible = h > 0; }); }
     if (logo) { const rise = smooth((tA - 6.6) / 2.8);   // it rises out of the ground; the sea comes up around it later
       logo.position.set(logo.userData.off.x, lerp(34 - logo.userData.h, FIN.logoY, rise) + logo.userData.off.y + Math.sin(clock * .7) * .25 * rise, -22 + Rg * .6 + logo.userData.off.z); logo.visible = rise > 0; }
     core.position.copy(globe.position); core.intensity = (Math.max(.6, smooth((tA - 2.5) / 1.5)) * (1 - smooth((tA - 9) / 3)) * 2.2 + smooth((tA - 9) / 3) * .4) * 45;
@@ -1067,11 +1076,11 @@ function frame(now) {
   skyU.zen.value.copy(DUSK.zen).lerp(RED.zen, red); skyU.hor.value.copy(DUSK.hor).lerp(RED.hor, red); skyU.glow.value.copy(DUSK.glow).lerp(RED.glow, red);
   scene.fog.color.copy(DUSK.fog).lerp(RED.fog, red); waterU.fogC.value.copy(scene.fog.color);   // (darkened below for (Dead) Labor)
   scene.fog.far = lerp(7800, 5200, red); waterU.fogF.value = scene.fog.far;
-  const flood = clamp01((tA - 9.2) / 3.4);
+  const flood = clamp01((tA - 9.2) / 4.6);   // the walls take longer to run in
   const dr = waterU.opacity.value > .999 && waterU.level.value > 46.9 && (REDUCED || flood >= 1);
-  if (dr !== drowned) { drowned = dr; sunk.forEach((o) => { o.visible = !dr; }); lanterns.forEach((l) => { l.visible = !dr; }); }
-  if (tA > 12.3 && !chopOn) { chopOn = true; chopT = clock; } if (tA < 11.6) chopOn = false;   // the moment the walls meet starts a swell that takes a while to die
-  waterU.chop.value = REDUCED ? 0 : Math.max(chopOn ? Math.exp(-(clock - chopT) / 7) : 0, smooth((tA - 11.8) / .6) * (1 - smooth((tA - 12.8) / 3)) * .7);   // the walls run in from far off and crash together over the globe
+  if (dr !== drowned) { drowned = dr; sunk.forEach((o) => { o.visible = !dr; }); lanterns.forEach((l) => { l.userData.off = dr; }); }
+  if (tA > 13.4 && !chopOn) { chopOn = true; chopT = clock; } if (tA < 12.7) chopOn = false;   // the moment the walls meet starts a swell that takes a while to die
+  waterU.chop.value = REDUCED ? 0 : Math.max(chopOn ? Math.exp(-(clock - chopT) / 7) : 0, smooth((tA - 12.9) / .6) * (1 - smooth((tA - 13.9) / 3)) * .7);   // the walls run in from far off and crash together over the globe
   const fW = 460 * Math.pow(1 - smooth(flood), 1.35) - 10;   // they start at the edges of the view and close on the middle
   waterU.floodW.value = REDUCED ? -10 : fW; waterU.floodA.value = REDUCED ? 0 : 16 * smooth(flood * 4) * smoothstep(-10, 90, fW) + 1.2 * smooth(flood * 4) * (1 - smooth((flood - .9) / .1));
   waterU.foam.value = REDUCED ? 0 : smooth(flood * 5) * (1 - smooth((flood - .85) / .15) * .85);
@@ -1081,9 +1090,9 @@ function frame(now) {
   waterU.seaGlow.value = smooth(red * 1.5) * (.6 + ecl * .6) * (1 - dark * .88);
   sun.color.copy(C.sunDusk).lerp(C.sunRed, red); sun.intensity = lerp(2.4, .5, red) * (1 - ecl * .8); hemi.intensity = lerp(.55, .1, red) * (1 - ecl * .3) * (1 - dark * .8); sun.intensity *= 1 - dark * .9; front.intensity = red * .5 * (1 - ecl * .4);
   seaLight.intensity = red * (2.5 + ecl * 3.5) * (1 - dark * .95); seaLight.position.set(0, waterU.level.value + 1.5, -22 + Rg * .6 + 12);
-  cityU.t.value = clock; cityU.on.value = 1 - smooth(red * 1.4); lanterns.forEach((l) => { l.intensity = 4.2 * (1 - red) * (.86 + .14 * Math.sin(clock * (5 + l.userData.ph) + l.userData.ph) * Math.sin(clock * 2.3 + l.userData.ph * 3)); });
+  cityU.t.value = clock; cityU.on.value = 1 - smooth(red * 1.4); lanterns.forEach((l) => { l.intensity = l.userData.off ? 0 : 4.2 * (1 - red) * (.86 + .14 * Math.sin(clock * (5 + l.userData.ph) + l.userData.ph) * Math.sin(clock * 2.3 + l.userData.ph * 3)); });
   embers.material.opacity = lerp(.2, .85, red) * (1 - dark * .75); scene.fog.color.multiplyScalar(1 - dark * .8); waterU.fogC.value.copy(scene.fog.color);
-  if (NE) { const a = eg.attributes.position.array, dir = red > .5 ? 1 : -.35; for (let i = 0; i < NE; i++) { a[i * 3 + 1] += dt * dir * (1.5 + es[i] * 3); if (a[i * 3 + 1] > 95) a[i * 3 + 1] = 40; if (a[i * 3 + 1] < 30) a[i * 3 + 1] = 92; } eg.attributes.position.needsUpdate = true; }
+  if (NE) emberU.off.value += dt * (red > .5 ? 1 : -.35);
   // the moon keeps an eye on the cursor; the corona flares as the sun is covered
   if (moon) { halo.material.color.setRGB(lerp(.45, 1.0, red), lerp(.5, .06, red), lerp(.65, .04, red)).multiplyScalar(1 - ecl);
     corona.material.opacity = smooth((ecl - .55) / .45) * .8;
@@ -1181,7 +1190,7 @@ function frame(now) {
   else if (tv) { tv.visible = tvSet.visible = false; tvLight.intensity = 0; }
   if (!pool) { waterU.fig.value.z = 0; waterPatch.visible = false; }
 
-  if (Math.abs(red - envRed) > (LITE ? .16 : .08) || Math.abs(ecl - envEcl) > (LITE ? .2 : .1) || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
+  if (Math.abs(red - envRed) > (LITE ? .2 : .14) || Math.abs(ecl - envEcl) > (LITE ? .25 : .18) || (red >= 1 && envRed < 1) || (red <= 0 && envRed > 0) || (ecl >= 1 && envEcl < 1)) { envRed = red; envEcl = ecl;
     const tex = pmrem.fromScene(envScene, .02).texture; if (scene.environment) scene.environment.dispose(); scene.environment = tex; }
 
   // the three passages: in the night sky, as the crosses burst, as the red sea comes in
@@ -1192,7 +1201,11 @@ function frame(now) {
   { const L0 = linesOf(V[0]).length || 1, A = Math.min(3, L0), auto = A * clamp01((clock - .3) / 2.6), read = clamp01((play - P0) / (READ1 * .85));
     showLines(V[0], REDUCED ? 1 : Math.max(auto, A + clamp01((read - .1) / .9) * (L0 - A)) / L0);   // the first three lines come by themselves, the rest only with the scroll
     cueOn = !REDUCED && clock > 1.4 && play < -INTRO_S + .05;   // until the camera starts to come down
-    const lw = linesOf(V[0])[Math.max(0, (V[0]._shown || 1) - 1)]; if (lw && lw[0]) { const y = lw[0].offsetTop + lw[0].offsetHeight + 20; if (y !== V[0]._cy) { V[0]._cy = y; $('#cue').style.top = y + 'px'; } } }   // it follows the last line up
+    // the prompt sits under the line that is coming next, gliding down as the passage fills, so the text never reaches it
+    const LL = linesOf(V[0]), pf = Math.max(auto, A + clamp01((read - .1) / .9) * (L0 - A)), k0 = Math.min(L0 - 1, Math.floor(pf)), k1 = Math.min(L0 - 1, k0 + 1);
+    const bot = (k) => { const l = LL[k]; return l && l[0] ? l[0].offsetTop + l[0].offsetHeight : 0; };
+    const ty = lerp(bot(k0), bot(k1), pf - Math.floor(pf)) + 22; V[0]._cy = V[0]._cy === undefined ? ty : lerp(V[0]._cy, ty, 1 - Math.exp(-dt * 5));
+    if (Math.abs(V[0]._cy - (V[0]._cyS || 0)) > .3) { V[0]._cyS = V[0]._cy; $('#cue').style.transform = `translate(-50%, ${V[0]._cy.toFixed(1)}px)`; } }
   showLines(V[1], REDUCED ? 1 : (tA - 1.25) / 3.5);   // a line at a time, with the scroll, and back
   showLines(V[2], REDUCED ? 1 : (tA - 16.85) / 1.95);
   verse(V[1], smooth((tA - 1.2) / .5) * (1 - smooth((tA - 5.8) / .6)));   // held a while once it is all out
@@ -1218,7 +1231,7 @@ function frame(now) {
     if (intro < 1) Object.keys(L).forEach((k) => { if (k !== 'pad') L[k] *= smooth(intro); });
     mSp = lerp(mSp, Math.min(1, mDist / Math.max(dt, .008) / 2600), mDist ? .3 : .08); mDist = 0;
     const cl = (x) => Math.max(-1, Math.min(1, x)); mvx = lerp(mvx, cl(mDx / Math.max(dt, .008) / 1800), .35); mvy = lerp(mvy, cl(mDy / Math.max(dt, .008) / 1800), .35); mDx = mDy = 0;
-    Score3W.update({ layers: L, mouse: REDUCED ? 0 : mSp, mvx: REDUCED ? 0 : mvx, mvy: REDUCED ? 0 : mvy, mx: ptr.x, my: (ptr.y + 1) / 2, rise: fig ? figRise : 0, foot, surge: sm(9.3, 12.3, tA) * (1 - sm(12.6, 17, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
+    Score3W.update({ layers: L, mouse: REDUCED ? 0 : mSp, mvx: REDUCED ? 0 : mvx, mvy: REDUCED ? 0 : mvy, mx: ptr.x, my: (ptr.y + 1) / 2, rise: fig ? figRise : 0, foot, surge: sm(9.3, 13.4, tA) * (1 - sm(13.7, 17.5, tA)), vel: REDUCED ? 0 : sVel, tA: intro < 1 ? -1 : tA, red, ecl, cc: ccOn, dl: dlOn, tv: tv && tv.visible ? tvLum : 0,
       base: lerp(lerp(lerp(1300, 2600, smooth(intro)), 3900, red), lerp(2300, 2700, dlOn), films) * (1 - foot * .4) }, dt); }
   composer.render(dt);
   if (!veilUp && ((ready.world && ready.globe) || clock > 9)) { veilUp = true;   // precompile what is already loaded, then lift the veil
