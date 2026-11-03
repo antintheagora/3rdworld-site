@@ -7,7 +7,7 @@
 if (!window.THREE || !THREE.GLTFLoader) return;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches; if (REDUCED) return;
 const FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
-const SIZE = FINE ? 260 : 240, DPR = Math.min(devicePixelRatio, 2);
+const SIZE = FINE ? 220 : 150, DPR = Math.min(devicePixelRatio, 2);
 const lerp = (a, b, k) => a + (b - a) * k, clamp01 = (x) => Math.max(0, Math.min(1, x)), V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
 const cv = document.createElement('canvas'); cv.id = 'hand'; cv.setAttribute('aria-hidden', 'true');
@@ -15,7 +15,7 @@ cv.style.cssText = `position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px
 document.body.appendChild(cv);
 let renderer; try { renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, powerPreference: 'low-power' }); } catch (e) { cv.remove(); return; }
 renderer.setPixelRatio(DPR); renderer.setSize(SIZE, SIZE, false); renderer.outputEncoding = THREE.sRGBEncoding;
-const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, .01, 10); cam.position.set(0, 0, .7);
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, .01, 10); cam.position.set(0, 0, FINE ? .8 : .9);
 scene.add(new THREE.HemisphereLight('#fff1e4', '#3a0d10', .9));
 const key = new THREE.DirectionalLight('#ffe2c8', 1.6); key.position.set(-.6, .9, .8); scene.add(key);
 const rim = new THREE.DirectionalLight('#ff2a1e', 2.4); rim.position.set(.8, -.3, -.9); scene.add(rim);   // red from behind
@@ -92,7 +92,8 @@ if (FINE) {
 } else {
   addEventListener('touchstart', (e) => { const t = e.touches[0]; if (!t) return; S.x = S.hx = t.clientX; S.y = S.hy = t.clientY; S.seen = true; S.touchT = 1e9; S.tap = 1; S.tapK = 'left'; act('tap', .34); sfx('left'); }, { passive: true });
   addEventListener('touchmove', (e) => { const t = e.touches[0]; if (!t) return; S.x = t.clientX; S.y = t.clientY; S.pose = 'grab'; }, { passive: true });
-  addEventListener('touchend', () => { S.touchT = .7; S.pose = 'rest'; }, { passive: true });
+  addEventListener('touchend', () => { S.touchT = .9; S.pose = 'rest'; }, { passive: true });
+  addEventListener('scroll', () => { if (S.touchT < 1e8) { S.touchT = Math.max(S.touchT, .6); S.wheel = .3; } }, { passive: true });   // it stays, holding the page, while the page glides on
 }
 
 // ── animate ──
@@ -115,7 +116,7 @@ function loop(now) {
   S.tap = Math.max(0, S.tap - dt / .34); const tp = S.tap > 0 ? Math.sin((1 - S.tap) * Math.PI) : 0, strike = tp * (1 - S.tap < .35 ? 1 : 1);   // 0 -> 1 -> 0
   if (hand) {
     FING.forEach((f, i) => ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'].forEach((j, n) => { const b = bones[f + '-' + j]; if (!b) return;
-      b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), (cur.c[i] + (i === 1 ? strike * (n === 0 ? .9 : .55) : 0)) * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
+      b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), (cur.c[i] + (i === 1 ? strike * (n === 0 ? .62 : .04) : 0)) * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
       if (n === 0 && i > 0) b.quaternion.multiply(q.setFromAxisAngle(ax.set(0, 0, 1), cur.s * (i - 2.3))); }));   // spread
     const tm = bones['thumb-metacarpal']; if (tm) tm.quaternion.copy(rest[tm.name]).multiply(q.setFromAxisAngle(ax.set(0, -1, 0), cur.c[0] * .45));   // the thumb stays as modelled unless the hand grips
     // sway: the hand tips into its motion, and breathes when still
