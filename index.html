@@ -63,9 +63,9 @@ a { color: inherit }
 .snd:hover, .snd.on { color: #ff4a42 }
 .snd { border: 1px solid transparent; border-radius: 999px; padding: 0; transition: padding .5s cubic-bezier(.2, .8, .2, 1), border-color .5s, box-shadow .5s, color .3s }
 .snd .ask { display: none } .ask-t { display: none } @media (hover: none) { .ask-t { display: inline } .ask-c { display: none } }
-.insky .sndw.ask .snd { padding: 8px 15px 8px 13px; color: #ff6a5a; border-color: rgba(255, 74, 66, .6); box-shadow: 0 0 18px rgba(255, 40, 30, .35); animation: askp 2.4s ease-in-out infinite }
-.insky .sndw.ask .snd .lab { display: none } .insky .sndw.ask .snd .ask { display: inline; margin-left: 10px }
-.insky .sndw.ask .vol { display: none }
+.early .sndw.ask .snd { padding: 8px 15px 8px 13px; color: #ff6a5a; border-color: rgba(255, 74, 66, .6); box-shadow: 0 0 18px rgba(255, 40, 30, .35); animation: askp 2.4s ease-in-out infinite }
+.early .sndw.ask .snd .lab { display: none } .early .sndw.ask .snd .ask { display: inline; margin-left: 10px }
+.early .sndw.ask .vol { display: none }
 @keyframes askp { 50% { box-shadow: 0 0 32px rgba(255, 40, 30, .6); border-color: rgba(255, 130, 110, .95) } } .snd:focus-visible { outline: 1px solid var(--bone); outline-offset: 6px }
 .snd i { display: block; width: 2px; height: 3px; background: currentColor; transition: height .3s }
 .snd.on i { animation: eq 1.1s ease-in-out infinite } .snd.on i:nth-child(2) { animation-delay: -.3s } .snd.on i:nth-child(3) { animation-delay: -.65s } .snd.on i:nth-child(4) { animation-delay: -.9s }
@@ -157,7 +157,7 @@ main { position: relative; z-index: 2 }
   .verse.sky { top: 12svh }
   .verse.burst { top: auto; bottom: 12svh }
   .verse.sea { bottom: auto; top: 11svh }
-  .top nav { letter-spacing: .04em; font-size: .6rem } .top nav > * { margin-left: 10px } .mark svg { height: 17px }
+  .top nav { letter-spacing: .01em; font-size: .54rem } .top nav > * { margin-left: 8px } .mark svg { height: 15px } .top { padding-left: 16px; padding-right: 16px }
   .top nav .sh.m1 { display: none } .top nav .m2 { display: inline-block; line-height: 1.15; text-align: center }
   .top nav .ar { display: none } .insky .top nav .ar { display: inline }
   .top nav a { padding: 12px 0; margin-top: -12px; margin-bottom: -12px }
@@ -172,13 +172,11 @@ main { position: relative; z-index: 2 }
   .cc-laurel { width: 150px }
   .cc-head { top: 84px }
   .cc-ask { top: auto; bottom: 7svh; left: var(--gut); text-align: center; font-size: 2.1rem }
-  .dl-text { right: var(--gutr); top: auto; bottom: 21svh; transform: none; max-width: none }
-  .dl-ask { left: 50%; bottom: 6svh; font-size: min(1.3rem, 5.4vw) }
-  .dl h2 { font-size: 3.4rem }
-  .dl-sub { white-space: normal }
-  .dl h2 { font-size: 2.7rem }
+  .dl-text { left: var(--gut); right: var(--gutr); top: max(86px, 11svh); bottom: auto; transform: none; max-width: none; text-align: center }
+  .dl h2 { font-size: min(4.6rem, 20vw) } .dl h2 > span { margin-inline: auto }
+  .dl-ask { left: 50%; top: calc(max(86px, 11svh) + min(4.6rem, 20vw) * 1.8 + 3.2rem); bottom: auto; font-size: min(1.45rem, 6vw) }
 }
-@media (prefers-reduced-motion: reduce) { .cue i, .snd.on i, .insky .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
+@media (prefers-reduced-motion: reduce) { .cue i, .snd.on i, .early .sndw.ask .snd { animation: none } .snd.on i { height: 7px } }
 </style>
 
 </head>
@@ -194,11 +192,11 @@ main { position: relative; z-index: 2 }
 <header class="top">
   <a class="mark" href="#top" aria-label="3RD WORLD REVOLUTION Productions"><svg viewBox="0 0 1703 417" aria-hidden="true"><use href="#logotype"/></svg></a>
   <nav class="small" aria-label="Films and gear">
-    <a class="gear" href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear<span class="ar"> ↗</span></a>
-    <a class="mid" href="https://christiansandcannibals.com" target="_blank" rel="noopener"><span class="lg">Christians and Cannibals<span class="ar"> ↗</span></span><span class="sh m1" aria-hidden="true">C&amp;C</span><span class="m2" aria-hidden="true">Christians<br>Cannibals</span></a>
-    <a class="mid" href="https://deadlabor.red" target="_blank" rel="noopener"><span class="lg">(Dead) Labor<span class="ar"> ↗</span></span><span class="sh m1" aria-hidden="true">(Dead) Labor</span><span class="m2" aria-hidden="true">(Dead)<br>Labor</span></a>
-    <a class="mid" href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener"><span class="lg">Instagram<span class="ar"> ↗</span></span><span class="sh" aria-hidden="true">IG</span></a>
-    <a class="mid" href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener"><span class="lg">Letterboxd<span class="ar"> ↗</span></span><span class="sh" aria-hidden="true">LB</span></a>
+    <a class="gear" href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear<span class="ar"> ↗&#xFE0E;</span></a>
+    <a class="mid" href="https://christiansandcannibals.com" target="_blank" rel="noopener"><span class="lg">Christians and Cannibals<span class="ar"> ↗&#xFE0E;</span></span><span class="sh m1" aria-hidden="true">C&amp;C</span><span class="m2" aria-hidden="true">Christians<br>Cannibals</span></a>
+    <a class="mid" href="https://deadlabor.red" target="_blank" rel="noopener"><span class="lg">(Dead) Labor<span class="ar"> ↗&#xFE0E;</span></span><span class="sh m1" aria-hidden="true">(Dead) Labor</span><span class="m2" aria-hidden="true">(Dead)<br>Labor</span></a>
+    <a class="mid" href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener"><span class="lg">Instagram<span class="ar"> ↗&#xFE0E;</span></span><span class="sh" aria-hidden="true">IG</span></a>
+    <a class="mid" href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener"><span class="lg">Letterboxd<span class="ar"> ↗&#xFE0E;</span></span><span class="sh" aria-hidden="true">LB</span></a>
     <div class="sndw" id="sndw"><button type="button" id="snd" class="snd" aria-pressed="false" aria-label="Sound: show controls"><i></i><i></i><i></i><i></i><span class="lab">Sound</span><span class="ask"><span class="ask-c">Click for sound</span><span class="ask-t">Tap for sound</span></span></button>
       <span class="vol"><button type="button" id="mute" class="mute" aria-label="Mute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9c1.4 1.6 1.4 4.4 0 6M18.5 6.5c2.8 3 2.8 8 0 11"/><path class="x" d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></button><input type="range" id="vol" min="0" max="100" value="75" aria-label="Volume"></span></div>
   </nav>
@@ -220,9 +218,9 @@ main { position: relative; z-index: 2 }
         <p class="cc-year in" style="--a:.18">Two thousand and twenty-fi’ years<br>after the birth of Jesus</p>
         <img class="cc-laurel in" style="--a:.26" src="assets/laurel-sq.svg" alt="Official selection, San Quentin Film Festival 2025" width="300" height="210">
         <div class="go in" style="--a:.3">
-          <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗</a>
-          <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗</a>
-          <a href="https://christiansandcannibals.com" target="_blank" rel="noopener">Site ↗</a>
+          <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗&#xFE0E;</a>
+          <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗&#xFE0E;</a>
+          <a href="https://christiansandcannibals.com" target="_blank" rel="noopener">Site ↗&#xFE0E;</a>
         </div>
         <p class="cc-by in" style="--a:.34">a film by Young Ant</p>
       </div>
@@ -245,9 +243,9 @@ main { position: relative; z-index: 2 }
   <svg viewBox="0 0 1703 417" role="img" aria-label="3RD WORLD REVOLUTION"><use href="#logotype"/></svg>
   <div class="row small">
     <span>3RD WORLD REVOLUTION Productions</span>
-    <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener">Instagram ↗</a>
-    <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener">Letterboxd ↗</a>
-    <a href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear ↗</a>
+    <a href="https://instagram.com/AntInTheAgora" target="_blank" rel="noopener">Instagram ↗&#xFE0E;</a>
+    <a href="https://letterboxd.com/antintheagora/" target="_blank" rel="noopener">Letterboxd ↗&#xFE0E;</a>
+    <a href="https://shop.3rdworldrevolution.com/" target="_blank" rel="noopener">Gear ↗&#xFE0E;</a>
     <span>© 2026</span>
   </div>
 </footer>
@@ -277,7 +275,7 @@ scrollTo(0, 0);
 if (!window.THREE || !THREE.GLTFLoader) { still(); return; }
 try {
 THREE.ColorManagement.legacyMode = false;
-document.body.classList.add('gl', 'insky');
+document.body.classList.add('gl', 'insky', 'early');
 const canvas = $('#world');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });   // anti-aliasing happens in the HDR target
 const DPR_MAX = Math.min(devicePixelRatio, LITE ? 1.25 : 1.5);
@@ -979,7 +977,7 @@ function adapt(dt) { frameAvg = lerp(frameAvg, dt, .05); perfT += dt; if (perfT 
   const next = frameAvg > 1 / 42 ? Math.max(.6, DPR * .85) : frameAvg < 1 / 57 ? Math.min(DPR_MAX, DPR * 1.08) : DPR;
   if (Math.abs(next - DPR) > .02) { DPR = next; resize(true); } perfT = 0; }
 
-let cueN = 0, cueT = 0, inSky = false, cueOn = false;
+let cueN = 0, cueT = 0, inSky = false, cueOn = false, early = false;
 addEventListener('scroll', () => { const n = performance.now(); if (n - cueT > 450) cueN++; cueT = n; }, { passive: true });
 const writeOut = (el) => { const p = el.querySelector('p'), txt = p.textContent; p.innerHTML = '';   // each word in a span, so the passage can come up softly
   const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = txt; p.appendChild(sr);
@@ -1017,7 +1015,8 @@ function frame(now) {
     if (play < P0 || play > DUR) { play = Math.max(P0, Math.min(DUR, play)); vA = 0; } }
   intro = clamp01((play + INTRO_S) / INTRO_S); tA = Math.max(0, play);
   $('#cue').style.opacity = cueOn ? 1 : 0;
-  if ((intro < .45) !== inSky) { inSky = intro < .45; document.body.classList.toggle('insky', inSky); }   // the header waits until we leave the sky
+  if ((intro < .45) !== inSky) { inSky = intro < .45; document.body.classList.toggle('insky', inSky); }
+  if ((play < -INTRO_S + .05) !== early) { early = play < -INTRO_S + .05; document.body.classList.toggle('early', early); }   // the sound pill lasts as long as the scroll prompt   // the header waits until we leave the sky
   // the hand, the red globe and the logotype arrive together; the sea and the red sky wait until just after
   const red = smooth((tA - 9.3) / 3.0);
   if (mixer) {
@@ -1197,15 +1196,16 @@ function frame(now) {
   showLines(V[1], REDUCED ? 1 : (tA - 1.25) / 3.5);   // a line at a time, with the scroll, and back
   showLines(V[2], REDUCED ? 1 : (tA - 16.85) / 1.95);
   verse(V[1], smooth((tA - 1.2) / .5) * (1 - smooth((tA - 5.8) / .6)));   // held a while once it is all out
-  if (globe && camera.aspect >= 1 && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
-    const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, edge = (tmp.x + 1) / 2 * innerWidth - rPx * 1.55;   // clear of the globe and the wider logotype under it
-    const w = Math.max(180, Math.min(620, Math.floor((edge - 36) / 40) * 40));   // in steps, so it is not re-laid-out as the camera drifts
-    if (Math.abs(w - (V[2]._w || 0)) >= 40 || innerHeight !== V[2]._h) { const el = V[2], x = el.querySelector('.x'); el._w = w; el._h = innerHeight; el.style.width = w + 'px'; el._lines = null;
-      const fits = () => el.offsetTop + el.scrollHeight <= innerHeight * .93;   // too tall: move it up, then drop its star, then make it smaller
+  if (globe && V[2]._v > .001) { tmp.copy(globe.position).project(camera);
+    const rPx = Rg / (camera.position.distanceTo(globe.position) * Math.tan(camera.fov * Math.PI / 360)) * innerHeight / 2, wide = camera.aspect >= 1;
+    const w = wide ? Math.max(180, Math.min(620, Math.floor(((tmp.x + 1) / 2 * innerWidth - rPx * 1.55 - 36) / 40) * 40)) : 0;   // beside the globe and the wider logotype under it
+    const floor = wide ? innerHeight * .93 : Math.floor(((1 - tmp.y) / 2 * innerHeight - rPx * 1.12 - 14) / 24) * 24;   // or above the globe (in steps, so it is not re-laid-out as the camera drifts)
+    if (Math.abs(w - (V[2]._w || 0)) >= 40 || Math.abs(floor - (V[2]._f || 0)) >= 24 || innerHeight !== V[2]._h) { const el = V[2], x = el.querySelector('.x'); el._w = w; el._f = floor; el._h = innerHeight; el.style.width = wide ? w + 'px' : ''; el._lines = null;
+      const fits = () => el.offsetTop + el.scrollHeight <= floor;   // too tall: move it up, then drop its star, then make it smaller
       el.style.top = ''; el.style.fontSize = ''; if (x) x.style.display = '';
-      if (!fits()) el.style.top = Math.max(64, innerHeight * .085) + 'px';
+      if (!fits()) el.style.top = Math.max(76, innerHeight * .085) + 'px';
       if (!fits() && x) x.style.display = 'none';
-      for (let i = 0; i < 4 && !fits(); i++) el.style.fontSize = Math.max(12, parseFloat(getComputedStyle(el).fontSize) * .9) + 'px'; } }
+      for (let i = 0; i < 7 && !fits(); i++) el.style.fontSize = Math.max(11, parseFloat(getComputedStyle(el).fontSize) * .9) + 'px'; } }
   verse(V[2], smooth((tA - 16.7) / .4) * (1 - smooth((after - .3) / .3)));   // after the globe has come to rest and held; it stays a few scrolls before the page turns
 
   // the score follows the story (layers come in as it goes), and the scroll plays it
