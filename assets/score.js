@@ -40,7 +40,7 @@ const KICK = [1, 0, 0, 0, 0, 0, 0, .55, 0, 0, 1, 0, 0, 0, 0, 0], SNARE = [0, 0, 
 const HAT = [.7, 0, .4, 0, .75, 0, .4, .25, .7, 0, .45, 0, .75, 0, .4, .3];
 const BASSLINE = [[0, 0, 1.6], [6, 7, .7], [10, 0, 1.1], [14, -1, .45]];   // [step, interval from root, length in beats]; -1 = approach the next root
 
-function Engine(ctx) {
+function Engine(ctx, level = () => .5) {
   const now = () => ctx.currentTime, T = (p, v, t, k) => p.setTargetAtTime(v, t, k);
   // noise, shared
   const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
@@ -57,7 +57,8 @@ function Engine(ctx) {
   const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 25; hp.Q.value = .7;
   const mix = ctx.createGain();
   const wah = ctx.createBiquadFilter(); wah.type = 'peaking'; wah.frequency.value = 900; wah.Q.value = 3.2; wah.gain.value = 0;   // the mouse sweeps this, like a wah pedal
-  mix.connect(hp); hp.connect(lp); lp.connect(wah); wah.connect(shaper); shaper.connect(comp); comp.connect(out); out.connect(ctx.destination);
+  const push = ctx.createGain();   // pushes the tape harder into saturation (a fast scroll, a moving mouse)
+  mix.connect(hp); hp.connect(lp); lp.connect(wah); wah.connect(push); push.connect(shaper); shaper.connect(comp); comp.connect(out); out.connect(ctx.destination);
   const revRet = ctx.createGain(); revRet.gain.value = .55; verb.connect(revRet); revRet.connect(hp);
   const revSend = ctx.createGain(); revSend.connect(verb);
   // a dotted-eighth echo, darkening as it repeats; the scroll feeds it
@@ -126,7 +127,7 @@ function Engine(ctx) {
     wf.type = 'lowpass'; wf.Q.value = .5; wf.frequency.setValueAtTime(250, t); wf.frequency.exponentialRampToValueAtTime(900 + size * 1300, t + up); wf.frequency.exponentialRampToValueAtTime(260, t + up + down);
     wg.gain.setValueAtTime(.0001, t); wg.gain.exponentialRampToValueAtTime(.5 * size, t + up); wg.gain.exponentialRampToValueAtTime(.0001, t + up + down); w.connect(wf); wf.connect(wg); wg.connect(B.ocean);
     const fo = noise(), ff = ctx.createBiquadFilter(), fg = ctx.createGain(); ff.type = 'bandpass'; ff.frequency.value = 2600; ff.Q.value = .5;   // the foam, breaking just after the swell
-    fg.gain.setValueAtTime(.0001, t); fg.gain.setValueAtTime(.0001, t + up * .8);   // (silent until it breaks) fg.gain.exponentialRampToValueAtTime(.045 * size, t + up + .4); fg.gain.exponentialRampToValueAtTime(.0001, t + up + down * .8);
+    fg.gain.setValueAtTime(.0001, t); fg.gain.setValueAtTime(.0001, t + up * .8); /* silent until it breaks */ fg.gain.exponentialRampToValueAtTime(.045 * size, t + up + .4); fg.gain.exponentialRampToValueAtTime(.0001, t + up + down * .8);
     fo.connect(ff); ff.connect(fg); fg.connect(B.ocean); [w, fo].forEach((x) => { x.start(t); x.stop(t + up + down + .2); }); }
   let arpCut = 900;
   function arp(m, t) {   // a sequencer voice: one saw through a resonant filter that snaps shut
@@ -202,6 +203,7 @@ function Engine(ctx) {
 
   // ── the sequencer ──
   let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0 }, roll = 0, surge = 0;
+  let setT = 0, whC = 1;
   let inTheme = false, tb = 0, ch = CHORDS[0], nx = CHORDS[1], waveAt = 0;
   function schedule(s, t) {
     const bar = Math.floor(s / 16) % 8, i = s % 16, sw = i % 2 ? SIX * SWING : 0, tt = t + sw;
@@ -228,7 +230,7 @@ function Engine(ctx) {
   }
   return {
     ctx, out,
-    start(t) { next = t + .1; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(.75, t + 2.5); },
+    start(t) { next = t + .1; setT = t; out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(level(), t + 2.5); },
     fade(v, t) { T(out.gain, v, t, .4); },
     tick(t) { while (next < t + .2) { schedule(step, next); next += SIX; step++; } },
     // the page tells it where the story is and how the scroll is moving
@@ -241,16 +243,21 @@ function Engine(ctx) {
       T(pWet.gain, s.cc * .3 + s.dl * .75, t, .6); T(pDry.gain, 1 - s.dl * .5, t, .6);
       T(wowG.gain, 7 + s.cc * 26 + s.dl * 48, t, .8);   // the tape wavers more as it goes
       const m = clamp(s.mouse || 0, 0, 1), my = clamp(s.my === undefined ? .5 : s.my, 0, 1);
-      T(wah.gain, m * 15, t, .08); T(wah.frequency, 320 * Math.pow(9, my), t, .06);   // up the screen opens it, down closes it T(B.ocean.gain, L.ocean * (1 + surge * .8), t, 1.2);
+      T(B.ocean.gain, L.ocean * (1 + surge * .8), t, 1.2);
+      T(wah.gain, m * 20, t, .05); T(wah.Q, 3.2 + m * 3, t, .05); T(wah.frequency, 320 * Math.pow(9, my), t, .04);   // up the screen opens the wah, down closes it
       gl('pad', L.pad); gl('ep', L.ep * (1 - L.theme * .55)); gl('bass', L.bass); gl('arp', L.arp); gl('lead', L.lead); gl('crackle', .5 + s.dl * .3);
       T(B.drum.gain, Math.max(L.kick, L.snare, L.hat), t, .4); T(B.stat.gain, s.dl * (.22 + s.tv * .9), t, .05);
       T(drumLP.frequency, s.cc > .3 ? 700 : 9000, t, .5);   // under water
       // the scroll: forward opens the filter, feeds the echo and blows wind; backward rewinds the tape, pitch sagging and the sound going dark
       T(lp.frequency, clamp(s.base * (1 + f * 1.8) * (1 - b * .65), 180, 16000), t, k);
       T(hp.frequency, s.dl > .2 ? 380 + s.dl * 260 : 25, t, .3);   // (Dead) Labor plays through a television's speaker
-      T(pitch.offset, -b * 760 + f * 40 + (s.mx || 0) * m * 35, t, b > .05 ? .09 : .22);   // and sideways the mouse bends the pitch a little
+      // pitch: back rewinds it down; forward speeds the tape up a little; the mouse pushes and pulls the record like a DJ's hand
+      const scr = (s.mvx || 0) * 380 - (s.mvy || 0) * 160;
+      T(pitch.offset, -b * 760 + f * 120 + scr, t, Math.abs(scr) > 20 ? .03 : b > .05 ? .09 : .22);
+      T(push.gain, 1 + f * .7 + m * .8, t, .08); T(out.gain, level() ? level() / (1 + (f * .7 + m * .8) * .45) : 0, t, .15);
       T(fb.gain, clamp(.32 + Math.abs(s.v) * .3, 0, .78), t, .1); T(B.ep.echo.gain, .25 + Math.abs(s.v) * .6, t, .1);
-      T(whG.gain, Math.min(.5, Math.abs(s.v) * .38), t, .08); T(whF.frequency, f > b ? 600 + f * 3200 : Math.max(220, 2600 - b * 1900), t, .12);
+      const dtS = Math.min(.2, Math.max(0, t - (setT || t))); setT = t; whC = clamp(whC - Math.abs(s.v) * dtS * .45 + (Math.abs(s.v) < .15 ? dtS * .2 : 0), 0, 1);   // the whoosh tires, and recovers
+      T(whG.gain, Math.min(.5, Math.abs(s.v) * .38) * (.2 + .8 * whC), t, .08); T(whF.frequency, f > b ? 600 + f * 3200 : Math.max(220, 2600 - b * 1900), t, .12);
       arpCut = clamp(700 + f * 3800 - b * 400 + s.ecl * 500, 300, 6000);
     },
     impact, swell, scratch, explode, form, lock, rush, emerge,
@@ -264,17 +271,17 @@ const $ = (id) => document.getElementById(id), btn = $('snd'), mute = $('mute'),
 const level = () => (on ? vol : 0);
 const paint = () => { const audible = on && E && E.ctx.state === 'running';
   [btn, mute].forEach((b) => { if (!b) return; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
-  if (btn) btn.classList.toggle('live', !!audible); if (mute) mute.setAttribute('aria-label', on ? 'Mute' : 'Unmute');
+  if (btn) btn.classList.toggle('live', !!audible); if (wrap) wrap.classList.toggle('ask', on && !!E && E.ctx.state !== 'running'); if (mute) mute.setAttribute('aria-label', on ? 'Mute' : 'Unmute');
   if (slider) { slider.value = Math.round(vol * 100); slider.style.setProperty('--v', Math.round(vol * 100) + '%'); } };
 function boot() {   // build it straight away; the browser lets it sound once the visitor has touched the page
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC || E) return;
-  E = Engine(new AC({ latencyHint: 'playback' })); E.start(E.ctx.currentTime); setInterval(() => E.tick(E.ctx.currentTime), 40);
+  E = Engine(new AC({ latencyHint: 'playback' }), level); E.start(E.ctx.currentTime); setInterval(() => E.tick(E.ctx.currentTime), 40);
   E.ctx.onstatechange = paint; E.fade(level(), E.ctx.currentTime); if (on) E.ctx.resume().catch(() => {}); paint(); }
 const set = (o) => { on = o; store('3w-sound', on ? 'on' : 'off'); if (!E) boot(); E.fade(level(), E.ctx.currentTime); if (on) E.ctx.resume(); paint(); };
 const unlock = () => { if (!E) boot(); if (on && E.ctx.state !== 'running') E.ctx.resume().then(paint, () => {}); };
 ['pointerdown', 'keydown', 'touchend', 'click'].forEach((ev) => addEventListener(ev, unlock, { capture: true, passive: true }));
 const touch = matchMedia('(hover: none)').matches;
-if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); if (touch && wrap && !wrap.classList.contains('open')) { wrap.classList.add('open'); return; } set(!on); });
+if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); if (on && E && E.ctx.state !== 'running') { E.ctx.resume().then(paint, () => {}); return; }   /* asking: this tap is the one that lets it play */ if (touch && wrap && !wrap.classList.contains('open')) { wrap.classList.add('open'); return; } set(!on); });
 if (mute) mute.addEventListener('click', (e) => { e.stopPropagation(); set(!on); });
 if (slider) slider.addEventListener('input', () => { vol = slider.value / 100; store('3w-vol', vol); paint(); if (vol > 0 && !on) set(true); else if (E) E.fade(level(), E.ctx.currentTime); });
 if (wrap) addEventListener('pointerdown', (e) => { if (!wrap.contains(e.target)) wrap.classList.remove('open'); }, true);
@@ -288,6 +295,8 @@ window.Score3W = {
   update(s, dt) {
     if (!E || !on || E.ctx.state !== 'running') { last.tA = s.tA; if (s.rise !== undefined) last.rise = s.rise; return; }
     const t = E.ctx.currentTime, v = clamp(s.vel / 1800, -1.6, 1.6);
+    const mdir = Math.abs(s.mvx || 0) > .55 ? Math.sign(s.mvx) : 0;   // a hard sideways flick of the mouse catches the record too
+    if (mdir && last.mdir && mdir !== last.mdir && t - (last.mt || 0) > .18) { E.scratch(t + .005, mdir); last.mt = t; } if (mdir) last.mdir = mdir;
     // a hard change of direction catches the record
     const dir = Math.abs(v) > .35 ? Math.sign(v) : 0; if (dir && last.dir && dir !== last.dir && t - last.t > .25) { E.scratch(t + .01, dir); last.t = t; } if (dir) last.dir = dir;
     // the sea's walls meeting: forward, the crash; back through it, the crash in reverse
