@@ -116,8 +116,9 @@ function loop(now) {
   S.tap = Math.max(0, S.tap - dt / .34); const tp = S.tap > 0 ? Math.sin((1 - S.tap) * Math.PI) : 0, strike = tp * (1 - S.tap < .35 ? 1 : 1);   // 0 -> 1 -> 0
   if (hand) {
     FING.forEach((f, i) => ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'].forEach((j, n) => { const b = bones[f + '-' + j]; if (!b) return;
-      b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), (cur.c[i] + (i === 1 ? strike * (n === 0 ? .62 : .04) : 0)) * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
+      b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), cur.c[i] * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
       if (n === 0 && i > 0) b.quaternion.multiply(q.setFromAxisAngle(ax.set(0, 0, 1), cur.s * (i - 2.3))); }));   // spread
+    const im = bones['index-finger-metacarpal']; if (im) im.quaternion.copy(rest[im.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), strike * .5));   // the tap: the whole finger swings on a hinge inside the palm, rigid, no crease at the knuckle
     const tm = bones['thumb-metacarpal']; if (tm) tm.quaternion.copy(rest[tm.name]).multiply(q.setFromAxisAngle(ax.set(0, -1, 0), cur.c[0] * .45));   // the thumb stays as modelled unless the hand grips
     // sway: the hand tips into its motion, and breathes when still
     const sp = Math.hypot(S.vx, S.vy), poke = tp * .6, rear = 0, gr = grabbing ? 1 : 0;
