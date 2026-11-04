@@ -77,6 +77,11 @@ function Engine(ctx, level = () => .5) {
     if (rev) { const s = ctx.createGain(); s.gain.value = rev; v.connect(s); s.connect(revSend); } if (echo) { const s = ctx.createGain(); s.gain.value = echo; v.connect(s); s.connect(dlSend); b.echo = s; } return b; };
   const B = { pad: bus(.55, .7), ep: bus(.5, .45, .35), bass: bus(.8, .05), drum: bus(.75, .12), arp: bus(.32, .5, .8), lead: bus(.3, .7, .6), piano: bus(.75, .85, .18), crackle: bus(.5), stat: bus(.28, .2), fx: bus(.5, .8, .3) };
   B.fx.gain.value = 1;   // (one-shots, the wind and the dread play straight through)
+  // the crosses coming apart and being put back together as the hand: a low machine hum, a filter opening as the work goes on
+  B.build = ctx.createGain(); B.build.gain.value = 0; { const r = ctx.createGain(); r.gain.value = .5; B.build.connect(mix); B.build.connect(r); r.connect(revSend); }
+  const bF = ctx.createBiquadFilter(); bF.type = 'bandpass'; bF.Q.value = 4; bF.frequency.value = 400; bF.connect(B.build);
+  const bL = ctx.createOscillator(), bLg = ctx.createGain(); bL.frequency.value = .23; bLg.gain.value = 140; bL.connect(bLg); bLg.connect(bF.frequency); bL.start();
+  [[38, -7, 'sawtooth'], [38, 7, 'sawtooth'], [45, 0, 'square'], [62, 3, 'triangle']].forEach(([m, d, ty]) => { const o = osc(ty, mtof(m), 0); o.detune.value = d; const g = ctx.createGain(); g.gain.value = ty === 'square' ? .25 : .5; o.connect(g); g.connect(bF); o.start(); });
   B.ocean = ctx.createGain(); B.ocean.gain.value = 0; { const v = ctx.createGain(); v.gain.value = .42; B.ocean.connect(v); v.connect(lp); const r = ctx.createGain(); r.gain.value = .25; v.connect(r); r.connect(revSend); }   // the sea stays out of the television
   const pIn = ctx.createGain(), pLP = ctx.createBiquadFilter(), pDry = ctx.createGain(), pCr = ctx.createWaveShaper(), pWet = ctx.createGain();
   pLP.type = 'lowpass'; pLP.frequency.value = 14000; pLP.Q.value = .7; pWet.gain.value = 0;
@@ -216,7 +221,7 @@ function Engine(ctx, level = () => .5) {
   const wh = noise(), whF = ctx.createBiquadFilter(), whG = ctx.createGain(); whF.type = 'bandpass'; whF.Q.value = 1.6; whF.frequency.value = 900; whG.gain.value = 0; wh.connect(whF); whF.connect(whG); whG.connect(B.fx); wh.start();   // the scroll's wind
 
   // ── the sequencer ──
-  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0 }, roll = 0, surge = 0;
+  let next = 0, step = 0, L = { pad: 0, ep: 0, bass: 0, kick: 0, snare: 0, hat: 0, arp: 0, lead: 0, piano: 0, theme: 0, ocean: 0, dread: 0, build: 0 }, roll = 0, surge = 0;
   let setT = 0, whC = 1; const echo = {};
   // each gesture's figures, one picked per pass: straight, syncopated, and something in between
   const ECHO = {
@@ -246,6 +251,8 @@ function Engine(ctx, level = () => .5) {
     if (L.hat > .01) { if (HAT[i]) hat(tt, HAT[i] * (.85 + Math.random() * .3), i === 14 && bar % 2); if (roll > .5) hat(tt + SIX / 2, .45 * roll); }   // a fast scroll rolls the hats
     if (L.arp > .01) { const n = ch.tones.length, k = s % (n * 2), m = ch.tones[k % n] + (k >= n ? 12 : 0); arp(m, tt); }
     if (L.dread > .01 && i === 0) dread(t, SIX * 16);
+    if (L.build > .05 && Math.random() < .3 + L.build * .25) { const m = ch.tones[(Math.random() * ch.tones.length) | 0] + 24, o = osc('sine', mtof(m), tt), o2 = osc('sine', mtof(m) * 2.76, tt), g = ctx.createGain();   // and small metal sounds, fitted to the beat
+      env(g, tt, .001, .035 * L.build, .05 + Math.random() * .08); o.connect(g); o2.connect(g); g.connect(B.build); g.connect(dlSend); o.start(tt); o2.start(tt); o.stop(tt + .6); o2.stop(tt + .6); }
     for (const kk in echo) { const e = echo[kk], rel = s - e.s0; if (rel < 0) continue;   // a gesture's sound carries on in the groove: it fades away, rests, and comes back in, on the beat
       const cyc = Math.floor(rel / (PLAY + REST)), pos = rel % (PLAY + REST); if (cyc >= PASSES) { delete echo[kk]; continue; } if (pos >= PLAY) continue;
       const x = pos / PLAY, amp = cyc === 0 ? 1 - x * .9 : Math.sin(x * Math.PI) * (1 - cyc * .2), hit = e.pats[cyc][i]; if (hit) ui(kk, tt, hit * amp * .75); }
@@ -261,7 +268,7 @@ function Engine(ctx, level = () => .5) {
       const f = Math.max(0, s.v), b = Math.max(0, -s.v), k = .12;
       L = s.layers; roll = f;
       const gl = (name, v) => T(B[name].gain, v, t, .6);
-      surge = s.surge || 0; gl('piano', L.piano);
+      surge = s.surge || 0; gl('piano', L.piano); T(B.build.gain, (L.build || 0) * .32, t, .5); T(bF.frequency, 380 + clamp(((s.tA || 0) - 1.2) / 8, 0, 1) * 1900, t, .4);
       T(pLP.frequency, s.dl > .2 ? 1700 : s.cc > .2 ? 1000 : 14000, t, .6); T(pLP.Q, s.dl > .2 ? 4 : .7, t, .6);
       T(pWet.gain, s.cc * .3 + s.dl * .75, t, .6); T(pDry.gain, 1 - s.dl * .5, t, .6);
       T(wowG.gain, 7 + s.cc * 26 + s.dl * 48, t, .8);   // the tape wavers more as it goes
@@ -334,7 +341,6 @@ window.Score3W = {
       if (cross(9.2) > 0) E.rush(t + .01);                                                    // the sea begins to run in
       const ok = t - (last.crash || -9) > 5; if (cross(13.4) && ok) last.crash = t;
       if (cross(13.4) > 0 && ok) { E.swell(t, true); E.impact(t + .05); } else if (cross(13.4) < 0 && ok) E.swell(t, false); }   // the walls of the sea meet
-    if (s.rise !== undefined) { if ((last.rise || 0) < .03 && s.rise >= .03) E.emerge(t + .01); last.rise = s.rise; }   // the man breaks the surface
     last.tA = s.tA;
     acc += dt; if (acc < .05) return; acc = 0;
     E.set(Object.assign({}, s, { v }), t); },

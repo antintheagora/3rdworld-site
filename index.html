@@ -280,7 +280,7 @@ html.godhand, html.godhand * { cursor: none !important }
         <p class="cc-year in" style="--a:.18">Two thousand and twenty-fi’ years<br>after the birth of Jesus</p>
         <img class="cc-laurel in" style="--a:.26" src="assets/laurel-sq.webp" alt="Official selection, San Quentin Film Festival 2025" width="640" height="482">
         <div class="go in" style="--a:.3">
-          <a href="https://letterboxd.com/film/christians-and-cannibals/watch/" target="_blank" rel="noopener">Watch ↗&#xFE0E;</a>
+          <a href="https://youtu.be/mHIJA1VRBOk" target="_blank" rel="noopener">Watch ↗&#xFE0E;</a>
           <a href="https://www.youtube.com/watch?v=Ha8-HxUzMpY" target="_blank" rel="noopener">Trailer ↗&#xFE0E;</a>
           <a href="https://christiansandcannibals.com" target="_blank" rel="noopener">Site ↗&#xFE0E;</a>
         </div>
@@ -1287,7 +1287,7 @@ function frame(now) {
     const films = Math.max(ccOn, dlOn, foot, smooth(after / .6));
     const L = { pad: .8 + .2 * smooth(intro), ep: sm(.2, 1.4, tA) * (1 - dlOn * .4), bass: sm(1.4, 3, tA) * (1 - foot), kick: (sm(3.4, 5, tA) * .6 + red * .4) * (1 - foot),
       snare: sm(6, 7.5, tA) * (1 - foot), hat: sm(6, 7.5, tA) * (1 - foot) * (1 - ccOn * .6), arp: sm(9.4, 10.8, tA) * (1 - sm(15.6, 17, tA)) * (1 - films), lead: sm(13, 14.5, tA) * (1 - films),
-      theme: sm(9.2, 9.9, tA) * (1 - foot), piano: sm(9.2, 9.9, tA) * (1 - foot * .85), ocean: sm(9.15, 9.6, tA), dread: dlOn };
+      theme: sm(9.2, 9.9, tA) * (1 - foot), piano: sm(9.2, 9.9, tA) * (1 - foot * .85), ocean: sm(9.15, 9.6, tA), dread: dlOn, build: sm(1.2, 1.9, tA) * (1 - sm(8.8, 9.5, tA)) };
     if (intro < 1) Object.keys(L).forEach((k) => { if (k !== 'pad') L[k] *= smooth(intro); });
     mSp = lerp(mSp, Math.min(1, mDist / Math.max(dt, .008) / 2600), mDist ? .3 : .08); mDist = 0;
     const cl = (x) => Math.max(-1, Math.min(1, x)); mvx = lerp(mvx, cl(mDx / Math.max(dt, .008) / 1800), .35); mvy = lerp(mvy, cl(mDy / Math.max(dt, .008) / 1800), .35); mDx = mDy = 0;

@@ -47,7 +47,7 @@ const POSE = {
   grab:  { c: [-.25, -.42, -.46, -.46, -.44], s: .26 },   // fingers bent back, splayed: pressed flat to the page, holding it
 };
 const FING = ['thumb', 'index-finger', 'middle-finger', 'ring-finger', 'pinky-finger'];
-let hand = null, root = null, bones = {}, rest = {}, tip = null;
+let hand = null, root = null, bones = {}, rest = {}, tip = null, dist = null; const distV = V3();
 const cur = { c: POSE.rest.c.slice(), s: POSE.rest.s };
 
 const toGLB = (j) => { const uri = j.buffers[0].uri, bin = Uint8Array.from(atob(uri.slice(uri.indexOf(',') + 1)), (c) => c.charCodeAt(0)); delete j.buffers[0].uri;
@@ -56,7 +56,7 @@ const toGLB = (j) => { const uri = j.buffers[0].uri, bin = Uint8Array.from(atob(
   const o = 20 + js.length + jp; dv.setUint32(o, bin.length + bp, true); dv.setUint32(o + 4, 0x004E4942, true); out.set(bin, o + 8); return out.buffer; };
 fetch('assets/hand.gltf.json').then((r) => r.json()).then((j) => new THREE.GLTFLoader().parse(toGLB(j), 'assets/', (g) => {
   hand = g.scene; hand.traverse((o) => { if (o.isMesh) { o.material = skin; o.frustumCulled = false; } if (/wrist|finger|thumb/.test(o.name)) { bones[o.name] = o; rest[o.name] = o.quaternion.clone(); } });
-  tip = bones['index-finger-tip'];
+  tip = bones['index-finger-tip']; dist = bones['index-finger-phalanx-distal'];
   hand.traverse((o) => { if (!o.isSkinnedMesh || o.userData.wire) return;   // the mesh's own lines, glowing over it
     const w = new THREE.SkinnedMesh(o.geometry, wire); w.userData.wire = true; w.bind(o.skeleton, o.bindMatrix); w.frustumCulled = false; w.renderOrder = 2; o.parent.add(w); });
   // the model's fingers point down (-y) with the palm to -x: turn it so it reaches up and to the left, palm down and away from us
@@ -67,7 +67,7 @@ fetch('assets/hand.gltf.json').then((r) => r.json()).then((j) => new THREE.GLTFL
   start(); }, () => {}));
 
 // ── the pointer ──
-const S = { wheel: 0, wdir: 1, tap: 0, tapK: 'left', x: innerWidth / 2, y: innerHeight / 2, hx: innerWidth / 2, hy: innerHeight / 2, vx: 0, vy: 0, seen: false, over: false, pose: 'rest', act: 0, actPose: null, mid: false, vis: 0, touchT: -1, fling: 0 };
+const S = { press: 0, hold: 0, wheel: 0, wdir: 1, tap: 0, tapK: 'left', x: innerWidth / 2, y: innerHeight / 2, hx: innerWidth / 2, hy: innerHeight / 2, vx: 0, vy: 0, seen: false, over: false, pose: 'rest', act: 0, actPose: null, mid: false, vis: 0, touchT: -1, fling: 0 };
 const target = (e) => e && e.target && e.target.closest && e.target.closest('a, button, input, select, textarea, [role=button], label');
 function ripple(x, y, kind) {   // red rings on a click; a burst of sparks on a right click
   const d = document.createElement('div'); d.className = 'hand-fx ' + kind; d.style.left = x + 'px'; d.style.top = y + 'px';
@@ -77,7 +77,7 @@ function act(pose, dur) { S.actPose = pose; S.act = dur; }
 const sfx = (k) => { if (window.Score3W && Score3W.fx) Score3W.fx(k); };
 function tap(e, kind) { S.tap = 1; S.tapK = kind; act('tap', .34); ripple(e.clientX, e.clientY, kind === 'right' ? 'burst' : 'ring'); sfx(kind); }   // the index finger strikes down and springs back
 if (FINE) {
-  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; S.x = e.clientX; S.y = e.clientY; S.over = !!target(e); if (!S.seen) { S.seen = true; S.hx = S.x; S.hy = S.y; }
+  addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; S.x = e.clientX; S.y = e.clientY; const ov = !!target(e); if (ov && !S.over) S.press = 1; S.over = ov; if (!S.seen) { S.seen = true; S.hx = S.x; S.hy = S.y; }
     if (S.mid) { scrollBy(0, -e.movementY * 3.2); S.fling = lerp(S.fling, -e.movementY * 3.2, .5); } }, { passive: true });
   addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return;
     if (e.button === 0) { tap(e, 'left'); }
@@ -90,10 +90,11 @@ if (FINE) {
   document.addEventListener('mouseleave', () => { S.seen = false; });
   document.addEventListener('mouseenter', () => { S.seen = true; });
 } else {
-  addEventListener('touchstart', (e) => { const t = e.touches[0]; if (!t) return; S.x = S.hx = t.clientX; S.y = S.hy = t.clientY; S.seen = true; S.touchT = 1e9; S.tap = 1; S.tapK = 'left'; act('tap', .34); sfx('left'); }, { passive: true });
-  addEventListener('touchmove', (e) => { const t = e.touches[0]; if (!t) return; S.x = t.clientX; S.y = t.clientY; S.pose = 'grab'; }, { passive: true });
-  addEventListener('touchend', () => { S.touchT = .9; S.pose = 'rest'; }, { passive: true });
-  addEventListener('scroll', () => { if (S.touchT < 1e8) { S.touchT = Math.max(S.touchT, .6); S.wheel = .3; } }, { passive: true });   // it stays, holding the page, while the page glides on
+  const wake = () => { if (S.vis < .05) { S.hx = S.x; S.hy = S.y; S.vx = S.vy = 0; } S.seen = true; S.lastT = performance.now(); };   // gone: it appears where you touch; still there: it travels over
+  addEventListener('touchstart', (e) => { const t = e.touches[0]; if (!t) return; S.x = t.clientX; S.y = t.clientY; wake(); S.tdown = true; }, { passive: true });
+  addEventListener('touchmove', (e) => { const t = e.touches[0]; if (!t) return; S.x = t.clientX; S.y = t.clientY; S.pose = 'grab'; S.wdir = Math.sign(S.ly - t.clientY) || S.wdir; S.ly = t.clientY; wake(); }, { passive: true });
+  addEventListener('touchend', (e) => { if (S.pose !== 'grab' && S.tdown) { S.tap = 1; S.tapK = 'left'; act('tap', .34); sfx('left'); } S.tdown = false; S.pose = 'rest'; S.lastT = performance.now(); }, { passive: true });
+  addEventListener('scroll', () => { if (!S.seen) { S.x = S.hx = innerWidth * .62; S.y = S.hy = innerHeight * .62; } wake(); S.wheel = .35; }, { passive: true });   // even a scroll with no finger seen: it shows, holding the page
 }
 
 // ── animate ──
@@ -103,17 +104,21 @@ function start() { if (FINE) document.documentElement.classList.add('godhand'); 
 function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
   // follow with weight: a spring, so it lags and swings like a hand moved by an arm
-  const ax2 = (S.x - S.hx) * 120 - S.vx * 15, ay2 = (S.y - S.hy) * 120 - S.vy * 15; S.vx += ax2 * dt; S.vy += ay2 * dt; S.hx += S.vx * dt; S.hy += S.vy * dt;
+  const K = FINE ? 120 : 26, D = FINE ? 15 : 9, ax2 = (S.x - S.hx) * K - S.vx * D, ay2 = (S.y - S.hy) * K - S.vy * D; S.vx += ax2 * dt; S.vy += ay2 * dt; S.hx += S.vx * dt; S.hy += S.vy * dt;
   if (!S.mid && Math.abs(S.fling) > .5) { scrollBy(0, S.fling); S.fling *= Math.pow(.02, dt); }   // the world keeps moving a little after you let go
-  if (S.touchT < 1e8) S.touchT -= dt;
-  const want = FINE ? (S.seen ? 1 : 0) : (S.touchT > 0 ? 1 : 0); S.vis = lerp(S.vis, want, 1 - Math.exp(-dt * (want ? 10 : 5)));
+  const idle = FINE ? 0 : (now - (S.lastT || -1e9)) / 1000;
+  const want = FINE ? (S.seen ? 1 : 0) : (idle < 2.5 ? 1 : 0); S.vis = lerp(S.vis, want, 1 - Math.exp(-dt * (want ? 10 : 2.2)));
+  if (!FINE && S.vis < .01) S.seen = false;
   cv.style.opacity = S.vis.toFixed(3);
+  if (!FINE) cv.style.filter = `blur(${((1 - S.vis) * 6).toFixed(1)}px) drop-shadow(0 0 5px rgba(255,40,30,.85)) drop-shadow(0 0 16px rgba(255,0,0,.45))`;   // on touch screens it dissolves away when left alone
   if (S.act > 0) S.act -= dt;
   if (S.wheel > 0) S.wheel -= dt; const grabbing = S.mid || S.wheel > 0 || S.pose === 'grab';
   const pose = POSE[S.act > 0 ? S.actPose : grabbing ? 'grab' : S.over ? 'point' : S.pose] || POSE.rest;
   const k = 1 - Math.exp(-dt * (S.act > 0 ? 22 : 11));
   for (let i = 0; i < 5; i++) cur.c[i] = lerp(cur.c[i], pose.c[i], k); cur.s = lerp(cur.s, pose.s, k);
-  S.tap = Math.max(0, S.tap - dt / .34); const tp = S.tap > 0 ? Math.sin((1 - S.tap) * Math.PI) : 0, strike = tp * (1 - S.tap < .35 ? 1 : 1);   // 0 -> 1 -> 0
+  S.tap = Math.max(0, S.tap - dt / .34); const tp = S.tap > 0 ? Math.sin((1 - S.tap) * Math.PI) : 0, strike0 = tp;   // 0 -> 1 -> 0
+  S.press = Math.max(0, S.press - dt / .32); S.hold = lerp(S.hold, S.over && !grabbing ? .45 : 0, 1 - Math.exp(-dt * 9));   // hovering: the same press, held part way
+  const strike = Math.max(strike0, S.hold, S.press > 0 ? Math.sin((1 - S.press) * Math.PI) : 0);   // a click strikes; entering a link presses once, then holds part way
   if (hand) {
     FING.forEach((f, i) => ['phalanx-proximal', 'phalanx-intermediate', 'phalanx-distal'].forEach((j, n) => { const b = bones[f + '-' + j]; if (!b) return;
       b.quaternion.copy(rest[b.name]).multiply(q.setFromAxisAngle(ax.set(-1, 0, 0), cur.c[i] * (i === 0 ? .8 : 1) * (n === 0 ? 1.05 : .95)));
@@ -126,11 +131,13 @@ function loop(now) {
     root.rotation.set(clamp01(Math.abs(S.vy) / 3000) * Math.sign(S.vy) * .5 + Math.sin(t * .9) * .03 + gripV * .35 - grabK * .25, -S.vx / 3000 * .6 + Math.sin(t * .7) * .04, -S.vx / 2600 * .5);
     grabK = lerp(grabK, gr, 1 - Math.exp(-dt * 10)); root.position.set(0, Math.sin(t * 1.1) * .004 + gripV * .02, -poke * .05 - grabK * .04);
     glow.value = lerp(glow.value, S.over || grabbing ? 1 : 0, 1 - Math.exp(-dt * 12)); tapG.value = Math.max(tp, tapG.value * Math.exp(-dt * 5)); halo.material.opacity = .25 + glow.value * .75; hT.value = t; wire.opacity = .16 + glow.value * .3 + Math.sin(t * 3) * .04;
-    scene.updateMatrixWorld(true); tip.getWorldPosition(tipV); halo.position.copy(tipV).add(V3(.02, -.02, -.05));
+    scene.updateMatrixWorld(true); tip.getWorldPosition(tipV); if (dist) { dist.getWorldPosition(distV); tipV.addScaledVector(tipV.clone().sub(distV), .45); }   // out to the end of the finger
+    halo.position.copy(tipV).add(V3(.02, -.02, -.05));
     tipV.project(cam);
     // the fingertip sits exactly on the pointer (the weight is all in the swing)
     const px = (tipV.x + 1) / 2 * SIZE, py = (1 - tipV.y) / 2 * SIZE;
-    cv.style.transform = `translate(${(S.x - px).toFixed(1)}px, ${(S.y - py).toFixed(1)}px)`;
+    const ox = FINE ? S.x : S.hx, oy = FINE ? S.y : S.hy, sc = FINE ? 1 : .8 + .2 * S.vis;
+    cv.style.transform = `translate(${(ox - px).toFixed(1)}px, ${(oy - py).toFixed(1)}px) scale(${sc.toFixed(3)})`; cv.style.transformOrigin = `${px.toFixed(0)}px ${py.toFixed(0)}px`;
     if (S.vis > .01) renderer.render(scene, cam); }
   requestAnimationFrame(loop); }
 })();
